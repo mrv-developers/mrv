@@ -9,6 +9,8 @@ import mrv.util as util
 from mrv.util import capitalize,uncapitalize
 import networkx.exception as networkxexc
 
+import traceback
+
 import weakref
 
 __all__ = ("noneToList", "isIterable", "pythonToMel", "makeEditOrQueryMethod", 
@@ -34,6 +36,32 @@ def pythonToMel(arg):
 	return unicode(arg)
 #} END utility functions
 
+
+#{ Decorator
+
+def logException(func):
+	"""Decorator which shows short exception information in a popup and a full
+	stack trace to stdout. Finally the exception will be reraised"""
+	def wrapper(*args, **kwargs):
+		try:
+			return func(*args, **kwargs)
+		except Exception, e:
+			# print a full stack trace - for now not using the log
+			traceback.print_exc()
+			
+			if api.MGlobal.mayaState() == api.MGlobal.kInteractive:
+				import mrv.maya.ui as ui
+				msg = str(e) + "\n\nSee the script editor for details"
+				ui.ChoiceDialog(	t=str(type(e)),
+									m=msg,
+									c=['Confirm'] ).choice()
+			# END show popup
+			raise
+	# END wrapper
+	wrapper.__name__ = func.__name__
+	return wrapper
+
+#} END decorator
 
 #{ MEL Function Wrappers
 

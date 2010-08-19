@@ -43,7 +43,10 @@ if not init_done:
 	from layout import *
 	from panel import *
 	from editor import *
-	from util import Signal
+	from util import (
+						Signal, 
+						EventSenderUI
+					)
 	
 	# automatic types need to be created in the end !
 	force_type_creation()
