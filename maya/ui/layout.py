@@ -36,7 +36,7 @@ class Layout( uibase.SizedControl, uiutil.UIContainerBase ):
 		
 		:return: self
 		:note: can safely be called several times """
-		cmds.setParent( self.parent( ) )
+		cmds.setParent(self._parentString())
 		return self
 
 	#{ Properties
