@@ -322,6 +322,20 @@ class TextScrollList( uibase.SizedControl ):
 			return tuple()
 		# END handle exceptions
 	
+	def selectedItem(self):
+		""":return: the first selected item, or None if nothing is selected"""
+		items = self.selectedItems()
+		return (items and items[0]) or None
+	
+	def selectedItems(self):
+		""":return: tuple of all selected items as strings, or an empty tuple if nothing
+			is selected"""
+		try:
+			return tuple(noneToList(self.p_selectItem))
+		except RuntimeError:
+			return tuple()
+		# END handle exceptions
+	
 	#} END interface
 
 

@@ -12,19 +12,27 @@ if not cmds.about(batch=1):
 			col = ui.ColumnLayout(adj=True)
 			
 			tsl = ui.TextScrollList(allowMultiSelection=True)
-			tsl.p_append = "one"
+			first = "one"
+			tsl.p_append = first
 			tsl.p_append = "two"
 			
 			assert tsl.selectedIndex() == -1
+			assert tsl.selectedItem() is None
+			assert len(tsl.selectedItems()) == 0
 			assert len(tsl.selectedIndices()) == 0
 			
 			tsl.p_selectIndexedItem = 1
 			assert tsl.selectedIndex() == 1
+			assert tsl.selectedItem() == first
+			assert len(tsl.selectedItems()) == 1
 			assert len(tsl.selectedIndices()) == 1
+			
 			
 			tsl.p_selectIndexedItem = 2
 			# just shows the first selected one
 			assert tsl.selectedIndex() == 1
+			assert tsl.selectedItem() == first
+			assert len(tsl.selectedItems()) == 2
 			assert len(tsl.selectedIndices()) == 2 
 			
 			win.show()
