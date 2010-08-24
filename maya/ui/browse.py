@@ -128,6 +128,18 @@ class FinderElement(ui.TextScrollList):
 		if index < 0:
 			return None
 		return self.items[index-1]
+		
+	def select_unformatted_item(self, index_or_item):
+		"""Select the unformatted item as identified by either the index or item
+		:param index_or_item: integer representing the 0-based index of the item to 
+			select, or the item's id
+		:raise ValueError: if the item does not exist"""
+		index = index_or_item
+		if not isinstance(index_or_item, int):
+			index = self.items.index(index_or_item)
+		self.p_selectIndexedItem = index+1
+			
+		
 			
 #} END utilities
 
@@ -178,16 +190,35 @@ class Finder(ui.EventSenderUI):
 	def selected_url(self):
 		""":return: string representing the currently selected, / separated URL, or
 			None if there is no url selected"""
+		tokens = list()
+		for elm in self._form.listChildren():
+			sel_item = elm.selected_unformatted_item()
+			if sel_item is not None:
+				tokens.append(sel_item)
+			else:
+				break
+		# END for each element
+		
+		return "/".join(tokens) or None
 		
 	def num_url_tokens(self):
 		""":return: number of url tokens that are currently shown. A url of 1/2 would
 		have two url tokens"""
 		return len(tuple(c for c in self._form.listChildren() if c.p_manage))
 		
-	def stored_url_token_by_index(self, index):
-		""":return: The selected url token at the given index
+	def selected_url_token_by_index(self, index):
+		""":return: The selected url token at the given index or None if nothing 
+			is selected
 		:param index: 0 to num_url_tokens()-1
 		:raies IndexError:"""
+		return self._form.listChildren()[index].selected_unformatted_item()
+		
+	def url_tokens_by_index(self, index):
+		""":return: tuple of token ids which are currently being shown
+		:param index: 0 based index to num_url_tokens
+		:raise IndexError:"""
+		return tuple(self._form.listChildren()[index].items) 
+		
 	
 	#} END Query
 	
@@ -211,12 +242,26 @@ class Finder(ui.EventSenderUI):
 			self._set_element_visible(0)
 		# END handle initial setup
 	
-	def set_token(self, token, index):
+	def _set_token_by_index(self, elm, index, token):
+		self._set_element_visible(index)
+		elm.select_unformatted_item(token)
+		self.provider().store_url_token(index, token)
+		self._set_element_visible(index+1)
+	
+	def set_token_by_index(self, token, index):
 		"""Set the given string token, which sits at the given index of a url
 		:raise ValueError: if token does not exist at given index
 		:raise IndexError: if index is not currently shown"""
 		assert self.provider() is not None, "Provider is not set"
-	
+		elm = self._form.listChildren()[index]
+		if elm.selected_unformatted_item() == token:
+			return
+		# END early abort if nothing changes
+		self._set_token_by_index(elm, index, token)
+		
+		self.selection_changed.send()
+		self.url_changed.send(self.selected_url())
+		
 	def set_url(self, url, require_all_tokens=True):
 		"""Set the given url to be selected
 		:param url: / separated relative url. The individual tokens must be available
@@ -224,6 +269,31 @@ class Finder(ui.EventSenderUI):
 		:parm require_all_tokens: if False, the control will display as many tokens as possible.
 			Otherwise it must display all given tokens, or raise ValueError"""
 		assert self.provider() is not None, "Provider is not set"
+		cur_url = self.selected_url()
+		if cur_url == url:
+			return
+		# END ignore similar urls
+		
+		for eid, token in enumerate(url.split("/")):
+			elm = self._form.listChildren()[eid]
+			if elm.selected_unformatted_item() == token:
+				continue
+			# END skip tokens which already match
+			try:
+				self._set_token_by_index(elm, eid, token)
+			except ValueError:
+				if not require_all_tokens:
+					break
+				# restore previous url
+				self.set_url(cur_url)
+				raise
+			# END handle exceptions
+		# END for each token to set
+		
+		self.selection_changed.send()
+		self.url_changed.send(self.selected_url())
+		
+		
 		
 	#} END edit
 	
@@ -298,8 +368,7 @@ class Finder(ui.EventSenderUI):
 			# END handle item memorization
 			
 			try:
-				index = items.index(sel_item)
-				elm.p_selectIndexedItem = index+1
+				elm.select_unformatted_item(sel_item)
 			except (RuntimeError, ValueError):
 				manage=False
 				continue
