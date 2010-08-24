@@ -42,10 +42,22 @@ class iFinderProvider(object):
 		:param url: A given slash-separated url like base/subitem or '', which 
 			requests tokens at the root of all urls"""
 		raise NotImplementedError("To be implemented by subclass")
+		
+	def format_token(self, url_base, url_index, url_token):
+		"""Given the url_token, as well as additional information such as its base
+		and its index inside of the url, this method encodes the token for presentation
+		in the user interface.
+		:param url_base: relative url at which the url_token resides. Is "" if url_index 
+			is 0
+		:param url_index: index representing the position of the url_token within the
+			url
+		:param url_token: token which is to be formatted.
+		:return: string representing the formatted url."""
+		return url_token
 			
 	def store_url_token(self, url_index, url_token):
 		"""Stores and associates a given url_index with a url_token. Makes the stored
-		token queryable by the ``url_token_by_index`` method
+		token queryable by the ``stored_url_token_by_index`` method
 		:param url_index: index from 0 to n, where 0 corresponds to the first token
 			in the url
 		:param url_token: the string token to store at the given index"""
@@ -54,7 +66,7 @@ class iFinderProvider(object):
 		# END ignore store call
 		self._mem_tokens[url_index] = url_token
 		
-	def url_token_by_index(self, url_index):
+	def stored_url_token_by_index(self, url_index):
 		""":return: string token previously stored at the given index, or None 
 		if there is no information available"""
 		return self._mem_tokens.get(url_index, None)
@@ -74,16 +86,48 @@ class FileProvider(iFinderProvider):
 		""":param root: Path representing the root file url, as path into the file system"""
 		super(FileProvider, self).__init__()
 		self._root = root
+
+	def format_token(self, url_base, url_index, url_token):
+		return url_token
 		
 	def url_tokens(self, url):
+		"""Return directory tokens alphabetically, directories first"""
 		path = self._root / url
+		dirs, files = list(), list()
+		
 		try:
-			return tuple(abspath.basename() for abspath in path.listdir())
+			for abs_path in path.listdir():
+				if abs_path.isdir():
+					dirs.append(abs_path)
+				else:
+					files.append(abs_path)
+				# END sort by type
+			# END for each listed path
+			dirs.sort()
+			files.sort()
+			return tuple(abspath.basename() for abspath in (dirs + files)) 
 		except OSError:
 			# ignore attempts to get path on a file for instance
 			return tuple()
 		# END exception handling
 	
+	
+class FinderElement(ui.TextScrollList):
+	"""Element with special abilities to suite the finder better. This involves
+	keeping a list of unformatted tokens which can be used as unique token identifiers.
+	
+	Set the items to a list of unique identifiers which represent the possibly different
+	tokens actually present in the list."""
+	
+	def __init__(self, *args, **kwargs):
+		self.items = list()
+		
+	def selected_unformatted_item(self):
+		""":return: unformatted selected item or None"""
+		index = self.selectedIndex()
+		if index < 0:
+			return None
+		return self.items[index-1]
 			
 #} END utilities
 
@@ -102,7 +146,10 @@ class Finder(ui.EventSenderUI):
 	
 	A limitation of the current implementation is, that you can only keep one
 	item selected at once in each url token area."""
-	
+
+	#{ Configuration
+	t_element = FinderElement
+	#} END configuration
 	
 	#{ Signals
 	
@@ -137,7 +184,7 @@ class Finder(ui.EventSenderUI):
 		have two url tokens"""
 		return len(tuple(c for c in self._form.listChildren() if c.p_manage))
 		
-	def url_token_by_index(self, index):
+	def stored_url_token_by_index(self, index):
 		""":return: The selected url token at the given index
 		:param index: 0 to num_url_tokens()-1
 		:raies IndexError:"""
@@ -188,7 +235,7 @@ class Finder(ui.EventSenderUI):
 		elements to refresh"""
 		index = self._index_by_token_element(element)
 		# store the currently selected item
-		self.provider().store_url_token(index, element.selectedItem())
+		self.provider().store_url_token(index, element.selected_unformatted_item())
 		self._set_element_visible(index+1)
 		
 	#} END callbacks
@@ -211,7 +258,7 @@ class Finder(ui.EventSenderUI):
 		:param elements: a full list of all available child elements."""
 		
 		# obtain the root url
-		root_url = "/".join(c.selectedItem() for c in elements[:start_elm_id])
+		root_url = "/".join(c.selected_unformatted_item() for c in elements[:start_elm_id])
 		
 		manage = True
 		for elm_id in range(start_elm_id, len(elements)):
@@ -225,6 +272,7 @@ class Finder(ui.EventSenderUI):
 			# END abort if we just disable all others
 			
 			items = self.provider().url_tokens(root_url)
+			elm.items = items
 			if not items:
 				# keep one item visible, even though empty, if its the only one
 				if len(elements) > 1:
@@ -238,11 +286,11 @@ class Finder(ui.EventSenderUI):
 			# END remove prior to re-append
 			
 			for item in items:
-				elm.p_append = item
+				elm.p_append = self.provider().format_token(root_url, elm_id, item)
 			# END for each item to append
 			
 			# try to reselect the previously selected item
-			sel_item = self.provider().url_token_by_index(elm_id)
+			sel_item = self.provider().stored_url_token_by_index(elm_id)
 			if sel_item is None:
 				# make sure next item is not being shown
 				manage=False
@@ -250,8 +298,9 @@ class Finder(ui.EventSenderUI):
 			# END handle item memorization
 			
 			try:
-				elm.p_selectItem = sel_item
-			except RuntimeError:
+				index = items.index(sel_item)
+				elm.p_selectIndexedItem = index+1
+			except (RuntimeError, ValueError):
 				manage=False
 				continue
 			# END handle exception
@@ -272,7 +321,7 @@ class Finder(ui.EventSenderUI):
 			self._form.setActive()
 			for i in range(elms_to_create):
 				# make sure we keep our array uptodate
-				child = self._form.add(ui.TextScrollList(allowMultiSelection=False))
+				child = self._form.add(self.t_element(allowMultiSelection=False, font="smallFixedWidthFont"))
 				children.append(child)
 				
 				child.e_selectCommand = self._element_selection_changed

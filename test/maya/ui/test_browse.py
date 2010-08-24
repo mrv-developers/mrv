@@ -36,7 +36,7 @@ if not cmds.about(batch=1):
 			# when setting a root, we have at least that
 			assert finder.num_url_tokens() == 1
 			
-			self.failUnlessRaises(IndexError, finder.url_token_by_index, 0)
+			self.failUnlessRaises(IndexError, finder.stored_url_token_by_index, 0)
 			
 			
 			
