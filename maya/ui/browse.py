@@ -15,61 +15,61 @@ class iFinderProvider(object):
 	"""Interface defining the capabilities of a provider to be usable by a Finder
 	control.
 	
-	Besides its function to provide sub-tokens for given urls, it is also used 
+	Besides its function to provide sub-items for given urls, it is also used 
 	to store recently selected items on a given level of a url. This memory
 	allows the finder to restore common portions of URLs accordingly.
 	
 	The base implementation of the memorization feature already. """
 	
-	__slots__ = '_mem_tokens'
+	__slots__ = '_mem_items'
 	
 	#{ Configuration
-	# if True, tokens of urls will be memorized, if False, this information
+	# if True, items of urls will be memorized, if False, this information
 	# will be discarded
-	memorize_url_tokens = True
+	memorize_url_items = True
 	#} END configuration
 	
 	def __init__(self):
-		self._mem_tokens = dict()
+		self._mem_items = dict()
 	
 	#{ Interface 
 	
-	def url_tokens(self, url):
+	def url_items(self, url):
 		"""
-		:return: tuple of string-like tokens which can be found at the given url.
-		If this url is combined with one of the returned tokens separated by a slash, 
-		a valid url is formed, i.e. url/token
+		:return: tuple of string-like items which can be found at the given url.
+		If this url is combined with one of the returned items separated by a slash, 
+		a valid url is formed, i.e. url/item
 		:param url: A given slash-separated url like base/subitem or '', which 
-			requests tokens at the root of all urls"""
+			requests items at the root of all urls"""
 		raise NotImplementedError("To be implemented by subclass")
 		
-	def format_token(self, url_base, url_index, url_token):
-		"""Given the url_token, as well as additional information such as its base
-		and its index inside of the url, this method encodes the token for presentation
+	def format_item(self, url_base, url_index, url_item):
+		"""Given the url_item, as well as additional information such as its base
+		and its index inside of the url, this method encodes the item for presentation
 		in the user interface.
-		:param url_base: relative url at which the url_token resides. Is "" if url_index 
+		:param url_base: relative url at which the url_item resides. Is "" if url_index 
 			is 0
-		:param url_index: index representing the position of the url_token within the
+		:param url_index: index representing the position of the url_item within the
 			url
-		:param url_token: token which is to be formatted.
+		:param url_item: item which is to be formatted.
 		:return: string representing the formatted url."""
-		return url_token
+		return url_item
 			
-	def store_url_token(self, url_index, url_token):
-		"""Stores and associates a given url_index with a url_token. Makes the stored
-		token queryable by the ``stored_url_token_by_index`` method
-		:param url_index: index from 0 to n, where 0 corresponds to the first token
+	def store_url_item(self, url_index, url_item):
+		"""Stores and associates a given url_index with a url_item. Makes the stored
+		item queryable by the ``stored_url_item_by_index`` method
+		:param url_index: index from 0 to n, where 0 corresponds to the first item
 			in the url
-		:param url_token: the string token to store at the given index"""
-		if not self.memorize_url_tokens:
+		:param url_item: the string item to store at the given index"""
+		if not self.memorize_url_items:
 			return
 		# END ignore store call
-		self._mem_tokens[url_index] = url_token
+		self._mem_items[url_index] = url_item
 		
-	def stored_url_token_by_index(self, url_index):
-		""":return: string token previously stored at the given index, or None 
+	def stored_url_item_by_index(self, url_index):
+		""":return: string item previously stored at the given index, or None 
 		if there is no information available"""
-		return self._mem_tokens.get(url_index, None)
+		return self._mem_items.get(url_index, None)
 		
 	
 	#} END interface
@@ -87,11 +87,11 @@ class FileProvider(iFinderProvider):
 		super(FileProvider, self).__init__()
 		self._root = root
 
-	def format_token(self, url_base, url_index, url_token):
-		return url_token
+	def format_item(self, url_base, url_index, url_item):
+		return url_item
 		
-	def url_tokens(self, url):
-		"""Return directory tokens alphabetically, directories first"""
+	def url_items(self, url):
+		"""Return directory items alphabetically, directories first"""
 		path = self._root / url
 		dirs, files = list(), list()
 		
@@ -114,10 +114,10 @@ class FileProvider(iFinderProvider):
 	
 class FinderElement(ui.TextScrollList):
 	"""Element with special abilities to suite the finder better. This involves
-	keeping a list of unformatted tokens which can be used as unique token identifiers.
+	keeping a list of unformatted items which can be used as unique item identifiers.
 	
 	Set the items to a list of unique identifiers which represent the possibly different
-	tokens actually present in the list."""
+	items actually present in the list."""
 	
 	def __init__(self, *args, **kwargs):
 		self.items = list()
@@ -147,17 +147,17 @@ class FinderElement(ui.TextScrollList):
 
 class Finder(ui.EventSenderUI):
 	"""The Finder control implements a finder-like browser, which displays URLs.
-	URLs consist of tokens separated by the "/" character. Whenever a token is selected, 
-	an iProvider compatible instance will be asked for the subtokens of the corresponding URL. 
+	URLs consist of items separated by the "/" character. Whenever a item is selected, 
+	an iProvider compatible instance will be asked for the subitems of the corresponding URL. 
 	Using these, a new field will be set up for presentation.
-	A filter can be installed to prevent tokens from being shown.
+	A filter can be installed to prevent items from being shown.
 	
 	An added benefit is the ability to automatically match previously selected path
-	tokens on a certain level of the URL with the available ones, allowing to quickly
+	items on a certain level of the URL with the available ones, allowing to quickly
 	parse through URLs with a similar structure.
 	
 	A limitation of the current implementation is, that you can only keep one
-	item selected at once in each url token area."""
+	item selected at once in each url item area."""
 
 	#{ Configuration
 	t_element = FinderElement
@@ -190,32 +190,32 @@ class Finder(ui.EventSenderUI):
 	def selected_url(self):
 		""":return: string representing the currently selected, / separated URL, or
 			None if there is no url selected"""
-		tokens = list()
+		items = list()
 		for elm in self._form.listChildren():
 			sel_item = elm.selected_unformatted_item()
 			if sel_item is not None:
-				tokens.append(sel_item)
+				items.append(sel_item)
 			else:
 				break
 		# END for each element
 		
-		return "/".join(tokens) or None
+		return "/".join(items) or None
 		
-	def num_url_tokens(self):
-		""":return: number of url tokens that are currently shown. A url of 1/2 would
-		have two url tokens"""
+	def num_url_items(self):
+		""":return: number of url items that are currently shown. A url of 1/2 would
+		have two url items"""
 		return len(tuple(c for c in self._form.listChildren() if c.p_manage))
 		
-	def selected_url_token_by_index(self, index):
-		""":return: The selected url token at the given index or None if nothing 
+	def selected_url_item_by_index(self, index):
+		""":return: The selected url item at the given index or None if nothing 
 			is selected
-		:param index: 0 to num_url_tokens()-1
+		:param index: 0 to num_url_items()-1
 		:raies IndexError:"""
 		return self._form.listChildren()[index].selected_unformatted_item()
 		
-	def url_tokens_by_index(self, index):
-		""":return: tuple of token ids which are currently being shown
-		:param index: 0 based index to num_url_tokens
+	def url_items_by_index(self, index):
+		""":return: tuple of item ids which are currently being shown
+		:param index: 0 based index to num_url_items
 		:raise IndexError:"""
 		return tuple(self._form.listChildren()[index].items) 
 		
@@ -227,9 +227,9 @@ class Finder(ui.EventSenderUI):
 	def set_filter(self, filter=None):
 		"""Set or unset a filter. All items will be sent through the filter, and will
 		be shown only if they pass.
-		:param filter: Functor called f(url,t) and returns True for each token which may
+		:param filter: Functor called f(url,t) and returns True for each item which may
 			be shown in the Finder. The url is the full relative url leading to, but 
-			excluding the token t, whose visibility is being decided upon"""
+			excluding the item t, whose visibility is being decided upon"""
 		self._filter = filter
 		
 	def set_provider(self, provider=None):
@@ -242,53 +242,53 @@ class Finder(ui.EventSenderUI):
 			self._set_element_visible(0)
 		# END handle initial setup
 	
-	def _set_token_by_index(self, elm, index, token):
+	def _set_item_by_index(self, elm, index, item):
 		self._set_element_visible(index)
-		elm.select_unformatted_item(token)
-		self.provider().store_url_token(index, token)
+		elm.select_unformatted_item(item)
+		self.provider().store_url_item(index, item)
 		self._set_element_visible(index+1)
 	
-	def set_token_by_index(self, token, index):
-		"""Set the given string token, which sits at the given index of a url
-		:raise ValueError: if token does not exist at given index
+	def set_item_by_index(self, item, index):
+		"""Set the given string item, which sits at the given index of a url
+		:raise ValueError: if item does not exist at given index
 		:raise IndexError: if index is not currently shown"""
 		assert self.provider() is not None, "Provider is not set"
 		elm = self._form.listChildren()[index]
-		if elm.selected_unformatted_item() == token:
+		if elm.selected_unformatted_item() == item:
 			return
 		# END early abort if nothing changes
-		self._set_token_by_index(elm, index, token)
+		self._set_item_by_index(elm, index, item)
 		
 		self.selection_changed.send()
 		self.url_changed.send(self.selected_url())
 		
-	def set_url(self, url, require_all_tokens=True):
+	def set_url(self, url, require_all_items=True):
 		"""Set the given url to be selected
-		:param url: / separated relative url. The individual tokens must be available
+		:param url: / separated relative url. The individual items must be available
 			in the provider.
-		:parm require_all_tokens: if False, the control will display as many tokens as possible.
-			Otherwise it must display all given tokens, or raise ValueError"""
+		:parm require_all_items: if False, the control will display as many items as possible.
+			Otherwise it must display all given items, or raise ValueError"""
 		assert self.provider() is not None, "Provider is not set"
 		cur_url = self.selected_url()
 		if cur_url == url:
 			return
 		# END ignore similar urls
 		
-		for eid, token in enumerate(url.split("/")):
+		for eid, item in enumerate(url.split("/")):
 			elm = self._form.listChildren()[eid]
-			if elm.selected_unformatted_item() == token:
+			if elm.selected_unformatted_item() == item:
 				continue
-			# END skip tokens which already match
+			# END skip items which already match
 			try:
-				self._set_token_by_index(elm, eid, token)
+				self._set_item_by_index(elm, eid, item)
 			except ValueError:
-				if not require_all_tokens:
+				if not require_all_items:
 					break
 				# restore previous url
 				self.set_url(cur_url)
 				raise
 			# END handle exceptions
-		# END for each token to set
+		# END for each item to set
 		
 		self.selection_changed.send()
 		self.url_changed.send(self.selected_url())
@@ -303,17 +303,17 @@ class Finder(ui.EventSenderUI):
 	def _element_selection_changed(self, element, *args):
 		"""Called whenever any element changes its value, which forces the following 
 		elements to refresh"""
-		index = self._index_by_token_element(element)
+		index = self._index_by_item_element(element)
 		# store the currently selected item
-		self.provider().store_url_token(index, element.selected_unformatted_item())
+		self.provider().store_url_item(index, element.selected_unformatted_item())
 		self._set_element_visible(index+1)
 		
 	#} END callbacks
 	
 	#{ Utilities
 	
-	def _index_by_token_element(self, element):
-		""":return: index matching the given token element, which must be one of our children"""
+	def _index_by_item_element(self, element):
+		""":return: index matching the given item element, which must be one of our children"""
 		assert '|' in element
 		for cid, c in enumerate(self._form.listChildren()):
 			if c == element:
@@ -341,7 +341,7 @@ class Finder(ui.EventSenderUI):
 				continue
 			# END abort if we just disable all others
 			
-			items = self.provider().url_tokens(root_url)
+			items = self.provider().url_items(root_url)
 			elm.items = items
 			if not items:
 				# keep one item visible, even though empty, if its the only one
@@ -356,11 +356,11 @@ class Finder(ui.EventSenderUI):
 			# END remove prior to re-append
 			
 			for item in items:
-				elm.p_append = self.provider().format_token(root_url, elm_id, item)
+				elm.p_append = self.provider().format_item(root_url, elm_id, item)
 			# END for each item to append
 			
 			# try to reselect the previously selected item
-			sel_item = self.provider().stored_url_token_by_index(elm_id)
+			sel_item = self.provider().stored_url_item_by_index(elm_id)
 			if sel_item is None:
 				# make sure next item is not being shown
 				manage=False

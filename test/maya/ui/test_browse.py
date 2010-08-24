@@ -34,20 +34,20 @@ if not cmds.about(batch=1):
 			assert finder.selected_url() is None
 			
 			# when setting a root, we have at least that
-			assert finder.num_url_tokens() == 1
+			assert finder.num_url_items() == 1
 			
-			assert finder.selected_url_token_by_index(0) is None
-			self.failUnlessRaises(IndexError, finder.selected_url_token_by_index, 1)
+			assert finder.selected_url_item_by_index(0) is None
+			self.failUnlessRaises(IndexError, finder.selected_url_item_by_index, 1)
 			
 			
 			# selection
-			items = finder.url_tokens_by_index(0)
+			items = finder.url_items_by_index(0)
 			assert items
-			for token in items:
-				finder.set_token_by_index(token, 0)
-				assert finder.selected_url_token_by_index(0) == token
-				assert finder.selected_url() == token
-			# END for each token to select
+			for item in items:
+				finder.set_item_by_index(item, 0)
+				assert finder.selected_url_item_by_index(0) == item
+				assert finder.selected_url() == item
+			# END for each item to select
 			
 			# more complex url selection
 			url_short = "ext/pydot"
@@ -57,11 +57,12 @@ if not cmds.about(batch=1):
 			finder.set_url(url)
 			assert finder.selected_url() == url
 			
-			# require_all_tokens test - failure does not change existing value
+			# TODO: Test error conditions
+			# require_all_items test - failure does not change existing value
 			self.failUnlessRaises(ValueError, finder.set_url, url_invalid)
 			assert finder.selected_url() == url
 			
-			finder.set_url(url_invalid, require_all_tokens=False)
+			finder.set_url(url_invalid, require_all_items=False)
 			assert finder.selected_url() == url_short
 			
 			
