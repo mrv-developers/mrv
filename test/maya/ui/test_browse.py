@@ -18,7 +18,7 @@ if not cmds.about(batch=1):
 			
 			
 			win = ui.Window(title="Finder")
-			main = FinderLayout()
+			main = FileOpenFinder()
 			
 			# setup finder
 			main.finder.set_provider(FileProvider(root))
@@ -34,7 +34,7 @@ if not cmds.about(batch=1):
 			assert finder.selected_url() is None
 			
 			# when setting a root, we have at least that
-			assert finder.num_url_items() == 1
+			assert finder.num_url_elements() == 1
 			
 			assert finder.selected_url_item_by_index(0) is None
 			self.failUnlessRaises(IndexError, finder.selected_url_item_by_index, 1)
@@ -42,12 +42,17 @@ if not cmds.about(batch=1):
 			
 			# selection
 			items = finder.url_items_by_index(0)
+			self.failUnlessRaises(IndexError, finder.url_items_by_index, 1)
+			
 			assert items
 			for item in items:
 				finder.set_item_by_index(item, 0)
 				assert finder.selected_url_item_by_index(0) == item
 				assert finder.selected_url() == item
 			# END for each item to select
+			
+			self.failUnlessRaises(IndexError, finder.set_item_by_index, item, 100)
+			self.failUnlessRaises(ValueError, finder.set_item_by_index, "doesntexist", 0)
 			
 			# more complex url selection
 			url_short = "ext/pydot"

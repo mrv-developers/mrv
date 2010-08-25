@@ -7,7 +7,10 @@ from mrv.maya.util import logException
 
 from mrv.path import Path
 
-__all__ = ('iFinderProvider', 'FileProvider', 'Finder', 'FinderLayout')
+__all__ = ('iFinderProvider', 'iFinderFilter', 'iSelector', 'iOptions',
+			'FileProvider', 'Finder', 'FinderLayout', 'SelectorControl', 
+			'BookmarkControl', 'StackControl', 'FileOpenOptions', 
+			'FileOpenFinder')
 
 
 #{ Interfaces
@@ -36,7 +39,7 @@ class iFinderProvider(object):
 	
 	def url_items(self, url):
 		"""
-		:return: tuple of string-like items which can be found at the given url.
+		:return: list of string-like items which can be found at the given url.
 		If this url is combined with one of the returned items separated by a slash, 
 		a valid url is formed, i.e. url/item
 		:param url: A given slash-separated url like base/subitem or '', which 
@@ -73,6 +76,37 @@ class iFinderProvider(object):
 		
 	
 	#} END interface
+	
+class iFinderFilter(object):
+	"""Filter interface suitable to perform item filter operations for Finder controls"""
+	
+	#{ Interface
+	
+	def filtered(self, finder, element_index, base_url, items):
+		""":return: list of items which may be shown in the element at element_index
+		:param finder: finder instance issueing the call
+		:param element_index: index of the element which is to be filled with items
+		:param base_url: url at which the given items exist
+		:param items: list of relative item ids which are to be shown in the finder element"""
+		return items
+		
+	#} END interface
+
+class iSelector(object):
+	"""Interface representing a stack of items, effectively being a simple list
+	of items that can be appended to and queried"""
+	
+
+class iOptions(object):
+	"""Interface for all custom options layouts to be used with the FinderLayout. 
+	They take a weak-reference to their parent FinderLayout allowing them to 
+	set themselves up if necessary.
+	The options they represent must be read by a custom implementation of the
+	FinderLayout"""
+	
+	#{ Interface
+	
+	#} END interface
 
 #} END interfaces
 
@@ -105,10 +139,10 @@ class FileProvider(iFinderProvider):
 			# END for each listed path
 			dirs.sort()
 			files.sort()
-			return tuple(abspath.basename() for abspath in (dirs + files)) 
+			return [abspath.basename() for abspath in (dirs + files)] 
 		except OSError:
 			# ignore attempts to get path on a file for instance
-			return tuple()
+			return list()
 		# END exception handling
 	
 	
@@ -140,10 +174,52 @@ class FinderElement(ui.TextScrollList):
 		self.p_selectIndexedItem = index+1
 			
 		
-			
+class FilePathControl(ui.TextField):
+	"""Control displaying a relative url. If it is ediable, a filepath may be 
+	entered and queried"""
+	
+	#{ Interface
+	def path(self):
+		""":return: string representing the currently active path"""
+		return self.p_text
+		
+	def set_path(self, path):
+		"""Set the control to display the given path"""
+		self.p_text = str(path)
+		
+	def set_editable(self, state):
+		self.p_editable = state
+		
+	def editable(self):
+		""":return: True if the control can be edited by the user"""
+		return self.p_editable
+	#} END interface
+	
+	
+class SelectorControl(ui.TextScrollList, iSelector):
+	"""Control allowing to select items, selection changes trigger an event"""
+	
+	
+class BookmarkControl(SelectorControl):
+	"""Control allowing to display a set of custom bookmarks, which are stored
+	in optionVars"""
+	
+	
 #} END utilities
 
 #{ Modules
+
+class FileFilterControl(ui.FormLayout, iFinderFilter):
+	"""Control providing a filter for finder urls which are file paths"""
+	
+
+class StackControl(SelectorControl):
+	"""Simple stack implementation"""
+
+
+class FileOpenOptions(ui.ColumnLayout, iOptions):
+	"""Options implementation providing options useful during file-open"""
+	
 
 class Finder(ui.EventSenderUI):
 	"""The Finder control implements a finder-like browser, which displays URLs.
@@ -192,6 +268,8 @@ class Finder(ui.EventSenderUI):
 			None if there is no url selected"""
 		items = list()
 		for elm in self._form.listChildren():
+			if not elm.p_manage:
+				break
 			sel_item = elm.selected_unformatted_item()
 			if sel_item is not None:
 				items.append(sel_item)
@@ -201,23 +279,23 @@ class Finder(ui.EventSenderUI):
 		
 		return "/".join(items) or None
 		
-	def num_url_items(self):
-		""":return: number of url items that are currently shown. A url of 1/2 would
-		have two url items"""
+	def num_url_elements(self):
+		""":return: number of url elements that are currently shown. A url of 1/2 would
+		have two url elements"""
 		return len(tuple(c for c in self._form.listChildren() if c.p_manage))
 		
 	def selected_url_item_by_index(self, index):
-		""":return: The selected url item at the given index or None if nothing 
+		""":return: The selected url item at the given element index or None if nothing 
 			is selected
-		:param index: 0 to num_url_items()-1
+		:param index: 0 to num_url_elements()-1
 		:raies IndexError:"""
 		return self._form.listChildren()[index].selected_unformatted_item()
 		
 	def url_items_by_index(self, index):
-		""":return: tuple of item ids which are currently being shown
-		:param index: 0 based index to num_url_items
+		""":return: list of item ids which are currently being shown
+		:param index: 0 based element index to num_url_elements()-1
 		:raise IndexError:"""
-		return tuple(self._form.listChildren()[index].items) 
+		return list(self._form.listChildren()[index].items) 
 		
 	
 	#} END Query
@@ -308,6 +386,9 @@ class Finder(ui.EventSenderUI):
 		self.provider().store_url_item(index, element.selected_unformatted_item())
 		self._set_element_visible(index+1)
 		
+		self.selection_changed.send()
+		self.url_changed.send(self.selected_url())
+		
 	#} END callbacks
 	
 	#{ Utilities
@@ -321,7 +402,6 @@ class Finder(ui.EventSenderUI):
 		# END for each child to enumerate
 		raise ValueError("Didn't find element: %s" % element)
 		
-	
 	def _set_element_items(self, start_elm_id, elements ):
 		"""Fill the items from the start_elm_id throughout to all elements, until
 		one url does not yield any items, or the item cannot be selected 
@@ -439,11 +519,12 @@ class FinderLayout(ui.FormLayout):
 	
 	t_finder=Finder
 	t_finder_provider = FileProvider
+	t_filepath = FilePathControl
 	t_options=None
-	t_bookmarks=None
-	t_root_selector=None
+	t_bookmarks=BookmarkControl
+	t_root_selector=SelectorControl
 	t_stack=None
-	t_filter=None
+	t_filter=FileFilterControl
 	#} END configuration
 	
 	def __init__(self):
@@ -455,7 +536,7 @@ class FinderLayout(ui.FormLayout):
 		
 		try:
 			pane.p_staticWidthPane=1
-		except RuntimeError:
+		except (RuntimeError, TypeError):
 			# maya >= 2011
 			pass
 		# END exception handling
@@ -473,20 +554,77 @@ class FinderLayout(ui.FormLayout):
 		
 		# if we have a filter, set it to the finder
 		
+		# FILEPATH
+		##########
+		fp = self.t_filepath()
+		fp.set_editable(False)
+		self.fpctrl = fp
+		self.finder.url_changed = fp.set_path
+		
+		
+		# BOOKMARKS AND SELECTOR
+		########################
+		num_panes = (self.t_bookmarks is not None) + (self.t_root_selector is not None)
+		assert num_panes, "Require at least one bookmark type or a selector type"
+		config = "horizontal%i" % num_panes
+		lpane = ui.PaneLayout(configuration=config)
+		
+		if lpane:
+			self.rootselector, self.bookmarks = None, None
+			if self.t_root_selector:
+				self.rootselector = self.t_root_selector()
+			# END root selector setup
+			if self.t_bookmarks:
+				self.bookmarks = self.t_bookmarks()
+			# END bookmarks setup
+		# END left pane layout
+		self.setActive()
+		
+		# FILTER ELEMENT
+		################
+		assert self.t_filter is not None, "Require filter element, replace it by a dummy filter if it is not required"
+		self.filter = self.t_filter()
+		fil = self.filter
+		
 		# attach the elements
 		t, b, l, r = self.kSides
 		m = 2
 		self.setup(
 					attachForm=(
-								(pane, t, m),
-								(pane, b, m),
-								(pane, l, m),
+								(fil, t, m),
+								(fil, l, m),
+								(fil, r, m),
+								(lpane, l, m),
+								(lpane, b, m),
 								(pane, r, m),
-								)
+								(fp, b, m),
+								(fp, r, m),
+								),
+					
+					attachNone=(
+								(fp, t),
+								(lpane, r),
+								(fil, b),
+								),
+					
+					attachControl=(
+									(lpane, t, m, fil),
+									(pane, t, m, fil),
+									(pane, b, m, fp),
+									(pane, l, m, lpane),
+									(fp, l, m, lpane),
+									),
 					)
 		# END setup
 	
 	
 
+class FileOpenFinder(FinderLayout):
+	"""Finder customized for opening files"""
+	
+	#{ Configuration 
+	t_stack=StackControl
+	t_options=FileOpenOptions
+	#} END configuration
 
 #} END layouts
