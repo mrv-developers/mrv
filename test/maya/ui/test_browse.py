@@ -62,7 +62,6 @@ if not cmds.about(batch=1):
 			finder.set_url(url)
 			assert finder.selected_url() == url
 			
-			# TODO: Test error conditions
 			# require_all_items test - failure does not change existing value
 			self.failUnlessRaises(ValueError, finder.set_url, url_invalid)
 			assert finder.selected_url() == url
@@ -70,6 +69,12 @@ if not cmds.about(batch=1):
 			finder.set_url(url_invalid, require_all_items=False)
 			assert finder.selected_url() == url_short
 			
+			
+			# ROOT_PROVIDER
+			###############
+			root2 = root.dirname()
+			self.failUnlessRaises(ValueError, main.rootselector.set_items, [root])
+			main.rootselector.set_items([FileProvider(root), FileProvider(root2)])
 			
 			
 			

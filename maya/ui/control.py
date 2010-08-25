@@ -336,6 +336,15 @@ class TextScrollList( uibase.SizedControl ):
 			return tuple()
 		# END handle exceptions
 	
+	def setItems(self, items):
+		"""Set the given items to be shown.
+		:param items: iterable of items 
+			if empty, the control will be empty after this call."""
+		self.p_removeAll = True
+		for item in items:
+			self.p_append = str(item)
+		# END for each item to add
+	
 	#} END interface
 
 

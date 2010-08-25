@@ -3,7 +3,7 @@
 __docformat__ = "restructuredtext"
 from mrv.interface import Interface
 import mrv.maya.ui as ui
-from mrv.maya.util import logException
+from mrv.maya.util import (	logException, noneToList)
 
 from mrv.path import Path
 
@@ -96,6 +96,22 @@ class iSelector(object):
 	"""Interface representing a stack of items, effectively being a simple list
 	of items that can be appended to and queried"""
 	
+	#{ Interface
+	
+	def items(self):
+		""":return: list of currently available items"""
+		
+	def selected_items(self):
+		""":return: list of currently selected items"""
+		
+	def set_items(self, items):
+		"""Set the given items to be shown. If empty, the control will be empty"""
+		
+	def add_item(self, item):
+		"""Add the given item to the end of the list"""
+		
+	#} END interface
+	
 
 class iOptions(object):
 	"""Interface for all custom options layouts to be used with the FinderLayout. 
@@ -144,6 +160,14 @@ class FileProvider(iFinderProvider):
 			# ignore attempts to get path on a file for instance
 			return list()
 		# END exception handling
+		
+	#{ Interface
+	
+	def root(self):
+		""":return: string representing the file root"""
+		return self._root
+		
+	#} END interface
 	
 	
 class FinderElement(ui.TextScrollList):
@@ -199,12 +223,67 @@ class FilePathControl(ui.TextField):
 class SelectorControl(ui.TextScrollList, iSelector):
 	"""Control allowing to select items, selection changes trigger an event"""
 	
+	def items(self):
+		return noneToList(self.p_allItems)
+		
+	def selected_items(self):
+		return self.selectedItems()
+		
+	def set_items(self, items):
+		return self.setItems(items)
+		
+	def add_item(self, item):
+		self.p_append = str(item)
+	
 	
 class BookmarkControl(SelectorControl):
 	"""Control allowing to display a set of custom bookmarks, which are stored
 	in optionVars"""
 	
 	
+class FileRootSelectorControl(SelectorControl):
+	"""Keeps a list of possible roots which can be chosen. Each root is represented 
+	by a Provider instance."""
+	
+	#{ Signals
+	# s(Provider)
+	root_changed = ui.Signal()
+	#} END signals
+	
+	def __init__(self, *args, **kwargs):
+		self._providers = list()
+		self.e_selectCommand = self._selection_changed
+	
+	def set_items(self, providers):
+		"""Set the given providers to be used by this instance
+		:param providers: list of FileProvider instances"""
+		for provider in providers:
+			if not isinstance(provider, FileProvider):
+				raise ValueError("Require %s instances" % FileProvider)
+			# END verify type
+		# END for each provider
+		self._providers = providers
+		super(FileRootSelectorControl, self).set_items(p.root() for p in self._providers)
+		
+	def add_item(self, provider):
+		"""Add the given provider to our list of provides"""
+		super(FileRootSelectorControl, self).add_item(provider.root())
+		
+	#{ Interface
+	
+	def providers(self):
+		""":return: list of currently used providers"""
+		return list(self._providers)
+		
+	#} END interface
+	
+	#{ Callbacks
+	
+	def _selection_changed(self, *args):
+		index = self.selectedIndex()-1
+		self.root_changed.send(self._providers[index])
+	#} END callbacks
+		
 #} END utilities
 
 #{ Modules
@@ -250,6 +329,9 @@ class Finder(ui.EventSenderUI):
 	#} END signals
 	
 	def __init__(self, provider=None, filter=None):
+		self._provider = None
+		self._filter = None
+		
 		# initialize layouts
 		self._form = ui.FormLayout()
 		self._form.setParentActive()
@@ -314,11 +396,17 @@ class Finder(ui.EventSenderUI):
 		"""Set the provider to use
 		:param provider: ``iFinderProvider`` compatible instance, or None
 			If no provider is set, the instance will be blank"""
+		if self._provider is provider:
+			return
+		# END early bailout
 		self._provider = provider
 		
 		if provider is not None:
 			self._set_element_visible(0)
 		# END handle initial setup
+		
+		self.selection_changed.send()
+		self.url_changed.send(self.selected_url())
 	
 	def _set_item_by_index(self, elm, index, item):
 		self._set_element_visible(index)
@@ -455,7 +543,10 @@ class Finder(ui.EventSenderUI):
 			# END handle exception
 			
 			# update the root
-			root_url += "/%s" % sel_item
+			if root_url:
+				root_url += "/"
+			# END assure / is not the first character
+			root_url += sel_item
 		# END for each url to handle
 		
 	
@@ -522,7 +613,7 @@ class FinderLayout(ui.FormLayout):
 	t_filepath = FilePathControl
 	t_options=None
 	t_bookmarks=BookmarkControl
-	t_root_selector=SelectorControl
+	t_root_selector=FileRootSelectorControl
 	t_stack=None
 	t_filter=FileFilterControl
 	#} END configuration
@@ -573,6 +664,9 @@ class FinderLayout(ui.FormLayout):
 			self.rootselector, self.bookmarks = None, None
 			if self.t_root_selector:
 				self.rootselector = self.t_root_selector()
+				
+				self.rootselector.root_changed = self.finder.set_provider
+				
 			# END root selector setup
 			if self.t_bookmarks:
 				self.bookmarks = self.t_bookmarks()
