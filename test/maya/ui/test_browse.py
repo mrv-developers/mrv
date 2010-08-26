@@ -73,8 +73,52 @@ if not cmds.about(batch=1):
 			# ROOT_PROVIDER
 			###############
 			root2 = root.dirname()
-			self.failUnlessRaises(ValueError, main.rootselector.set_items, [root])
-			main.rootselector.set_items([FileProvider(root), FileProvider(root2)])
+			selector = main.rootselector
+			self.failUnlessRaises(ValueError, selector.set_items, [root])
+			selector.set_items([FileProvider(root), FileProvider(root2)])
+			assert len(selector.providers()) == 2  
+			
+			# test removal - root path - nonexisting okay
+			selector.remove_item("something")
+			assert len(selector.providers()) == 2
+			
+			# remove by root
+			selector.remove_item(root2)
+			assert len(selector.providers()) == 1 and len(selector.items()) == 1  
+			
+			# re-add previous item
+			selector.add_item(FileProvider(root2))
+			assert len(selector.providers()) == 2 and len(selector.items()) == 2
+			
+			
+			# BOOKMARKS
+			###########
+			bookmarks = main.bookmarks
+			assert len(bookmarks.items()) == 0
+			
+			bookmarks.add_item(root)
+			assert len(bookmarks.items()) == 1
+			assert bookmarks.items()[0] == root
+			
+			# duplicate check
+			bookmarks.add_item(root)
+			assert len(bookmarks.items()) == 1
+			
+			root2_bm = (root2, 'git')
+			bookmarks.add_item(root2_bm)
+			assert len(bookmarks.items()) == 2
+			
+			# remove - ignores non-existing
+			bookmarks.remove_item("doesntexist")
+			assert len(bookmarks.items()) == 2
+			
+			# remove 
+			bookmarks.remove_item(root)
+			assert len(bookmarks.items()) == 1
+			
+			bookmarks.set_items([root, root2_bm])
+			assert len(bookmarks.items()) == 2
+			
 			
 			
 			

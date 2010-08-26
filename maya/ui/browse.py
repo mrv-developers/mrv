@@ -3,9 +3,11 @@
 __docformat__ = "restructuredtext"
 from mrv.interface import Interface
 import mrv.maya.ui as ui
-from mrv.maya.util import (	logException, noneToList)
+from mrv.maya.util import (	logException, noneToList, OptionVarDict)
 
 from mrv.path import Path
+
+opts = OptionVarDict()
 
 __all__ = ('iFinderProvider', 'iFinderFilter', 'iSelector', 'iOptions',
 			'FileProvider', 'Finder', 'FinderLayout', 'SelectorControl', 
@@ -16,7 +18,7 @@ __all__ = ('iFinderProvider', 'iFinderFilter', 'iSelector', 'iOptions',
 #{ Interfaces
 class iFinderProvider(object):
 	"""Interface defining the capabilities of a provider to be usable by a Finder
-	control.
+	control. Every finder as a root, which is used as basis for listing urls.
 	
 	Besides its function to provide sub-items for given urls, it is also used 
 	to store recently selected items on a given level of a url. This memory
@@ -32,7 +34,8 @@ class iFinderProvider(object):
 	memorize_url_items = True
 	#} END configuration
 	
-	def __init__(self):
+	def __init__(self, root):
+		self._root = root
 		self._mem_items = dict()
 	
 	#{ Interface 
@@ -74,7 +77,10 @@ class iFinderProvider(object):
 		if there is no information available"""
 		return self._mem_items.get(url_index, None)
 		
-	
+	def root(self):
+		""":return: string representing the file root"""
+		return self._root
+		
 	#} END interface
 	
 class iFinderFilter(object):
@@ -110,6 +116,10 @@ class iSelector(object):
 	def add_item(self, item):
 		"""Add the given item to the end of the list"""
 		
+	def remove_item(self, item):
+		"""Remove the given item from the list. It is not an error if it doesn't 
+		exist in the first place"""
+		
 	#} END interface
 	
 
@@ -132,11 +142,6 @@ class FileProvider(iFinderProvider):
 	"""Implements a provider for a file system"""
 	__slots__ = "_root"
 	
-	def __init__(self, root):
-		""":param root: Path representing the root file url, as path into the file system"""
-		super(FileProvider, self).__init__()
-		self._root = root
-
 	def format_item(self, url_base, url_index, url_item):
 		return url_item
 		
@@ -161,13 +166,6 @@ class FileProvider(iFinderProvider):
 			return list()
 		# END exception handling
 		
-	#{ Interface
-	
-	def root(self):
-		""":return: string representing the file root"""
-		return self._root
-		
-	#} END interface
 	
 	
 class FinderElement(ui.TextScrollList):
@@ -234,11 +232,149 @@ class SelectorControl(ui.TextScrollList, iSelector):
 		
 	def add_item(self, item):
 		self.p_append = str(item)
+		
+	def remove_item(self, item):
+		items = self.items()
+		try:
+			index = items.index(item)
+			self.p_removeIndexedItem = index+1
+		except ValueError:
+			# no change
+			pass
+		# END handle exception
 	
 	
 class BookmarkControl(SelectorControl):
 	"""Control allowing to display a set of custom bookmarks, which are stored
 	in optionVars"""
+	#{ Configuration
+	# Default name used to store bookmarks in optionVars. Adjust this id in case
+	# you have different sets of bookmarks to store 
+	k_bookmark_store = "MRV_bookmarks"
+	#} END configuration
+	
+	#{ Signals
+	# s(root, path)
+	bookmark_changed = ui.Signal()
+	#} END signals
+	
+	def __init__(self, *args, **kwargs):
+		# fill ourselves with the stored bookmarks
+		# List of tuples: root,relative_path
+		self._bms = list()
+		self.set_items(self._unpack_stored_bookmarks())
+		self.e_selectCommand = self._selection_changed
+	
+	def _parse_bookmark(self, bookmark):
+		""":return: root,path tuple or raise"""
+		root, path = None, None
+		if isinstance(bookmark, tuple) and len(bookmark) == 2:
+			root, path = bookmark
+		else:
+			bookmark = Path(bookmark)
+			root = bookmark.root()
+			root_with_sep = (root.endswith(root.sep) and root) or (root + root.sep)
+			path = Path(bookmark.replace(root_with_sep, '', 1))
+		# END handle bookmark
+		
+		return root, path
+	
+	def _unpack_stored_bookmarks(self):
+		""":return: list of tuples of root,path pairs"""
+		miter = iter(opts.get(self.k_bookmark_store, list()))
+		return [item for item in zip(miter, miter)]
+	
+	def _store_item_list(self, items):
+		"""Store a list of pairs"""
+		flattened_list = list()
+		for pair in items:
+			flattened_list.extend(pair)
+		# END flatten list
+		opts[self.k_bookmark_store] = flattened_list
+	
+	def _store_bookmark(self, root, path, add=True):
+		"""Store the given path under the given root
+		:param add: if True, the path will be added to the bookmarks of the given 
+			root, otherwise it will be removed"""
+		items = self._unpack_stored_bookmarks()
+		index_to_remove = None
+		for index, (oroot, opath) in enumerate(items):
+			if oroot == root and opath == path:
+				if add:
+					return
+				else:
+					index_to_remove = index
+					break
+				# END skip existing
+			# END similar item is stored already
+		# END for each stored item
+		
+		if add:
+			items.append((root, path))
+		else:
+			if index_to_remove is None:
+				return
+			# END ignore items that do not exist
+			del(items[index_to_remove])
+		# END end handle stored
+		
+		self._store_item_list(items)
+		
+	
+	def _format_bookmark(self, root, path):
+		if not root.endswith("/"):
+			root += "/"
+		return root + path
+		
+	def _selection_changed(self, *args):
+		"""Convert the default callback into our signals"""
+		root, path = self._bms[self.selectedIndex()-1]
+		self.bookmark_changed.send(root, path)
+	
+	def add_item(self, bookmark):
+		"""Add a new bookmark
+		:param bookmark: tuple of root,relative_path or a single absolute path. In the 
+			latter case, the root will be the natural root of the absolute path"""
+		root, path = self._parse_bookmark(bookmark)
+		bm_formatted = self._format_bookmark(root, path)
+		# duplicate prevention
+		if bm_formatted in self.items():
+			return
+		# END handle duplicates
+		self._bms.append((root, path))
+		super(BookmarkControl, self).add_item(bm_formatted)
+		self._store_bookmark(root, path, add=True)
+		
+	def set_items(self, bookmarks):
+		"""Set this control to a list of bookmarks
+		:param bookmarks: list of either tuples of (root, path) pairs or absolute paths
+			whose root will be chosen automatically"""
+		bms = list()
+		self._bms = list()
+		for item in bookmarks:
+			self._bms.append(self._parse_bookmark(item))
+			bms.append(self._format_bookmark(*self._bms[-1]))
+		# END for each item
+		super(BookmarkControl, self).set_items(bms)
+		
+		# store all items together
+		del(opts[self.k_bookmark_store])
+		self._store_item_list(self._bms)
+		
+	def remove_item(self, bookmark):
+		"""Remove the given bookmark from the list of bookmarks
+		:param bookmark: full path to the bookmark to remove. Its not an error
+			if it doesn't exist in the first place"""
+		items = self.items()
+		try:
+			index = self.items().index(bookmark)
+			root, path = self._bms[index]
+			del(self._bms[index])
+			super(BookmarkControl, self).remove_item(bookmark)
+			self._store_bookmark(root, path, add=False)
+		except ValueError:
+			return
+		# END exception handling
 	
 	
 class FileRootSelectorControl(SelectorControl):
@@ -254,6 +390,15 @@ class FileRootSelectorControl(SelectorControl):
 		self._providers = list()
 		self.e_selectCommand = self._selection_changed
 	
+	def _provider_by_root(self, root):
+		""":return: provider instance having the given root, or None"""
+		for p in self._providers:
+			if p.root() == root:
+				return p
+			# END check match
+		# END for each of our providers
+		return None
+	
 	def set_items(self, providers):
 		"""Set the given providers to be used by this instance
 		:param providers: list of FileProvider instances"""
@@ -268,6 +413,27 @@ class FileRootSelectorControl(SelectorControl):
 	def add_item(self, provider):
 		"""Add the given provider to our list of provides"""
 		super(FileRootSelectorControl, self).add_item(provider.root())
+		self._providers.append(provider)
+		
+	def remove_item(self, provider):
+		"""Remove the given provider from the list
+		:param provider: FileProvider instance or root from which the provider
+			can be determined"""
+		if isinstance(provider, basestring):
+			provider = self._provider_by_root(provider)
+			if provider is None:
+				return
+			# END abort if not found
+		# END handle provider type
+		
+		try:
+			self._providers.remove(provider)
+		except ValueError:
+			return
+		else:
+			self.set_items(self._providers)
+		# END exception handling
+		
 		
 	#{ Interface
 	
@@ -604,10 +770,6 @@ class FinderLayout(ui.FormLayout):
 	* options"""
 	
 	#{ Configuration
-	has_bookmarks=False
-	has_root_selector=False
-	has_filter=False
-	
 	t_finder=Finder
 	t_finder_provider = FileProvider
 	t_filepath = FilePathControl
@@ -657,6 +819,7 @@ class FinderLayout(ui.FormLayout):
 		########################
 		num_panes = (self.t_bookmarks is not None) + (self.t_root_selector is not None)
 		assert num_panes, "Require at least one bookmark type or a selector type"
+		
 		config = "horizontal%i" % num_panes
 		lpane = ui.PaneLayout(configuration=config)
 		
@@ -664,12 +827,15 @@ class FinderLayout(ui.FormLayout):
 			self.rootselector, self.bookmarks = None, None
 			if self.t_root_selector:
 				self.rootselector = self.t_root_selector()
-				
 				self.rootselector.root_changed = self.finder.set_provider
-				
 			# END root selector setup
 			if self.t_bookmarks:
 				self.bookmarks = self.t_bookmarks()
+				self.bookmarks.bookmark_changed = self.on_bookmark_change
+				
+				# BOOKMARK POPUP
+				pmenu = ui.PopupMenu()
+				pmenu.e_postMenuCommand = self._build_bookmark_popup
 			# END bookmarks setup
 		# END left pane layout
 		self.setActive()
@@ -711,6 +877,64 @@ class FinderLayout(ui.FormLayout):
 					)
 		# END setup
 	
+	#{ Callbacks
+
+	def _build_bookmark_popup(self, popup, *args):
+		popup.p_deleteAllItems = True
+		popup.setActive()
+		
+		mi = ui.MenuItem(label="Add Bookmark")
+		mi.p_enable = self.finder.selected_url() is not None
+		if mi.p_enable:
+			mi.e_command = self._on_add_bookmark
+		# END setup command
+		
+		mi = ui.MenuItem(label="Remove Bookmark")
+		mi.p_enable = len(self.bookmarks.selectedItems()) == 1
+		if mi.p_enable:
+			mi.e_command = self._on_remove_bookmark
+		# END setup command 
+
+	@logException
+	def _on_add_bookmark(self, item, *args):
+		url = self.finder.selected_url()
+		provider = self.finder.provider()
+		
+		if not hasattr(provider, 'root'):
+			raise TypeError("Provider doesn't support the 'root' method")
+		# END verify interface
+		
+		self.bookmarks.add_item((provider.root(), url))
+
+	@logException
+	def _on_remove_bookmark(self, item, *args):
+		self.bookmarks.remove_item(self.bookmarks.selected_items()[0])
+
+	@logException
+	def on_bookmark_change(self, root, path):
+		"""Propagate changed bookmarks to changed roots. If necessary, add a new
+		root to the root selector. Otherwise just set the root and url of the finder"""
+		actual_provider = None
+		if self.rootselector is None:
+			ptype = type(self.finder.provider())
+			assert ptype is not NoneType, "Finder needs provider to be set beforehand"
+			actual_provider = ptype(root)
+		else:
+			# find a provider matching the root - if not, add it
+			for provider in self.rootselector.providers():
+				if provider.root() == root:
+					actual_provider = provider
+					break
+				# END handle provider match
+			# END for each provider
+			
+			if actual_provider is None:
+				actual_provider = self.t_finder_provider(root)
+			# END add a new 
+		# END handle existance of rootselector
+		self.finder.set_provider(actual_provider)
+	
+	#} END callbacks
 	
 
 class FileOpenFinder(FinderLayout):
