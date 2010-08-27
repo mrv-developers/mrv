@@ -120,6 +120,11 @@ class iSelector(object):
 		"""Remove the given item from the list. It is not an error if it doesn't 
 		exist in the first place"""
 		
+	def set_selected_item(self, item=None):
+		"""Set the given item selected, or clear the selection
+		:param item: item to select, or clear the selection if None is given
+		:raise ValueError: if the item does not exist"""
+		
 	#} END interface
 	
 
@@ -141,6 +146,10 @@ class iOptions(object):
 class FileProvider(iFinderProvider):
 	"""Implements a provider for a file system"""
 	__slots__ = "_root"
+	
+	def __init__(self, root):
+		super(FileProvider, self).__init__(root)
+		self._root = Path(self._root)
 	
 	def format_item(self, url_base, url_index, url_item):
 		return url_item
@@ -232,6 +241,18 @@ class SelectorControl(ui.TextScrollList, iSelector):
 		
 	def add_item(self, item):
 		self.p_append = str(item)
+		
+	def set_selected_item(self, item):
+		if item is None:
+			self.p_deselectAll = True
+			return
+		# END handle deselection
+		
+		try:
+			self.p_selectItem = item
+		except RuntimeError, e:
+			raise ValueError(str(e))
+		# END exception handling
 		
 	def remove_item(self, item):
 		items = self.items()
@@ -330,7 +351,9 @@ class BookmarkControl(SelectorControl):
 		"""Convert the default callback into our signals"""
 		root, path = self._bms[self.selectedIndex()-1]
 		self.bookmark_changed.send(root, path)
-	
+		# as we are one-time actions only, deselect everything
+		self.set_selected_item(None)
+		
 	def add_item(self, bookmark):
 		"""Add a new bookmark
 		:param bookmark: tuple of root,relative_path or a single absolute path. In the 
@@ -433,6 +456,15 @@ class FileRootSelectorControl(SelectorControl):
 		else:
 			self.set_items(self._providers)
 		# END exception handling
+		
+	def set_selected_item(self, item):
+		"""Fires a root_changed event if the item actually caused a selection change"""
+		cur_index = self.selectedIndex()
+		super(FileRootSelectorControl, self).set_selected_item(item)
+		if cur_index == self.selectedIndex():
+			return
+		# END skip if no change
+		self._selection_changed()
 		
 		
 	#{ Interface
@@ -911,15 +943,20 @@ class FinderLayout(ui.FormLayout):
 		self.bookmarks.remove_item(self.bookmarks.selected_items()[0])
 
 	@logException
-	def on_bookmark_change(self, root, path):
+	def on_bookmark_change(self, root, url):
 		"""Propagate changed bookmarks to changed roots. If necessary, add a new
 		root to the root selector. Otherwise just set the root and url of the finder"""
-		actual_provider = None
+		if root == self.finder.provider().root() and self.finder.selected_url() == url:
+			return
+		# END early bailout
+		
 		if self.rootselector is None:
 			ptype = type(self.finder.provider())
-			assert ptype is not NoneType, "Finder needs provider to be set beforehand"
-			actual_provider = ptype(root)
+			assert ptype is not type(None), "Finder needs provider to be set beforehand"
+			self.finder.set_provider(ptype(root))
 		else:
+			actual_provider = None
+			root_item = root
 			# find a provider matching the root - if not, add it
 			for provider in self.rootselector.providers():
 				if provider.root() == root:
@@ -930,10 +967,13 @@ class FinderLayout(ui.FormLayout):
 			
 			if actual_provider is None:
 				actual_provider = self.t_finder_provider(root)
-			# END add a new 
+				self.rootselector.add_item(actual_provider)
+			# END add a new provider to root selector
+			
+			self.rootselector.set_selected_item(root_item)
 		# END handle existance of rootselector
-		self.finder.set_provider(actual_provider)
-	
+		self.finder.set_url(url)
+		
 	#} END callbacks
 	
 

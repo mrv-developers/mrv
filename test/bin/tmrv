@@ -4,6 +4,7 @@
 import sys
 import os
 import tempfile
+import shutil
 
 __docformat__ = "restructuredtext"
 
@@ -101,8 +102,12 @@ def _parse_args(args, maya_version, start_maya, info):
 		# SETUP MAYA APP DIR
 		# Create a dummy Maya.env and a separate app dir
 		mappdir = os.path.join(tempfile.gettempdir(), 'maya_test_prefsdir')
-		if not os.path.isdir(mappdir):
-			os.mkdir(mappdir)
+		if os.path.isdir(mappdir):
+			# assure we get clean prefs each time
+			shutil.rmtree(mappdir)
+		# END handle app dir
+		os.mkdir(mappdir)
+		
 		open(os.path.join(mappdir, 'Maya.env'), 'w').close()
 		
 		env['MAYA_APP_DIR'] = mappdir
