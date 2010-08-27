@@ -4,6 +4,7 @@ from util import *
 
 from mrv.path import make_path
 from mrv.maya.ui.browse import *
+from mrv.maya.ui.browse.control import *
 
 import mrv.maya.ui as ui
 from mrv.test.maya.ui import instructor
