@@ -120,6 +120,24 @@ if not cmds.about(batch=1):
 			assert len(bookmarks.items()) == 2
 			
 			
+			# STACK CONTROL
+			##############
+			stack = main.stack
+			assert len(stack.base_items) == 0
+			
+			# verify it stays in sync with its base_items
+			stack.addItem(root)
+			stack.addItem(root2)
+			assert len(stack.base_items) == 2 and stack.base_items[-1] == root2
+			assert len(stack.items()) == 2
+			
+			for item in stack.items():
+				assert stack.removeItem(item) is stack
+			# END remove all items
+			assert len(stack.items()) == 0
+			assert len(stack.base_items) == 0
+			
+			
 			
 			return
 			

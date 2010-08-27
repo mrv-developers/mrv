@@ -92,6 +92,18 @@ class StackControlBase(ui.TextScrollList):
 	
 	#{ Overridden Methods
 	
+	def removeItem(self, item):
+		"""Remove the given formatted item from the list, as well as the corresponding
+		unformtted item. Its not an error if the item does not exist"""
+		try:
+			index = self.items().index(item)
+			del(self.base_items[index])
+			super(StackControlBase, self).removeItem(item)
+		except ValueError:
+			pass
+		# END exception handling
+		return self
+	
 	def addItem(self, item):
 		self.base_items.append(item)
 		return super(StackControlBase, self).addItem(self.formatItem(item))

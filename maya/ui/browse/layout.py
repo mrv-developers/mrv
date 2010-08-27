@@ -27,6 +27,7 @@ class FinderLayout(ui.FormLayout):
 	# used as names for buttons
 	k_confirm_name = "OK"
 	k_cancel_name = "Cancel"
+	k_stack_item_remove_name = "Remove Item"
 	
 	t_finder=Finder
 	t_finder_provider = FileProvider
@@ -62,6 +63,10 @@ class FinderLayout(ui.FormLayout):
 				finder_form = ui.FormLayout()
 				if finder_form:
 					self.stack = self.t_stack()
+					popup = ui.PopupMenu(markingMenu=True)
+					self._create_stack_menu(popup)
+					
+					
 					self.finder = self.t_finder()
 					fi, st = self.finder.layout(), self.stack
 					
@@ -192,6 +197,11 @@ class FinderLayout(ui.FormLayout):
 		mi = ui.MenuItem(rp="SE", label=self.k_confirm_name)
 		mi.e_command = self._confirm_button_pressed
 		
+		
+	def _create_stack_menu(self, menu):
+		mi = ui.MenuItem(label=self.k_stack_item_remove_name, rp="W")
+		mi.e_command = self._on_stack_remove_item
+		
 	def _create_button_layout(self):
 		"""Create a layout with two main buttons, one to confirm, the other 
 		to cancel the operation
@@ -232,7 +242,10 @@ class FinderLayout(ui.FormLayout):
 	#}END subclass interface
 	
 	#{ Callbacks
-
+	
+	def _on_stack_remove_item(self, *args):
+		self.stack.removeItem(self.stack.selectedItem())
+	
 	def _close_parent_window(self):
 		"""helper routine closing the parent window if there is one"""
 		if isinstance(self.parent(), ui.Window):
@@ -334,6 +347,7 @@ class FileReferenceFinder(FinderLayout):
 	k_add_single = "Add to Stack"
 	k_add_and_confirm = "Add to Stack and Confirm"
 	k_confirm_name = "Create Reference(s)"
+	k_stack_item_remove_name = "Remove Reference"
 	
 	t_stack=FileStack
 	t_options=FileOpenOptions
@@ -348,7 +362,7 @@ class FileReferenceFinder(FinderLayout):
 		mi = ui.MenuItem(label=self.k_add_and_confirm, rp="NE")
 		mi.e_command = self._on_add_to_stack
 	
-
+	
 	#{ Subclass Interface
 	
 	def _create_references(self, refpaths):
