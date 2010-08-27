@@ -344,37 +344,46 @@ class TextScrollList( uibase.SizedControl ):
 	def setItems(self, items):
 		"""Set the given items to be shown.
 		:param items: iterable of items 
-			if empty, the control will be empty after this call."""
+			if empty, the control will be empty after this call.
+		:return: self"""
 		self.p_removeAll = True
 		for item in items:
 			self.p_append = str(item)
 		# END for each item to add
+		return self
 		
 	def addItem(self, item):
-		"""Add the given item to the end of the list"""
+		"""Add the given item to the end of the list
+		:return: self"""
 		self.p_append = str(item)
+		return self
 		
 	def addItems(self, items):
-		"""Add multiple items to the end of the list"""
+		"""Add multiple items to the end of the list
+		:return: self"""
 		for item in items:
 			self.addItem(item)
 		# END for each item
+		return self
 		
 	def setSelectedItem(self, item):
 		"""Set the given item selected, or clear the selection
 		:param item: item to select, or clear the selection if None is given
 		:note: it is not considered an error if the item doesnt exist - following 
-			maya's behaviour"""
+			maya's behaviour
+		:return: self"""
 		if item is None:
 			self.p_deselectAll = True
 			return
 		# END handle deselection
 		
 		self.p_selectItem = item
+		return self
 		
 	def removeItem(self, item):
 		"""Remove the given item from the list. It is not an error if it doesn't 
-		exist in the first place"""
+		exist in the first place
+		:return: self"""
 		items = self.items()
 		try:
 			index = items.index(item)
@@ -383,6 +392,7 @@ class TextScrollList( uibase.SizedControl ):
 			# no change
 			pass
 		# END handle exception
+		return self
 	
 	#} END interface
 

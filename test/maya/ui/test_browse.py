@@ -17,14 +17,13 @@ if not cmds.about(batch=1):
 			root = make_path(__file__).dirname().dirname().dirname().dirname()
 			
 			
-			win = ui.Window(title="Finder")
-			main = FileOpenFinder()
+			win = ui.Window(title="File Reference")
+			main = FileReferenceFinder()
 			
 			# setup finder
 			main.finder.setProvider(FileProvider(root))
 			
 			finder = main.finder
-			
 			win.show()
 			
 			# FINDER TESTING
@@ -121,5 +120,17 @@ if not cmds.about(batch=1):
 			
 			
 			
+			return
+			
+			# BASIC FINDER
+			##############
+			win = ui.Window(title="Default Finder")
+			FinderLayout()
+			win.show()
 			
 			
+			# FILE OPEN FINDER
+			##################
+			win = ui.Window(title="File Open Finder")
+			FileOpenFinder()
+			win.show()

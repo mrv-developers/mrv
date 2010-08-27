@@ -16,7 +16,7 @@ import weakref
 __all__ = ("noneToList", "isIterable", "pythonToMel", "makeEditOrQueryMethod", 
            "queryMethod", "editMethod", "propertyQE", "Mel", "OptionVarDict", 
            "optionvars", "StandinClass", "MetaClassCreator", "CallbackEventBase", 
-           "MEnumeration")
+           "MEnumeration", "notifyException")
 
 #{ Utility Functions
 def noneToList( res ):
@@ -39,27 +39,40 @@ def pythonToMel(arg):
 
 #{ Decorator
 
-def logException(func):
-	"""Decorator which shows short exception information in a popup and a full
-	stack trace to stdout. Finally the exception will be reraised"""
+def _logException(func, reraise):
 	def wrapper(*args, **kwargs):
 		try:
 			return func(*args, **kwargs)
 		except Exception, e:
 			# print a full stack trace - for now not using the log
-			traceback.print_exc()
+			if reraise:
+				traceback.print_exc()
 			
 			if api.MGlobal.mayaState() == api.MGlobal.kInteractive:
 				import mrv.maya.ui as ui
-				msg = str(e) + "\n\nSee the script editor for details"
+				msg = str(e)
+				if reraise:
+					msg += "\n\nSee the script editor for details"
 				ui.ChoiceDialog(	t=str(type(e)),
 									m=msg,
 									c=['Confirm'] ).choice()
 			# END show popup
-			raise
+			if reraise:
+				raise
 	# END wrapper
 	wrapper.__name__ = func.__name__
 	return wrapper
+
+def logException(func):
+	"""Decorator which shows short exception information in a popup and a full
+	stack trace to stdout. Finally the exception will be reraised"""
+	return _logException(func, reraise=True)
+
+def notifyException(func):
+	"""As logException, but does not reraise on error. This is useful if you just 
+	want to see a popup, but not cause maya to remove the possibly problematic UI
+	callback. Additionally, no stacktrace will be shown"""
+	return _logException(func, reraise=False)
 
 #} END decorator
 

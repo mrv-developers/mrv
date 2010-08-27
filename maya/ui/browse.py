@@ -3,16 +3,18 @@
 __docformat__ = "restructuredtext"
 from mrv.interface import Interface
 import mrv.maya.ui as ui
-from mrv.maya.util import (	logException, OptionVarDict)
+from mrv.maya.util import (	logException, notifyException, OptionVarDict)
 
 from mrv.path import Path
+from mrv.maya.ref import FileReference
+import maya.utils as mutil
 
 opts = OptionVarDict()
 
 __all__ = ('iFinderProvider', 'iFinderFilter', 'iOptions',
 			'FileProvider', 'Finder', 'FinderLayout', 
-			'BookmarkControl', 'StackControl', 'FileOpenOptions', 
-			'FileOpenFinder')
+			'BookmarkControl', 'StackControlBase', 'FileOpenOptions', 
+			'FileOpenFinder', 'FileReferenceFinder')
 
 
 #{ Interfaces
@@ -114,6 +116,11 @@ class iOptions(object):
 
 #{ Utilities
 
+def concat_url(root, path):
+	if not root.endswith("/"):
+		root += "/"
+	return root + path
+
 class FileProvider(iFinderProvider):
 	"""Implements a provider for a file system"""
 	__slots__ = "_root"
@@ -145,25 +152,33 @@ class FileProvider(iFinderProvider):
 			# ignore attempts to get path on a file for instance
 			return list()
 		# END exception handling
-		
 	
+
+class StackControlBase(ui.TextScrollList):
+	"""stack base implementation. A stack keeps multiple items which can be added 
+	and removed. Additionally, it allows to remap the items, effectively showing 
+	a formatted item, which is kept in sync with an unformatted item.
+	:note: for now, only adding items, format will be applied. All other methods
+		operate on the formatted items."""
 	
-class FinderElement(ui.TextScrollList):
-	"""Element with special abilities to suite the finder better. This involves
-	keeping a list of unformatted items which can be used as unique item identifiers.
-	
-	Set the items to a list of unique identifiers which represent the possibly different
-	items actually present in the list."""
 	
 	def __init__(self, *args, **kwargs):
-		self.items = list()
+		super(StackControlBase, self).__init__(*args, **kwargs)
+		# unformatted items
+		self.base_items = list()
+		
+	#{ Interface
+	
+	def formatItem(self, item):
+		""":return: formatted version of item"""
+		return item
 		
 	def selectedUnformattedItem(self):
 		""":return: unformatted selected item or None"""
 		index = self.selectedIndex()
 		if index < 0:
 			return None
-		return self.items[index-1]
+		return self.base_items[index-1]
 		
 	def selectUnformattedItem(self, index_or_item):
 		"""Select the unformatted item as identified by either the index or item
@@ -172,10 +187,39 @@ class FinderElement(ui.TextScrollList):
 		:raise ValueError: if the item does not exist"""
 		index = index_or_item
 		if not isinstance(index_or_item, int):
-			index = self.items.index(index_or_item)
+			index = self.base_items.index(index_or_item)
 		self.p_selectIndexedItem = index+1
-			
 		
+	#} END Interface
+	
+	#{ Overridden Methods
+	
+	def addItem(self, item):
+		self.base_items.append(item)
+		return super(StackControlBase, self).addItem(self.formatItem(item))
+	
+	#} END overridden methods
+	
+	
+class FinderElement(StackControlBase):
+	"""Element with special abilities to suite the finder better. This involves
+	keeping a list of unformatted items which can be used as unique item identifiers.
+	
+	Set the items to a list of unique identifiers which represent the possibly different
+	items actually present in the list."""
+	
+	
+class FileStack(StackControlBase):
+	"""Implements a stack which shows only the base names of files"""
+	
+	#{ Overrides 
+	
+	def formatItem(self, item):
+		return Path(item).basename()
+	
+	#} END overrides
+	
+			
 class FilePathControl(ui.TextField):
 	"""Control displaying a relative url. If it is ediable, a filepath may be 
 	entered and queried"""
@@ -274,12 +318,6 @@ class BookmarkControl(ui.TextScrollList):
 		
 		self._store_item_list(items)
 		
-	
-	def _format_bookmark(self, root, path):
-		if not root.endswith("/"):
-			root += "/"
-		return root + path
-		
 	def _selection_changed(self, *args):
 		"""Convert the default callback into our signals"""
 		root, path = self._bms[self.selectedIndex()-1]
@@ -292,7 +330,7 @@ class BookmarkControl(ui.TextScrollList):
 		:param bookmark: tuple of root,relative_path or a single absolute path. In the 
 			latter case, the root will be the natural root of the absolute path"""
 		root, path = self._parse_bookmark(bookmark)
-		bm_formatted = self._format_bookmark(root, path)
+		bm_formatted = concat_url(root, path)
 		# duplicate prevention
 		if bm_formatted in self.items():
 			return
@@ -309,7 +347,7 @@ class BookmarkControl(ui.TextScrollList):
 		self._bms = list()
 		for item in bookmarks:
 			self._bms.append(self._parse_bookmark(item))
-			bms.append(self._format_bookmark(*self._bms[-1]))
+			bms.append(concat_url(*self._bms[-1]))
 		# END for each item
 		super(BookmarkControl, self).setItems(bms)
 		
@@ -423,10 +461,6 @@ class FileFilterControl(ui.FormLayout, iFinderFilter):
 	"""Control providing a filter for finder urls which are file paths"""
 	
 
-class StackControl(ui.TextScrollList):
-	"""Simple stack implementation"""
-
-
 class FileOpenOptions(ui.ColumnLayout, iOptions):
 	"""Options implementation providing options useful during file-open"""
 	
@@ -472,13 +506,19 @@ class Finder(ui.EventSenderUI):
 		
 	# { Query
 	
+	def layout(self):
+		""":return: the finder's main layout which contains all controls"""
+		return self._form
+	
 	def provider(self):
 		""":return: current url provider"""
 		return self._provider
 	
-	def selectedUrl(self):
+	def selectedUrl(self, absolute=False):
 		""":return: string representing the currently selected, / separated URL, or
-			None if there is no url selected"""
+			None if there is no url selected
+		:param absolute: if True, an absolute URL will be provided using the provider's
+			root"""
 		items = list()
 		for elm in self._form.listChildren():
 			if not elm.p_manage:
@@ -490,7 +530,11 @@ class Finder(ui.EventSenderUI):
 				break
 		# END for each element
 		
-		return "/".join(items) or None
+		url = "/".join(items) or None
+		if absolute and url is not None:
+			url = concat_url(self.provider().root(), url)
+		# END handle absolute urls
+		return url
 		
 	def numUrlElements(self):
 		""":return: number of url elements that are currently shown. A url of 1/2 would
@@ -508,7 +552,7 @@ class Finder(ui.EventSenderUI):
 		""":return: list of item ids which are currently being shown
 		:param index: 0 based element index to numUrlElements()-1
 		:raise IndexError:"""
-		return list(self._form.listChildren()[index].items) 
+		return list(self._form.listChildren()[index].base_items) 
 		
 	
 	#} END Query
@@ -559,12 +603,14 @@ class Finder(ui.EventSenderUI):
 		self.selection_changed.send()
 		self.url_changed.send(self.selectedUrl())
 		
-	def setUrl(self, url, require_all_items=True):
+	def setUrl(self, url, require_all_items=True, allow_memory=False):
 		"""Set the given url to be selected
 		:param url: / separated relative url. The individual items must be available
 			in the provider.
 		:parm require_all_items: if False, the control will display as many items as possible.
-			Otherwise it must display all given items, or raise ValueError"""
+			Otherwise it must display all given items, or raise ValueError
+		:param allow_memory: if true, provider memory may be used to show the longest chosen url, 
+			being possibly more than you specify. Currently not implemented"""
 		assert self.provider() is not None, "Provider is not set"
 		cur_url = self.selectedUrl()
 		if cur_url == url:
@@ -641,7 +687,7 @@ class Finder(ui.EventSenderUI):
 			# END abort if we just disable all others
 			
 			items = self.provider().urlItems(root_url)
-			elm.items = items
+			elm.base_items = items
 			if not items:
 				# keep one item visible, even though empty, if its the only one
 				if len(elements) > 1:
@@ -735,6 +781,10 @@ class FinderLayout(ui.FormLayout):
 	* options"""
 	
 	#{ Configuration
+	# used as names for buttons
+	k_confirm_name = "OK"
+	k_cancel_name = "Cancel"
+	
 	t_finder=Finder
 	t_finder_provider = FileProvider
 	t_filepath = FilePathControl
@@ -747,10 +797,14 @@ class FinderLayout(ui.FormLayout):
 	
 	def __init__(self):
 		"""Initialize all ui elements"""
-		num_splits = 1 + (self.t_stack is not None) + (self.t_options is not None)
+		num_splits = 1 + (self.t_options is not None)
 		config = (num_splits == 1 and "single") or "vertical%i" % num_splits
 		pane = ui.PaneLayout(configuration=config)
 		pane.p_paneSize=(1, 75, 100)
+		
+		# attach the elements
+		t, b, l, r = self.kSides
+		m = 2
 		
 		try:
 			pane.p_staticWidthPane=1
@@ -761,10 +815,40 @@ class FinderLayout(ui.FormLayout):
 		
 		# populate main pane
 		if pane:
-			self.finder = self.t_finder()
-			
 			if self.t_stack is not None:
-				pass
+				finder_form = ui.FormLayout()
+				if finder_form:
+					self.stack = self.t_stack()
+					self.finder = self.t_finder()
+					fi, st = self.finder.layout(), self.stack
+					
+					finder_form.setup(
+											attachForm=(
+															(fi, t, m),
+															(fi, b, m),
+															(fi, l, m),
+															(st, t, m),
+															(st, b, m),
+															(st, r, m),
+														),
+											attachNone=(
+															(st, l)
+														),
+											attachControl=(
+															(fi, r, m, st)
+															)
+										)
+				# END finder form
+				self.setActive()
+			else:
+				self.finder = self.t_finder()
+			# END handle stack
+			
+			# setup RMB menu
+			finder_popup = ui.PopupMenu(markingMenu=True)
+			self._create_finder_menu(finder_popup)
+			# END popupMenu
+			
 			if self.t_options is not None:
 				self.options = self.t_options()
 		# END pane layout
@@ -799,7 +883,7 @@ class FinderLayout(ui.FormLayout):
 				self.bookmarks.bookmark_changed = self._on_bookmark_change
 				
 				# BOOKMARK POPUP
-				pmenu = ui.PopupMenu()
+				pmenu = ui.PopupMenu(markingMenu=True)
 				pmenu.e_postMenuCommand = self._build_bookmark_popup
 			# END bookmarks setup
 		# END left pane layout
@@ -810,10 +894,16 @@ class FinderLayout(ui.FormLayout):
 		assert self.t_filter is not None, "Require filter element, replace it by a dummy filter if it is not required"
 		self.filter = self.t_filter()
 		fil = self.filter
+		self.setActive()
 		
-		# attach the elements
-		t, b, l, r = self.kSides
-		m = 2
+		
+		# BUTTONS
+		#########
+		bl = self._create_button_layout()
+		
+		
+		# CONTROL ASSEMBLY
+		##################
 		self.setup(
 					attachForm=(
 								(fil, t, m),
@@ -823,26 +913,98 @@ class FinderLayout(ui.FormLayout):
 								(lpane, b, m),
 								(pane, r, m),
 								(fp, b, m),
-								(fp, r, m),
+								(bl, r, m),
+								(bl, b, m),
 								),
 					
 					attachNone=(
 								(fp, t),
 								(lpane, r),
 								(fil, b),
+								(bl, l),
+								(bl, t),
 								),
 					
 					attachControl=(
 									(lpane, t, m, fil),
 									(pane, t, m, fil),
-									(pane, b, m, fp),
+									(pane, b, m, bl),
 									(pane, l, m, lpane),
 									(fp, l, m, lpane),
+									(fp, r, m, bl),
 									),
 					)
 		# END setup
 	
+	#{ Subclass Interface
+	
+	def _create_finder_menu(self, menu):
+		"""Create a static menu for the finder. The active parent is a popupMenu
+		at the time of this call. The default buttons allow to quickly confirm
+		and cancel.
+		If a stack is present, items can be added to it"""
+		mi = ui.MenuItem(rp="SW", label=self.k_cancel_name)
+		mi.e_command = self._cancel_button_pressed
+		
+		mi = ui.MenuItem(rp="SE", label=self.k_confirm_name)
+		mi.e_command = self._confirm_button_pressed
+		
+	def _create_button_layout(self):
+		"""Create a layout with two main buttons, one to confirm, the other 
+		to cancel the operation
+		:return: parent layout containing the buttons"""
+		bform = ui.FormLayout()
+		
+		if bform:
+			okb = ui.Button(label=self.k_confirm_name)
+			okb.e_released = self._confirm_button_pressed
+			
+			cnclb = ui.Button(label=self.k_cancel_name)
+			cnclb.e_released = self._cancel_button_pressed
+		# END create buttons
+		self.setActive()
+		
+		t, b, l, r = self.kSides
+		m = 2
+		bform.setup(
+					attachForm=(
+									(okb, t, m),
+									(okb, b, m),
+									(okb, l, m),
+									(cnclb, t, m),
+									(cnclb, b, m),
+									(cnclb, r, m),
+								),
+					attachNone=(
+									(okb, r),
+								),
+					attachControl=(
+									(cnclb, l, m, okb),
+									)
+					)
+		# END setup
+		
+		return bform
+	
+	#}END subclass interface
+	
 	#{ Callbacks
+
+	def _close_parent_window(self):
+		"""helper routine closing the parent window if there is one"""
+		if isinstance(self.parent(), ui.Window):
+			self.parent().delete()
+		# END close window
+
+	def _confirm_button_pressed(self, *args):
+		"""Called when the ok button was pressed to finalize the operation"""
+		self._close_parent_window()
+		
+	def _cancel_button_pressed(self, *args):
+		"""Called when the cancel button was pressed, terminating the operation without
+		any changes.
+		:note: if our parent is a window, we will close it through deletion"""
+		self._close_parent_window()
 
 	def _build_bookmark_popup(self, popup, *args):
 		popup.p_deleteAllItems = True
@@ -879,12 +1041,13 @@ class FinderLayout(ui.FormLayout):
 	def _on_bookmark_change(self, root, url):
 		"""Propagate changed bookmarks to changed roots. If necessary, add a new
 		root to the root selector. Otherwise just set the root and url of the finder"""
-		if root == self.finder.provider().root() and self.finder.selectedUrl() == url:
+		cur_provider = self.finder.provider()
+		if cur_provider and root == cur_provider.root() and self.finder.selectedUrl() == url:
 			return
 		# END early bailout
 		
 		if self.rootselector is None:
-			ptype = type(self.finder.provider())
+			ptype = type(cur_provider)
 			assert ptype is not type(None), "Finder needs provider to be set beforehand"
 			self.finder.setProvider(ptype(root))
 		else:
@@ -905,7 +1068,7 @@ class FinderLayout(ui.FormLayout):
 			
 			self.rootselector.setSelectedItem(root_item)
 		# END handle existance of rootselector
-		self.finder.setUrl(url)
+		self.finder.setUrl(url, allow_memory=False)
 		
 	#} END callbacks
 	
@@ -914,8 +1077,80 @@ class FileOpenFinder(FinderLayout):
 	"""Finder customized for opening files"""
 	
 	#{ Configuration 
-	t_stack=StackControl
+	k_confirm_name = "Open File"
+	
 	t_options=FileOpenOptions
 	#} END configuration
+
+
+class FileReferenceFinder(FinderLayout):
+	"""Finder Layout for creating references"""
+
+	#{ Configuration
+	
+	k_add_single = "Add to Stack"
+	k_add_and_confirm = "Add to Stack and Confirm"
+	k_confirm_name = "Create Reference(s)"
+	
+	t_stack=FileStack
+	t_options=FileOpenOptions
+	#} END configuration
+	
+	def _create_finder_menu(self, menu):
+		super(FileReferenceFinder, self)._create_finder_menu(menu)
+		
+		mi = ui.MenuItem(label=self.k_add_single, rp="E")
+		mi.e_command = self._on_add_to_stack
+		
+		mi = ui.MenuItem(label=self.k_add_and_confirm, rp="NE")
+		mi.e_command = self._on_add_to_stack
+	
+
+	#{ Subclass Interface
+	
+	def _create_references(self, refpaths):
+		"""Create reference to the given reference paths, being strings to the file 
+		in question"""
+		for ref in refpaths:
+			FileReference.create(ref)
+		# END for each ref to create
+	
+	#} END subclass interface
+
+	#{ Callbacks
+	
+	@notifyException
+	def _on_add_to_stack(self, menu_item, *args):
+		prov = self.finder.provider()
+		if prov is None:
+			raise AssertionError("Finder is not setup")
+		
+		# default is always add
+		url = self.finder.selectedUrl(absolute=True)
+		if url is None:
+			raise ValueError("Please select a path and retry")
+		# END handle nothing selected
+		
+		self.stack.addItem(url)
+		
+		if menu_item.p_label == self.k_add_and_confirm:
+			self._confirm_button_pressed()
+		# END handle confirm
+	
+	@notifyException
+	def _confirm_button_pressed(self, *args):
+		if not self.stack.base_items:
+			raise ValueError("Please add at least one item to the stack and retry")
+		# END handle empty refs
+		
+		# create refs
+		self._create_references(self.stack.base_items)
+		
+		# finally let base take care of the rest
+		# NOTE: Needs to be deferred, crashes otherwis
+		#mutil.executeDeferred(super(FileReferenceFinder, self)._confirm_button_pressed)
+		super(FileReferenceFinder, self)._confirm_button_pressed()
+	
+	#} END callbacks
 
 #} END layouts
