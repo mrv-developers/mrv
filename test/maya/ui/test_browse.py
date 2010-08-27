@@ -21,7 +21,7 @@ if not cmds.about(batch=1):
 			main = FileOpenFinder()
 			
 			# setup finder
-			main.finder.set_provider(FileProvider(root))
+			main.finder.setProvider(FileProvider(root))
 			
 			finder = main.finder
 			
@@ -31,63 +31,63 @@ if not cmds.about(batch=1):
 			################
 			# without interaction, nothing is selected
 			assert finder.provider() is not None
-			assert finder.selected_url() is None
+			assert finder.selectedUrl() is None
 			
 			# when setting a root, we have at least that
-			assert finder.num_url_elements() == 1
+			assert finder.numUrlElements() == 1
 			
-			assert finder.selected_url_item_by_index(0) is None
-			self.failUnlessRaises(IndexError, finder.selected_url_item_by_index, 1)
+			assert finder.selectedUrlItemByIndex(0) is None
+			self.failUnlessRaises(IndexError, finder.selectedUrlItemByIndex, 1)
 			
 			
 			# selection
-			items = finder.url_items_by_index(0)
-			self.failUnlessRaises(IndexError, finder.url_items_by_index, 1)
+			items = finder.urlItemsByIndex(0)
+			self.failUnlessRaises(IndexError, finder.urlItemsByIndex, 1)
 			
 			assert items
 			for item in items:
-				finder.set_item_by_index(item, 0)
-				assert finder.selected_url_item_by_index(0) == item
-				assert finder.selected_url() == item
+				finder.setItemByIndex(item, 0)
+				assert finder.selectedUrlItemByIndex(0) == item
+				assert finder.selectedUrl() == item
 			# END for each item to select
 			
-			self.failUnlessRaises(IndexError, finder.set_item_by_index, item, 100)
-			self.failUnlessRaises(ValueError, finder.set_item_by_index, "doesntexist", 0)
+			self.failUnlessRaises(IndexError, finder.setItemByIndex, item, 100)
+			self.failUnlessRaises(ValueError, finder.setItemByIndex, "doesntexist", 0)
 			
 			# more complex url selection
 			url_short = "ext/pydot"
 			url = "ext/pyparsing/src"
 			url_invalid = url_short + "/doesntexist"
 			
-			finder.set_url(url)
-			assert finder.selected_url() == url
+			finder.setUrl(url)
+			assert finder.selectedUrl() == url
 			
 			# require_all_items test - failure does not change existing value
-			self.failUnlessRaises(ValueError, finder.set_url, url_invalid)
-			assert finder.selected_url() == url
+			self.failUnlessRaises(ValueError, finder.setUrl, url_invalid)
+			assert finder.selectedUrl() == url
 			
-			finder.set_url(url_invalid, require_all_items=False)
-			assert finder.selected_url() == url_short
+			finder.setUrl(url_invalid, require_all_items=False)
+			assert finder.selectedUrl() == url_short
 			
 			
 			# ROOT_PROVIDER
 			###############
 			root2 = root.dirname()
 			selector = main.rootselector
-			self.failUnlessRaises(ValueError, selector.set_items, [root])
-			selector.set_items([FileProvider(root), FileProvider(root2)])
+			self.failUnlessRaises(ValueError, selector.setItems, [root])
+			selector.setItems([FileProvider(root), FileProvider(root2)])
 			assert len(selector.providers()) == 2  
 			
 			# test removal - root path - nonexisting okay
-			selector.remove_item("something")
+			selector.removeItem("something")
 			assert len(selector.providers()) == 2
 			
 			# remove by root
-			selector.remove_item(root2)
+			selector.removeItem(root2)
 			assert len(selector.providers()) == 1 and len(selector.items()) == 1  
 			
 			# re-add previous item
-			selector.add_item(FileProvider(root2))
+			selector.addItem(FileProvider(root2))
 			assert len(selector.providers()) == 2 and len(selector.items()) == 2
 			
 			
@@ -96,27 +96,27 @@ if not cmds.about(batch=1):
 			bookmarks = main.bookmarks
 			assert len(bookmarks.items()) == 0
 			
-			bookmarks.add_item(root)
+			bookmarks.addItem(root)
 			assert len(bookmarks.items()) == 1
 			assert bookmarks.items()[0] == root
 			
 			# duplicate check
-			bookmarks.add_item(root)
+			bookmarks.addItem(root)
 			assert len(bookmarks.items()) == 1
 			
 			root2_bm = (root2, 'git')
-			bookmarks.add_item(root2_bm)
+			bookmarks.addItem(root2_bm)
 			assert len(bookmarks.items()) == 2
 			
 			# remove - ignores non-existing
-			bookmarks.remove_item("doesntexist")
+			bookmarks.removeItem("doesntexist")
 			assert len(bookmarks.items()) == 2
 			
 			# remove 
-			bookmarks.remove_item(root)
+			bookmarks.removeItem(root)
 			assert len(bookmarks.items()) == 1
 			
-			bookmarks.set_items([root, root2_bm])
+			bookmarks.setItems([root, root2_bm])
 			assert len(bookmarks.items()) == 2
 			
 			

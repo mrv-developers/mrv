@@ -13,8 +13,8 @@ if not cmds.about(batch=1):
 			
 			tsl = ui.TextScrollList(allowMultiSelection=True)
 			first = "one"
-			tsl.p_append = first
-			tsl.p_append = "two"
+			tsl.addItem(first)
+			tsl.addItem("two")
 			
 			assert tsl.selectedIndex() == -1
 			assert tsl.selectedItem() is None
@@ -33,6 +33,21 @@ if not cmds.about(batch=1):
 			assert tsl.selectedIndex() == 1
 			assert tsl.selectedItem() == first
 			assert len(tsl.selectedItems()) == 2
-			assert len(tsl.selectedIndices()) == 2 
+			assert len(tsl.selectedIndices()) == 2
+			
+			# add item
+			third = "hi"
+			tsl.addItems((third, "there"))
+			assert len(tsl.items()) == 4
+			
+			# selectItem
+			tsl.setSelectedItem(third)
+			assert len(tsl.selectedItems()) == 3
+
+			
+			# remove item - non-existing is no error
+			tsl.removeItem("doesnt exist")
+			tsl.removeItem(third)
+			assert len(tsl.items()) == 3
 			
 			win.show()

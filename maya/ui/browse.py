@@ -3,14 +3,14 @@
 __docformat__ = "restructuredtext"
 from mrv.interface import Interface
 import mrv.maya.ui as ui
-from mrv.maya.util import (	logException, noneToList, OptionVarDict)
+from mrv.maya.util import (	logException, OptionVarDict)
 
 from mrv.path import Path
 
 opts = OptionVarDict()
 
-__all__ = ('iFinderProvider', 'iFinderFilter', 'iSelector', 'iOptions',
-			'FileProvider', 'Finder', 'FinderLayout', 'SelectorControl', 
+__all__ = ('iFinderProvider', 'iFinderFilter', 'iOptions',
+			'FileProvider', 'Finder', 'FinderLayout', 
 			'BookmarkControl', 'StackControl', 'FileOpenOptions', 
 			'FileOpenFinder')
 
@@ -31,7 +31,7 @@ class iFinderProvider(object):
 	#{ Configuration
 	# if True, items of urls will be memorized, if False, this information
 	# will be discarded
-	memorize_url_items = True
+	memorize_urlItems = True
 	#} END configuration
 	
 	def __init__(self, root):
@@ -40,7 +40,7 @@ class iFinderProvider(object):
 	
 	#{ Interface 
 	
-	def url_items(self, url):
+	def urlItems(self, url):
 		"""
 		:return: list of string-like items which can be found at the given url.
 		If this url is combined with one of the returned items separated by a slash, 
@@ -49,7 +49,7 @@ class iFinderProvider(object):
 			requests items at the root of all urls"""
 		raise NotImplementedError("To be implemented by subclass")
 		
-	def format_item(self, url_base, url_index, url_item):
+	def formatItem(self, url_base, url_index, url_item):
 		"""Given the url_item, as well as additional information such as its base
 		and its index inside of the url, this method encodes the item for presentation
 		in the user interface.
@@ -61,18 +61,18 @@ class iFinderProvider(object):
 		:return: string representing the formatted url."""
 		return url_item
 			
-	def store_url_item(self, url_index, url_item):
+	def storeUrlItem(self, url_index, url_item):
 		"""Stores and associates a given url_index with a url_item. Makes the stored
-		item queryable by the ``stored_url_item_by_index`` method
+		item queryable by the ``storedUrlItemByIndex`` method
 		:param url_index: index from 0 to n, where 0 corresponds to the first item
 			in the url
 		:param url_item: the string item to store at the given index"""
-		if not self.memorize_url_items:
+		if not self.memorize_urlItems:
 			return
 		# END ignore store call
 		self._mem_items[url_index] = url_item
 		
-	def stored_url_item_by_index(self, url_index):
+	def storedUrlItemByIndex(self, url_index):
 		""":return: string item previously stored at the given index, or None 
 		if there is no information available"""
 		return self._mem_items.get(url_index, None)
@@ -98,35 +98,6 @@ class iFinderFilter(object):
 		
 	#} END interface
 
-class iSelector(object):
-	"""Interface representing a stack of items, effectively being a simple list
-	of items that can be appended to and queried"""
-	
-	#{ Interface
-	
-	def items(self):
-		""":return: list of currently available items"""
-		
-	def selected_items(self):
-		""":return: list of currently selected items"""
-		
-	def set_items(self, items):
-		"""Set the given items to be shown. If empty, the control will be empty"""
-		
-	def add_item(self, item):
-		"""Add the given item to the end of the list"""
-		
-	def remove_item(self, item):
-		"""Remove the given item from the list. It is not an error if it doesn't 
-		exist in the first place"""
-		
-	def set_selected_item(self, item=None):
-		"""Set the given item selected, or clear the selection
-		:param item: item to select, or clear the selection if None is given
-		:raise ValueError: if the item does not exist"""
-		
-	#} END interface
-	
 
 class iOptions(object):
 	"""Interface for all custom options layouts to be used with the FinderLayout. 
@@ -151,10 +122,10 @@ class FileProvider(iFinderProvider):
 		super(FileProvider, self).__init__(root)
 		self._root = Path(self._root)
 	
-	def format_item(self, url_base, url_index, url_item):
+	def formatItem(self, url_base, url_index, url_item):
 		return url_item
 		
-	def url_items(self, url):
+	def urlItems(self, url):
 		"""Return directory items alphabetically, directories first"""
 		path = self._root / url
 		dirs, files = list(), list()
@@ -187,14 +158,14 @@ class FinderElement(ui.TextScrollList):
 	def __init__(self, *args, **kwargs):
 		self.items = list()
 		
-	def selected_unformatted_item(self):
+	def selectedUnformattedItem(self):
 		""":return: unformatted selected item or None"""
 		index = self.selectedIndex()
 		if index < 0:
 			return None
 		return self.items[index-1]
 		
-	def select_unformatted_item(self, index_or_item):
+	def selectUnformattedItem(self, index_or_item):
 		"""Select the unformatted item as identified by either the index or item
 		:param index_or_item: integer representing the 0-based index of the item to 
 			select, or the item's id
@@ -214,11 +185,11 @@ class FilePathControl(ui.TextField):
 		""":return: string representing the currently active path"""
 		return self.p_text
 		
-	def set_path(self, path):
+	def setPath(self, path):
 		"""Set the control to display the given path"""
 		self.p_text = str(path)
 		
-	def set_editable(self, state):
+	def setEditable(self, state):
 		self.p_editable = state
 		
 	def editable(self):
@@ -227,45 +198,7 @@ class FilePathControl(ui.TextField):
 	#} END interface
 	
 	
-class SelectorControl(ui.TextScrollList, iSelector):
-	"""Control allowing to select items, selection changes trigger an event"""
-	
-	def items(self):
-		return noneToList(self.p_allItems)
-		
-	def selected_items(self):
-		return self.selectedItems()
-		
-	def set_items(self, items):
-		return self.setItems(items)
-		
-	def add_item(self, item):
-		self.p_append = str(item)
-		
-	def set_selected_item(self, item):
-		if item is None:
-			self.p_deselectAll = True
-			return
-		# END handle deselection
-		
-		try:
-			self.p_selectItem = item
-		except RuntimeError, e:
-			raise ValueError(str(e))
-		# END exception handling
-		
-	def remove_item(self, item):
-		items = self.items()
-		try:
-			index = items.index(item)
-			self.p_removeIndexedItem = index+1
-		except ValueError:
-			# no change
-			pass
-		# END handle exception
-	
-	
-class BookmarkControl(SelectorControl):
+class BookmarkControl(ui.TextScrollList):
 	"""Control allowing to display a set of custom bookmarks, which are stored
 	in optionVars"""
 	#{ Configuration
@@ -283,7 +216,7 @@ class BookmarkControl(SelectorControl):
 		# fill ourselves with the stored bookmarks
 		# List of tuples: root,relative_path
 		self._bms = list()
-		self.set_items(self._unpack_stored_bookmarks())
+		self.setItems(self._unpack_stored_bookmarks())
 		self.e_selectCommand = self._selection_changed
 	
 	def _parse_bookmark(self, bookmark):
@@ -352,9 +285,9 @@ class BookmarkControl(SelectorControl):
 		root, path = self._bms[self.selectedIndex()-1]
 		self.bookmark_changed.send(root, path)
 		# as we are one-time actions only, deselect everything
-		self.set_selected_item(None)
+		self.setSelectedItem(None)
 		
-	def add_item(self, bookmark):
+	def addItem(self, bookmark):
 		"""Add a new bookmark
 		:param bookmark: tuple of root,relative_path or a single absolute path. In the 
 			latter case, the root will be the natural root of the absolute path"""
@@ -365,10 +298,10 @@ class BookmarkControl(SelectorControl):
 			return
 		# END handle duplicates
 		self._bms.append((root, path))
-		super(BookmarkControl, self).add_item(bm_formatted)
+		super(BookmarkControl, self).addItem(bm_formatted)
 		self._store_bookmark(root, path, add=True)
 		
-	def set_items(self, bookmarks):
+	def setItems(self, bookmarks):
 		"""Set this control to a list of bookmarks
 		:param bookmarks: list of either tuples of (root, path) pairs or absolute paths
 			whose root will be chosen automatically"""
@@ -378,13 +311,13 @@ class BookmarkControl(SelectorControl):
 			self._bms.append(self._parse_bookmark(item))
 			bms.append(self._format_bookmark(*self._bms[-1]))
 		# END for each item
-		super(BookmarkControl, self).set_items(bms)
+		super(BookmarkControl, self).setItems(bms)
 		
 		# store all items together
 		del(opts[self.k_bookmark_store])
 		self._store_item_list(self._bms)
 		
-	def remove_item(self, bookmark):
+	def removeItem(self, bookmark):
 		"""Remove the given bookmark from the list of bookmarks
 		:param bookmark: full path to the bookmark to remove. Its not an error
 			if it doesn't exist in the first place"""
@@ -393,14 +326,14 @@ class BookmarkControl(SelectorControl):
 			index = self.items().index(bookmark)
 			root, path = self._bms[index]
 			del(self._bms[index])
-			super(BookmarkControl, self).remove_item(bookmark)
+			super(BookmarkControl, self).removeItem(bookmark)
 			self._store_bookmark(root, path, add=False)
 		except ValueError:
 			return
 		# END exception handling
 	
 	
-class FileRootSelectorControl(SelectorControl):
+class FileRootSelectorControl(ui.TextScrollList):
 	"""Keeps a list of possible roots which can be chosen. Each root is represented 
 	by a Provider instance."""
 	
@@ -422,7 +355,7 @@ class FileRootSelectorControl(SelectorControl):
 		# END for each of our providers
 		return None
 	
-	def set_items(self, providers):
+	def setItems(self, providers):
 		"""Set the given providers to be used by this instance
 		:param providers: list of FileProvider instances"""
 		for provider in providers:
@@ -431,14 +364,14 @@ class FileRootSelectorControl(SelectorControl):
 			# END verify type
 		# END for each provider
 		self._providers = providers
-		super(FileRootSelectorControl, self).set_items(p.root() for p in self._providers)
+		super(FileRootSelectorControl, self).setItems(p.root() for p in self._providers)
 		
-	def add_item(self, provider):
+	def addItem(self, provider):
 		"""Add the given provider to our list of provides"""
-		super(FileRootSelectorControl, self).add_item(provider.root())
+		super(FileRootSelectorControl, self).addItem(provider.root())
 		self._providers.append(provider)
 		
-	def remove_item(self, provider):
+	def removeItem(self, provider):
 		"""Remove the given provider from the list
 		:param provider: FileProvider instance or root from which the provider
 			can be determined"""
@@ -454,13 +387,13 @@ class FileRootSelectorControl(SelectorControl):
 		except ValueError:
 			return
 		else:
-			self.set_items(self._providers)
+			self.setItems(self._providers)
 		# END exception handling
 		
-	def set_selected_item(self, item):
+	def setSelectedItem(self, item):
 		"""Fires a root_changed event if the item actually caused a selection change"""
 		cur_index = self.selectedIndex()
-		super(FileRootSelectorControl, self).set_selected_item(item)
+		super(FileRootSelectorControl, self).setSelectedItem(item)
 		if cur_index == self.selectedIndex():
 			return
 		# END skip if no change
@@ -490,7 +423,7 @@ class FileFilterControl(ui.FormLayout, iFinderFilter):
 	"""Control providing a filter for finder urls which are file paths"""
 	
 
-class StackControl(SelectorControl):
+class StackControl(ui.TextScrollList):
 	"""Simple stack implementation"""
 
 
@@ -534,8 +467,8 @@ class Finder(ui.EventSenderUI):
 		self._form = ui.FormLayout()
 		self._form.setParentActive()
 		
-		self.set_provider(provider)
-		self.set_filter(filter)
+		self.setProvider(provider)
+		self.setFilter(filter)
 		
 	# { Query
 	
@@ -543,14 +476,14 @@ class Finder(ui.EventSenderUI):
 		""":return: current url provider"""
 		return self._provider
 	
-	def selected_url(self):
+	def selectedUrl(self):
 		""":return: string representing the currently selected, / separated URL, or
 			None if there is no url selected"""
 		items = list()
 		for elm in self._form.listChildren():
 			if not elm.p_manage:
 				break
-			sel_item = elm.selected_unformatted_item()
+			sel_item = elm.selectedUnformattedItem()
 			if sel_item is not None:
 				items.append(sel_item)
 			else:
@@ -559,21 +492,21 @@ class Finder(ui.EventSenderUI):
 		
 		return "/".join(items) or None
 		
-	def num_url_elements(self):
+	def numUrlElements(self):
 		""":return: number of url elements that are currently shown. A url of 1/2 would
 		have two url elements"""
 		return len(tuple(c for c in self._form.listChildren() if c.p_manage))
 		
-	def selected_url_item_by_index(self, index):
+	def selectedUrlItemByIndex(self, index):
 		""":return: The selected url item at the given element index or None if nothing 
 			is selected
-		:param index: 0 to num_url_elements()-1
+		:param index: 0 to numUrlElements()-1
 		:raies IndexError:"""
-		return self._form.listChildren()[index].selected_unformatted_item()
+		return self._form.listChildren()[index].selectedUnformattedItem()
 		
-	def url_items_by_index(self, index):
+	def urlItemsByIndex(self, index):
 		""":return: list of item ids which are currently being shown
-		:param index: 0 based element index to num_url_elements()-1
+		:param index: 0 based element index to numUrlElements()-1
 		:raise IndexError:"""
 		return list(self._form.listChildren()[index].items) 
 		
@@ -582,7 +515,7 @@ class Finder(ui.EventSenderUI):
 	
 	#{ Edit
 	
-	def set_filter(self, filter=None):
+	def setFilter(self, filter=None):
 		"""Set or unset a filter. All items will be sent through the filter, and will
 		be shown only if they pass.
 		:param filter: Functor called f(url,t) and returns True for each item which may
@@ -590,7 +523,7 @@ class Finder(ui.EventSenderUI):
 			excluding the item t, whose visibility is being decided upon"""
 		self._filter = filter
 		
-	def set_provider(self, provider=None):
+	def setProvider(self, provider=None):
 		"""Set the provider to use
 		:param provider: ``iFinderProvider`` compatible instance, or None
 			If no provider is set, the instance will be blank"""
@@ -604,43 +537,43 @@ class Finder(ui.EventSenderUI):
 		# END handle initial setup
 		
 		self.selection_changed.send()
-		self.url_changed.send(self.selected_url())
+		self.url_changed.send(self.selectedUrl())
 	
 	def _set_item_by_index(self, elm, index, item):
 		self._set_element_visible(index)
-		elm.select_unformatted_item(item)
-		self.provider().store_url_item(index, item)
+		elm.selectUnformattedItem(item)
+		self.provider().storeUrlItem(index, item)
 		self._set_element_visible(index+1)
 	
-	def set_item_by_index(self, item, index):
+	def setItemByIndex(self, item, index):
 		"""Set the given string item, which sits at the given index of a url
 		:raise ValueError: if item does not exist at given index
 		:raise IndexError: if index is not currently shown"""
 		assert self.provider() is not None, "Provider is not set"
 		elm = self._form.listChildren()[index]
-		if elm.selected_unformatted_item() == item:
+		if elm.selectedUnformattedItem() == item:
 			return
 		# END early abort if nothing changes
 		self._set_item_by_index(elm, index, item)
 		
 		self.selection_changed.send()
-		self.url_changed.send(self.selected_url())
+		self.url_changed.send(self.selectedUrl())
 		
-	def set_url(self, url, require_all_items=True):
+	def setUrl(self, url, require_all_items=True):
 		"""Set the given url to be selected
 		:param url: / separated relative url. The individual items must be available
 			in the provider.
 		:parm require_all_items: if False, the control will display as many items as possible.
 			Otherwise it must display all given items, or raise ValueError"""
 		assert self.provider() is not None, "Provider is not set"
-		cur_url = self.selected_url()
+		cur_url = self.selectedUrl()
 		if cur_url == url:
 			return
 		# END ignore similar urls
 		
 		for eid, item in enumerate(url.split("/")):
 			elm = self._form.listChildren()[eid]
-			if elm.selected_unformatted_item() == item:
+			if elm.selectedUnformattedItem() == item:
 				continue
 			# END skip items which already match
 			try:
@@ -649,13 +582,13 @@ class Finder(ui.EventSenderUI):
 				if not require_all_items:
 					break
 				# restore previous url
-				self.set_url(cur_url)
+				self.setUrl(cur_url)
 				raise
 			# END handle exceptions
 		# END for each item to set
 		
 		self.selection_changed.send()
-		self.url_changed.send(self.selected_url())
+		self.url_changed.send(self.selectedUrl())
 		
 		
 		
@@ -669,11 +602,11 @@ class Finder(ui.EventSenderUI):
 		elements to refresh"""
 		index = self._index_by_item_element(element)
 		# store the currently selected item
-		self.provider().store_url_item(index, element.selected_unformatted_item())
+		self.provider().storeUrlItem(index, element.selectedUnformattedItem())
 		self._set_element_visible(index+1)
 		
 		self.selection_changed.send()
-		self.url_changed.send(self.selected_url())
+		self.url_changed.send(self.selectedUrl())
 		
 	#} END callbacks
 	
@@ -694,7 +627,7 @@ class Finder(ui.EventSenderUI):
 		:param elements: a full list of all available child elements."""
 		
 		# obtain the root url
-		root_url = "/".join(c.selected_unformatted_item() for c in elements[:start_elm_id])
+		root_url = "/".join(c.selectedUnformattedItem() for c in elements[:start_elm_id])
 		
 		manage = True
 		for elm_id in range(start_elm_id, len(elements)):
@@ -707,7 +640,7 @@ class Finder(ui.EventSenderUI):
 				continue
 			# END abort if we just disable all others
 			
-			items = self.provider().url_items(root_url)
+			items = self.provider().urlItems(root_url)
 			elm.items = items
 			if not items:
 				# keep one item visible, even though empty, if its the only one
@@ -722,11 +655,11 @@ class Finder(ui.EventSenderUI):
 			# END remove prior to re-append
 			
 			for item in items:
-				elm.p_append = self.provider().format_item(root_url, elm_id, item)
+				elm.p_append = self.provider().formatItem(root_url, elm_id, item)
 			# END for each item to append
 			
 			# try to reselect the previously selected item
-			sel_item = self.provider().stored_url_item_by_index(elm_id)
+			sel_item = self.provider().storedUrlItemByIndex(elm_id)
 			if sel_item is None:
 				# make sure next item is not being shown
 				manage=False
@@ -734,7 +667,7 @@ class Finder(ui.EventSenderUI):
 			# END handle item memorization
 			
 			try:
-				elm.select_unformatted_item(sel_item)
+				elm.selectUnformattedItem(sel_item)
 			except (RuntimeError, ValueError):
 				manage=False
 				continue
@@ -842,9 +775,9 @@ class FinderLayout(ui.FormLayout):
 		# FILEPATH
 		##########
 		fp = self.t_filepath()
-		fp.set_editable(False)
+		fp.setEditable(False)
 		self.fpctrl = fp
-		self.finder.url_changed = fp.set_path
+		self.finder.url_changed = fp.setPath
 		
 		
 		# BOOKMARKS AND SELECTOR
@@ -859,11 +792,11 @@ class FinderLayout(ui.FormLayout):
 			self.rootselector, self.bookmarks = None, None
 			if self.t_root_selector:
 				self.rootselector = self.t_root_selector()
-				self.rootselector.root_changed = self.finder.set_provider
+				self.rootselector.root_changed = self.finder.setProvider
 			# END root selector setup
 			if self.t_bookmarks:
 				self.bookmarks = self.t_bookmarks()
-				self.bookmarks.bookmark_changed = self.on_bookmark_change
+				self.bookmarks.bookmark_changed = self._on_bookmark_change
 				
 				# BOOKMARK POPUP
 				pmenu = ui.PopupMenu()
@@ -916,7 +849,7 @@ class FinderLayout(ui.FormLayout):
 		popup.setActive()
 		
 		mi = ui.MenuItem(label="Add Bookmark")
-		mi.p_enable = self.finder.selected_url() is not None
+		mi.p_enable = self.finder.selectedUrl() is not None
 		if mi.p_enable:
 			mi.e_command = self._on_add_bookmark
 		# END setup command
@@ -929,31 +862,31 @@ class FinderLayout(ui.FormLayout):
 
 	@logException
 	def _on_add_bookmark(self, item, *args):
-		url = self.finder.selected_url()
+		url = self.finder.selectedUrl()
 		provider = self.finder.provider()
 		
 		if not hasattr(provider, 'root'):
 			raise TypeError("Provider doesn't support the 'root' method")
 		# END verify interface
 		
-		self.bookmarks.add_item((provider.root(), url))
+		self.bookmarks.addItem((provider.root(), url))
 
 	@logException
 	def _on_remove_bookmark(self, item, *args):
-		self.bookmarks.remove_item(self.bookmarks.selected_items()[0])
+		self.bookmarks.removeItem(self.bookmarks.selectedItems()[0])
 
 	@logException
-	def on_bookmark_change(self, root, url):
+	def _on_bookmark_change(self, root, url):
 		"""Propagate changed bookmarks to changed roots. If necessary, add a new
 		root to the root selector. Otherwise just set the root and url of the finder"""
-		if root == self.finder.provider().root() and self.finder.selected_url() == url:
+		if root == self.finder.provider().root() and self.finder.selectedUrl() == url:
 			return
 		# END early bailout
 		
 		if self.rootselector is None:
 			ptype = type(self.finder.provider())
 			assert ptype is not type(None), "Finder needs provider to be set beforehand"
-			self.finder.set_provider(ptype(root))
+			self.finder.setProvider(ptype(root))
 		else:
 			actual_provider = None
 			root_item = root
@@ -967,12 +900,12 @@ class FinderLayout(ui.FormLayout):
 			
 			if actual_provider is None:
 				actual_provider = self.t_finder_provider(root)
-				self.rootselector.add_item(actual_provider)
+				self.rootselector.addItem(actual_provider)
 			# END add a new provider to root selector
 			
-			self.rootselector.set_selected_item(root_item)
+			self.rootselector.setSelectedItem(root_item)
 		# END handle existance of rootselector
-		self.finder.set_url(url)
+		self.finder.setUrl(url)
 		
 	#} END callbacks
 	
