@@ -6,6 +6,8 @@ from control import *
 from finder import *
 from option import *
 
+from util import FrameDecorator
+
 import mrv.maya.ui as ui
 from mrv.maya.util import (logException, notifyException)
 
@@ -62,13 +64,16 @@ class FinderLayout(ui.FormLayout):
 			if self.t_stack is not None:
 				finder_form = ui.FormLayout()
 				if finder_form:
-					self.stack = self.t_stack()
+					
+					sdc = FrameDecorator("Stack", self.t_stack)
+					self.stack = sdc.layout
 					popup = ui.PopupMenu(markingMenu=True)
 					self._create_stack_menu(popup)
 					
 					
-					self.finder = self.t_finder()
-					fi, st = self.finder.layout(), self.stack
+					fdc = FrameDecorator("Finder", self.t_finder)
+					self.finder = fdc.layout
+					fi, st = fdc, sdc
 					
 					finder_form.setup(
 											attachForm=(
@@ -123,11 +128,13 @@ class FinderLayout(ui.FormLayout):
 		if lpane:
 			self.rootselector, self.bookmarks = None, None
 			if self.t_root_selector:
-				self.rootselector = self.t_root_selector()
+				rdc = FrameDecorator("Roots", self.t_root_selector)
+				self.rootselector = rdc.layout
 				self.rootselector.root_changed = self.finder.setProvider
 			# END root selector setup
 			if self.t_bookmarks:
-				self.bookmarks = self.t_bookmarks()
+				bdc = FrameDecorator("Bookmarks", self.t_bookmarks)
+				self.bookmarks = bdc.layout
 				self.bookmarks.bookmark_changed = self._on_bookmark_change
 				
 				# BOOKMARK POPUP
@@ -347,7 +354,7 @@ class FileReferenceFinder(FinderLayout):
 	k_add_single = "Add to Stack"
 	k_add_and_confirm = "Add to Stack and Confirm"
 	k_confirm_name = "Create Reference(s)"
-	k_stack_item_remove_name = "Remove Reference"
+	k_stack_item_remove_name = "Remove File from Stack"
 	
 	t_stack=FileStack
 	t_options=FileOpenOptions
