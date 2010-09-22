@@ -256,7 +256,9 @@ class FinderLayout(ui.FormLayout):
 	def _close_parent_window(self):
 		"""helper routine closing the parent window if there is one"""
 		if isinstance(self.parent(), ui.Window):
-			self.parent().delete()
+			# If its not deferred, it will crash maya for some reason, maybe
+			# something related to garbage collection.
+			mutil.executeDeferred(self.parent().delete)
 		# END close window
 
 	def _confirm_button_pressed(self, *args):

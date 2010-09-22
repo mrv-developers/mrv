@@ -5,7 +5,7 @@ __docformat__ = "restructuredtext"
 from interface import (iFinderProvider, iFinderFilter)
 
 import mrv.maya.ui as ui
-from mrv.maya.util import (OptionVarDict, )
+from mrv.maya.util import (OptionVarDict, logException )
 from util import concat_url
 
 from mrv.path import Path
@@ -99,7 +99,7 @@ class StackControlBase(ui.TextScrollList):
 			index = self.items().index(item)
 			del(self.base_items[index])
 			super(StackControlBase, self).removeItem(item)
-		except ValueError:
+		except (ValueError, IndexError):
 			pass
 		# END exception handling
 		return self
@@ -152,7 +152,7 @@ class FilePathControl(ui.TextField):
 	#} END interface
 	
 	
-class BookmarkControl(ui.TextScrollList):
+class BookmarkControl(StackControlBase):
 	"""Control allowing to display a set of custom bookmarks, which are stored
 	in optionVars"""
 	#{ Configuration
@@ -169,7 +169,7 @@ class BookmarkControl(ui.TextScrollList):
 	def __init__(self, *args, **kwargs):
 		# fill ourselves with the stored bookmarks
 		# List of tuples: root,relative_path
-		self._bms = list()
+		super(BookmarkControl, self).__init__(*args, **kwargs)
 		self.setItems(self._unpack_stored_bookmarks())
 		self.e_selectCommand = self._selection_changed
 	
@@ -228,42 +228,54 @@ class BookmarkControl(ui.TextScrollList):
 		
 		self._store_item_list(items)
 		
+	@logException
 	def _selection_changed(self, *args):
 		"""Convert the default callback into our signals"""
-		root, path = self._bms[self.selectedIndex()-1]
+		if not self.base_items:
+			return
+		root, path = self.base_items[self.selectedIndex()-1]
 		self.bookmark_changed.send(root, path)
 		# as we are one-time actions only, deselect everything
 		self.setSelectedItem(None)
+		
+	#{ StackControl Interface
+	def formatItem(self, root_path_tuple):
+		if isinstance(root_path_tuple, tuple):
+			return Path(root_path_tuple[-1]).basename()
+		else:
+			return Path(root_path_tuple).basename()
+	
+	#} END stackcontrol interface
 		
 	def addItem(self, bookmark):
 		"""Add a new bookmark
 		:param bookmark: tuple of root,relative_path or a single absolute path. In the 
 			latter case, the root will be the natural root of the absolute path"""
 		root, path = self._parse_bookmark(bookmark)
-		bm_formatted = concat_url(root, path)
+		bm_formatted = self.formatItem((root, path))
 		# duplicate prevention
 		if bm_formatted in self.items():
 			return
 		# END handle duplicates
-		self._bms.append((root, path))
-		super(BookmarkControl, self).addItem(bm_formatted)
 		self._store_bookmark(root, path, add=True)
+		super(BookmarkControl, self).addItem((root, path))
+		
 		
 	def setItems(self, bookmarks):
 		"""Set this control to a list of bookmarks
 		:param bookmarks: list of either tuples of (root, path) pairs or absolute paths
 			whose root will be chosen automatically"""
 		bms = list()
-		self._bms = list()
+		self.base_items = list()
 		for item in bookmarks:
-			self._bms.append(self._parse_bookmark(item))
-			bms.append(concat_url(*self._bms[-1]))
+			self.base_items.append(self._parse_bookmark(item))
+			bms.append(self.formatItem(self.base_items[-1]))
 		# END for each item
 		super(BookmarkControl, self).setItems(bms)
 		
 		# store all items together
 		del(opts[self.k_bookmark_store])
-		self._store_item_list(self._bms)
+		self._store_item_list(self.base_items)
 		
 	def removeItem(self, bookmark):
 		"""Remove the given bookmark from the list of bookmarks
@@ -272,11 +284,10 @@ class BookmarkControl(ui.TextScrollList):
 		items = self.items()
 		try:
 			index = self.items().index(bookmark)
-			root, path = self._bms[index]
-			del(self._bms[index])
+			root, path = self.base_items[index]
 			super(BookmarkControl, self).removeItem(bookmark)
 			self._store_bookmark(root, path, add=False)
-		except ValueError:
+		except (ValueError, IndexError):
 			return
 		# END exception handling
 	

@@ -97,12 +97,15 @@ if not cmds.about(batch=1):
 			assert len(bookmarks.items()) == 0
 			
 			bookmarks.addItem(root)
+			rootformatted = bookmarks.formatItem(root)
 			assert len(bookmarks.items()) == 1
-			assert bookmarks.items()[0] == root
+			print bookmarks.items(), "BOOKMARK ITEMS", rootformatted, root
+			assert bookmarks.items()[0] == rootformatted
 			
 			# duplicate check
 			bookmarks.addItem(root)
 			assert len(bookmarks.items()) == 1
+			assert len(bookmarks.base_items) == len(bookmarks.items())
 			
 			root2_bm = (root2, 'git')
 			bookmarks.addItem(root2_bm)
@@ -113,11 +116,12 @@ if not cmds.about(batch=1):
 			assert len(bookmarks.items()) == 2
 			
 			# remove 
-			bookmarks.removeItem(root)
+			bookmarks.removeItem(rootformatted)
 			assert len(bookmarks.items()) == 1
 			
 			bookmarks.setItems([root, root2_bm])
 			assert len(bookmarks.items()) == 2
+			assert len(bookmarks.base_items) == len(bookmarks.items())
 			
 			
 			# STACK CONTROL
@@ -138,6 +142,10 @@ if not cmds.about(batch=1):
 			assert len(stack.base_items) == 0
 			
 			
+			# try it in a layout dialog, especially the way it handles resizing
+			# Works, but crashes if things are not eval-deferred !
+			# TODO: Test and make it work
+			# cmds.layoutDialog(ui=FileReferenceFinder)
 			
 			return
 			
