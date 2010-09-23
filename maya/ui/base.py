@@ -280,9 +280,15 @@ class NamedUI( unicode, BaseUI , iDagItem, EventSenderUI ):
 		kwargs['long'] = True
 		return filter( lambda x: x.startswith(self) and not x == self, lsUI(**kwargs))
 
+	def _parentString(self):
+		""":return: string of the parent, without a wrap
+		:note: this helps mainly as a workaround for a maya 2011 issues, causing 
+			objectTypeUI not to work on many items"""
+		return '|'.join(self.split('|')[:-1])
+
 	def parent( self ):
 		""":return: parent instance of this ui element"""
-		return wrapUI( '|'.join( self.split('|')[:-1] ) )
+		return wrapUI(self._parentString())
 
 	#{ Hierachy Handling
 

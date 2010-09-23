@@ -304,6 +304,11 @@ class TextScrollList( uibase.SizedControl ):
 					"selectCommand", "sc" )
 	
 	#{ Interface
+	
+	def items(self):
+		""":return: list of currently available items"""
+		return noneToList(self.p_allItems)
+	
 	def selectedIndex(self):
 		""":return: First selected index - the index is 1-based, or -1 if there 
 		is nothing selected
@@ -321,6 +326,73 @@ class TextScrollList( uibase.SizedControl ):
 		except RuntimeError:
 			return tuple()
 		# END handle exceptions
+	
+	def selectedItem(self):
+		""":return: the first selected item, or None if nothing is selected"""
+		items = self.selectedItems()
+		return (items and items[0]) or None
+	
+	def selectedItems(self):
+		""":return: list of all selected items as strings, or an empty list if nothing
+			is selected"""
+		try:
+			return noneToList(self.p_selectItem)
+		except RuntimeError:
+			return list()
+		# END handle exceptions
+	
+	def setItems(self, items):
+		"""Set the given items to be shown.
+		:param items: iterable of items 
+			if empty, the control will be empty after this call.
+		:return: self"""
+		self.p_removeAll = True
+		for item in items:
+			self.p_append = str(item)
+		# END for each item to add
+		return self
+		
+	def addItem(self, item):
+		"""Add the given item to the end of the list
+		:return: self"""
+		self.p_append = str(item)
+		return self
+		
+	def addItems(self, items):
+		"""Add multiple items to the end of the list
+		:return: self"""
+		for item in items:
+			self.addItem(item)
+		# END for each item
+		return self
+		
+	def setSelectedItem(self, item):
+		"""Set the given item selected, or clear the selection
+		:param item: item to select, or clear the selection if None is given
+		:note: it is not considered an error if the item doesnt exist - following 
+			maya's behaviour
+		:return: self"""
+		if item is None:
+			self.p_deselectAll = True
+			return
+		# END handle deselection
+		
+		self.p_selectItem = item
+		return self
+		
+	def removeItem(self, item):
+		"""Remove the given item from the list. It is not an error if it doesn't 
+		exist in the first place
+		:return: self"""
+		items = self.items()
+		try:
+			index = items.index(item)
+			self.p_removeIndexedItem = index+1
+		except ValueError:
+			# no change
+			pass
+		# END handle exception
+		return self
 	
 	#} END interface
 
