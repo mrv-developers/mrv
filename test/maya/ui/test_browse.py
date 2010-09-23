@@ -6,6 +6,7 @@ from mrv.path import make_path
 from mrv.maya.ui.browse import *
 from mrv.maya.ui.browse.control import *
 
+import mrv.maya
 import mrv.maya.ui as ui
 from mrv.test.maya.ui import instructor
 
@@ -99,7 +100,6 @@ if not cmds.about(batch=1):
 			bookmarks.addItem(root)
 			rootformatted = bookmarks.formatItem(root)
 			assert len(bookmarks.items()) == 1
-			print bookmarks.items(), "BOOKMARK ITEMS", rootformatted, root
 			assert bookmarks.items()[0] == rootformatted
 			
 			# duplicate check
@@ -141,23 +141,39 @@ if not cmds.about(batch=1):
 			assert len(stack.items()) == 0
 			assert len(stack.base_items) == 0
 			
+			main.delete()
+			
+			# FILTER
+			#########
+			# TODO
 			
 			# try it in a layout dialog, especially the way it handles resizing
 			# Works, but crashes if things are not eval-deferred !
 			# TODO: Test and make it work
 			# cmds.layoutDialog(ui=FileReferenceFinder)
 			
-			return
-			
 			# BASIC FINDER
 			##############
 			win = ui.Window(title="Default Finder")
-			FinderLayout()
+			dlayout = FinderLayout()
+			dlayout.finder.setProvider(FileProvider(root))
 			win.show()
+			win.delete()
 			
+			
+			# SAVE AS FINDER
+			################
+			win = ui.Window(title="File Save-As Finder")
+			slayout = FileSaveFinder()
+			slayout.finder.setProvider(FileProvider(root))
+			win.show()
 			
 			# FILE OPEN FINDER
 			##################
 			win = ui.Window(title="File Open Finder")
-			FileOpenFinder()
+			olayout = FileOpenFinder()
+			olayout.finder.setProvider(FileProvider(root))
 			win.show()
+			# alter the scene so that a save-as is required
+			assert mrv.maya.Scene.name().endswith('untitled')
+			

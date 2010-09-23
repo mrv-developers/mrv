@@ -13,7 +13,7 @@ opts = OptionVarDict()
 
 __all__ = ( 'FileProvider', 'BookmarkControl',  
 			'FilePathControl', 'FileFilterControl', 'FinderElement', 
-			'FileStack', 'FileRootSelectorControl')
+			'FileStack', 'FileRootSelectorControl', 'FilePathControlEditable')
 
 
 
@@ -141,6 +141,8 @@ class FilePathControl(ui.TextField):
 		
 	def setPath(self, path):
 		"""Set the control to display the given path"""
+		if path is None:
+			path = ''
 		self.p_text = str(path)
 		
 	def setEditable(self, state):
@@ -150,6 +152,26 @@ class FilePathControl(ui.TextField):
 		""":return: True if the control can be edited by the user"""
 		return self.p_editable
 	#} END interface
+	
+
+class FilePathControlEditable(FilePathControl):
+	"""A filepath control which tries to maintain changes applied by the user.
+	It assumes that the system will use setPath to adjust the path, and checks
+	for changes in the path string which will be reapplied to the newly set path
+	if possible"""
+	
+	def __init__(self, *args, **kwargs):
+		super(FilePathControlEditable, self).__init__(*args, **kwargs)
+		self._prev_path = ''
+	
+	def setPath(self, path):
+		# figure out the changes - only care for append operations
+		if path is not None:
+			appended_text = self.p_text.replace(self._prev_path, '', 1)
+			self._prev_path = path
+			path += appended_text
+		# END handle previous path
+		super(FilePathControlEditable, self).setPath(path)
 	
 	
 class BookmarkControl(StackControlBase):

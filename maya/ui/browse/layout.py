@@ -6,15 +6,17 @@ from control import *
 from finder import *
 from option import *
 
-from util import FrameDecorator
+from util import ( FrameDecorator, handleUnsavedModifications )
 
 import mrv.maya.ui as ui
+import mrv.maya
 from mrv.maya.util import (logException, notifyException)
 
 from mrv.maya.ref import FileReference
 import maya.utils as mutil
+import maya.cmds as cmds
 
-__all__ = ('FinderLayout', 'FileOpenFinder', 'FileReferenceFinder')
+__all__ = ('FinderLayout', 'FileOpenFinder', 'FileReferenceFinder', 'FileSaveFinder')
 
 class FinderLayout(ui.FormLayout):
 	"""Implements a layout with a finder as well a surrounding elements. It can 
@@ -41,7 +43,7 @@ class FinderLayout(ui.FormLayout):
 	t_filter=FileFilterControl
 	#} END configuration
 	
-	def __init__(self):
+	def __init__(self, *args, **kwargs):
 		"""Initialize all ui elements"""
 		num_splits = 1 + (self.t_options is not None)
 		config = (num_splits == 1 and "single") or "vertical%i" % num_splits
@@ -255,10 +257,13 @@ class FinderLayout(ui.FormLayout):
 	
 	def _close_parent_window(self):
 		"""helper routine closing the parent window if there is one"""
-		if isinstance(self.parent(), ui.Window):
+		p = self.parent()
+		if isinstance(p, ui.Window):
 			# If its not deferred, it will crash maya for some reason, maybe
 			# something related to garbage collection.
 			mutil.executeDeferred(self.parent().delete)
+		elif isinstance(p, ui.FormLayout) and p.startswith('layoutDialog'):
+			cmds.layoutDialog(dismiss='close')
 		# END close window
 
 	def _confirm_button_pressed(self, *args):
@@ -336,16 +341,57 @@ class FinderLayout(ui.FormLayout):
 		self.finder.setUrl(url, allow_memory=False)
 		
 	#} END callbacks
+
+
+class FileSaveFinder(FinderLayout):
+	"""Finder optimized to choose a location to save a file"""
+	#{ Configuration 
+	k_confirm_name = "Save File"
+	t_stack = None
 	
+	t_filepath = FilePathControlEditable
+	t_options=None
+	#} END configuration
+	
+	def __init__(self, *args, **kwargs):
+		super(FileSaveFinder, self).__init__(*args, **kwargs)
+		self.bookmarks.k_bookmark_store = "MRV_SAVE_Bookmarks"
+		
+		# filepath field is editable in this case
+		self.fpctrl.setEditable(True)
+		
+	@notifyException
+	def _confirm_button_pressed(self, *args, **kwargs):
+		save_path = self.finder.provider().root() / self.fpctrl.path()
+		mrv.maya.Scene.save(save_path)
+		
 
 class FileOpenFinder(FinderLayout):
 	"""Finder customized for opening files"""
 	
 	#{ Configuration 
 	k_confirm_name = "Open File"
+	t_stack = None
 	
 	t_options=FileOpenOptions
 	#} END configuration
+	
+	def __init__(self, *args, **kwargs):
+		super(FileOpenFinder, self).__init__(*args, **kwargs)
+		self.bookmarks.k_bookmark_store = "MRV_OPEN_Bookmarks"
+		
+	@notifyException
+	def _confirm_button_pressed(self, *args):
+		"""Called when the ok button was pressed to finalize the operation"""
+		fileToOpen = self.finder.selectedUrl(absolute=True)
+		opts = self.options.fileOptions() 
+		opts['open'] = True
+		if not handleUnsavedModifications():
+			print "Cancelled by User"
+			return
+		# END handle modification
+		cmds.file(fileToOpen, **opts)
+		super(FileOpenFinder, self)._confirm_button_pressed()
 
 
 class FileReferenceFinder(FinderLayout):
@@ -359,12 +405,15 @@ class FileReferenceFinder(FinderLayout):
 	k_stack_item_remove_name = "Remove File from Stack"
 	
 	t_stack=FileStack
-	t_options=FileOpenOptions
+	t_options=None
 	#} END configuration
+	
+	def __init__(self, *args, **kwargs):
+		super(FileReferenceFinder, self).__init__(*args, **kwargs)
+		self.bookmarks.k_bookmark_store = "MRV_REF_Bookmarks"
 	
 	def _create_finder_menu(self, menu):
 		super(FileReferenceFinder, self)._create_finder_menu(menu)
-		
 		mi = ui.MenuItem(label=self.k_add_single, rp="E")
 		mi.e_command = self._on_add_to_stack
 		
