@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
 """module containing layouts which combine finder ui modules"""
 __docformat__ = "restructuredtext"
+import sys
+import string
+
+from mrv.path import Path
 
 from control import *
 from finder import *
@@ -43,8 +47,14 @@ class FinderLayout(ui.FormLayout):
 	t_filter=FileFilterControl
 	#} END configuration
 	
+	def __new__(cls, *args, **kwargs):
+		return super(FinderLayout, cls).__new__(cls)
+	
 	def __init__(self, *args, **kwargs):
-		"""Initialize all ui elements"""
+		"""Initialize all ui elements
+		:param kwargs: The following keywords are defined
+		 * **defaultRoots**: default False, if True, show all roots available
+		  on the system."""
 		num_splits = 1 + (self.t_options is not None)
 		config = (num_splits == 1 and "single") or "vertical%i" % num_splits
 		pane = ui.PaneLayout(configuration=config)
@@ -133,7 +143,34 @@ class FinderLayout(ui.FormLayout):
 				rdc = FrameDecorator("Roots", self.t_root_selector)
 				self.rootselector = rdc.layout
 				self.rootselector.root_changed = self.finder.setProvider
+				
+				if kwargs.get('defaultRoots', False):
+					roots = list()
+					if not sys.platform.startswith('win'):
+						roots.append(Path("/"))
+					else:
+						# just try all accessible drives
+						for letter in string.ascii_uppercase:
+							try:
+								p = Path(letter + ":\\")
+								p.stat()
+								roots.append(p)
+							except OSError:
+								continue
+							# END ignore exceptions
+						# END for each letter
+					# END handle roots
+					
+					if self.t_finder_provider is not None:
+						for rootpath in roots:
+							self.rootselector.addItem(self.t_finder_provider(rootpath))
+						# END for each rootpath
+						if roots:
+							self.rootselector.setSelectedItem(roots[0])
+					# END if we have a provider type
+				# END handle default roots
 			# END root selector setup
+			lpane.setActive()
 			if self.t_bookmarks:
 				bdc = FrameDecorator("Bookmarks", self.t_bookmarks)
 				self.bookmarks = bdc.layout
@@ -364,6 +401,8 @@ class FileSaveFinder(FinderLayout):
 	def _confirm_button_pressed(self, *args, **kwargs):
 		save_path = self.finder.provider().root() / self.fpctrl.path()
 		mrv.maya.Scene.save(save_path)
+		
+		super(FileSaveFinder, self)._confirm_button_pressed(*args, **kwargs)
 		
 
 class FileOpenFinder(FinderLayout):

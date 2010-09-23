@@ -34,7 +34,7 @@ def handleUnsavedModifications():
 		if mrv.maya.Scene.name().endswith("untitled"):
 			import layout
 			import maya.cmds
-			maya.cmds.layoutDialog(ui=layout.FileSaveFinder)
+			maya.cmds.layoutDialog(ui=lambda *args: layout.FileSaveFinder(defaultRoots=True))
 			
 			# still no valid name ?
 			if mrv.maya.Scene.name().endswith("untitled"):

@@ -171,8 +171,7 @@ if not cmds.about(batch=1):
 			# FILE OPEN FINDER
 			##################
 			win = ui.Window(title="File Open Finder")
-			olayout = FileOpenFinder()
-			olayout.finder.setProvider(FileProvider(root))
+			olayout = FileOpenFinder(defaultRoots=True)
 			win.show()
 			# alter the scene so that a save-as is required
 			assert mrv.maya.Scene.name().endswith('untitled')
