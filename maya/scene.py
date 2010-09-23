@@ -168,7 +168,14 @@ class Scene( util.Singleton, util.EventSender ):
 		# safe the file
 		kwargs.pop('save', kwargs.pop('s', None))
 		kwargs.pop('type', kwargs.pop('typ', None))
-		return make_path( cmds.file( save=True, type=filetype, **kwargs ) )
+		try:
+			return make_path( cmds.file( save=True, type=filetype, **kwargs ) )
+		except RuntimeError:
+			if curscene != cls.name():
+				cls.rename(curscene)
+			# END restore previous name on error
+			raise
+		# END exception handling
 
 	@classmethod
 	def export(cls, outputFile, nodeListOrIterable=None, **kwargs):

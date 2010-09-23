@@ -110,6 +110,14 @@ class TestScene( unittest.TestCase ):
 		# self.failUnlessRaises(RuntimeError, Scene.save, target_path)
 		Scene.save(target_path, autodeleteUnknown=True)
 		
+		# if saving under a new path fails, the file name will remain the sames
+		assert Scene.name() == target_path
+		new_path = target_path + ".ma"
+		new_path.touch()
+		new_path.chmod(0444)
+		self.failUnlessRaises(RuntimeError, Scene.save, new_path)
+		assert Scene.name() == target_path
+		
 		assert not cmds.objExists(unode)
 		
 		# must work for untitled files as well
