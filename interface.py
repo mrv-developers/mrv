@@ -341,11 +341,11 @@ class iChoiceDialog( Interface ):
 		:return: name of the choice made by the user, the type shall equal the type given
 			as button names
 		:note: this implementation always returns the default choice"""
-		log.info(self.title)
-		log.info("-"*len( self.title ))
-		log.info(self.message)
-		log.info(" | ".join(( str( c ) for c in self.choices )))
-		log.info("answer: %s" % self.default_choice)
+		log.debug(self.title)
+		log.debug("-"*len( self.title ))
+		log.debug(self.message)
+		log.debug(" | ".join(( str( c ) for c in self.choices )))
+		log.debug("answer: %s" % self.default_choice)
 
 		return self.default_choice
 
@@ -376,8 +376,8 @@ class iPrompt( Interface ):
 		"""activate our prompt
 		:return: the prompted value
 		:note: base implementation just prints a sample text and returns the default"""
-		log.info("%s [ %s ]:" % ( self.msg, self.confirmDefault ))
-		log.info("Hit %s to confirm or %s to cancel" % ( self.confirmToken, self.cancelToken ))
+		log.debug("%s [ %s ]:" % ( self.msg, self.confirmDefault ))
+		log.debug("Hit %s to confirm or %s to cancel" % ( self.confirmToken, self.cancelToken ))
 		return self.confirmDefault
 
 
@@ -422,12 +422,7 @@ class iProgressIndicator( Interface ):
 		"""Refresh the progress indicator so that it represents its values on screen.
 		
 		:param message: message passed along by the user"""
-		p = self.get( )
-
-		if not message:
-			message = self.prefix( p )
-
-		log.info(message)
+		# To be implemented in subclass
 
 	def set( self, value, message = None , omit_refresh=False ):
 		"""Set the progress of the progress indicator to the given value
