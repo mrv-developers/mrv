@@ -19,12 +19,14 @@ def prepare_project_syspath():
 	:raise ImportError: If project's root package could not be found in this interpreter"""
 	# try to figure out our actual root package, resort to a hardcoded choice
 	ospd = os.path.dirname
+	ospj = os.path.join
 	default_package = 'mrv'
 	root_package = default_package
 	
 	# try to import the root info
 	# We search upwards 
-	search_path = os.path.abspath('.')
+	initial_path = os.path.abspath('.') 
+	search_path = initial_path
 	while True:
 		sys.path.append(search_path)
 		try:
@@ -35,7 +37,25 @@ def prepare_project_syspath():
 		else:
 			# we have one - one above it should be the project include path
 			sys.path.pop()
-			sys.path.append(ospd(search_path))
+			if search_path != initial_path:
+				sys.path.append(ospd(search_path))
+			else:
+				# in this case, the python path already included an info module
+				# We find it, and put its parent folder into the path additionally
+				found_path = False
+				for path in sys.path:
+					for ext in (".py", ".pyc", ".pyo"):
+						if os.path.isfile(ospj(path, "info" + ext)):
+							sys.path.append(ospd(path))
+							found_path = True
+							break
+						# END if file exists
+					# END for each extension
+					if found_path:
+						break
+				# END for each sys path
+				assert found_path, "Didn't find info module in any of the existing python paths"
+			# END handle search path
 			break
 		# END get root package
 		
@@ -53,9 +73,9 @@ def prepare_project_syspath():
 	try:
 		root = __import__(root_package)
 		info = __import__("%s.info" % root_package, globals(), locals(), [''])
-	except ImportError:
+	except ImportError, e:
 		if root_package != default_package:
-			raise AssertionError("Managed to import info package of %s, but could not import it" % root_package)
+			raise AssertionError("Couldn't import root package of %r with error: %s" % (root_package, str(e)))
 		# END assertion 
 		
 		# manipulate the import path - first we may be within the mrv structurure
