@@ -23,10 +23,34 @@ def prepare_project_syspath():
 	default_package = 'mrv'
 	root_package = default_package
 	
+	
+	# search for existing info module which is already in the path
+	# if it exists, store it for later - we prefer the one we find ourselves
+	# from the current directory.
+	# Additionally, we remove all other parent modules with an info file, as 
+	# they would interfere with our own attempt
+	existing_info_parent_module = None
+	for path in sys.path[:]:
+		for ext in (".py", ".pyc", ".pyo"):
+			if os.path.isfile(ospj(path, "info" + ext)):
+				if existing_info_parent_module is None:
+					existing_info_parent_module = path
+				else:
+					print >> sys.stderr, "WARNING: Found additional module info in python path:", path
+				# END handle first info parent module
+				try:
+					sys.path.remove(path)
+				except ValueError:
+					pass 
+				# END ignore if the same path is included multiple times
+			# END if file exists
+		# END for each extension
+	# END for each sys path
+
 	# try to import the root info
 	# We search upwards 
-	initial_path = os.path.abspath('.') 
-	search_path = initial_path
+	search_path = os.path.abspath('.')
+	found_search_path = False
 	while True:
 		sys.path.append(search_path)
 		try:
@@ -37,25 +61,8 @@ def prepare_project_syspath():
 		else:
 			# we have one - one above it should be the project include path
 			sys.path.pop()
-			if search_path != initial_path:
-				sys.path.append(ospd(search_path))
-			else:
-				# in this case, the python path already included an info module
-				# We find it, and put its parent folder into the path additionally
-				found_path = False
-				for path in sys.path:
-					for ext in (".py", ".pyc", ".pyo"):
-						if os.path.isfile(ospj(path, "info" + ext)):
-							sys.path.append(ospd(path))
-							found_path = True
-							break
-						# END if file exists
-					# END for each extension
-					if found_path:
-						break
-				# END for each sys path
-				assert found_path, "Didn't find info module in any of the existing python paths"
-			# END handle search path
+			sys.path.append(ospd(search_path))
+			found_search_path = True
 			break
 		# END get root package
 		
@@ -65,6 +72,10 @@ def prepare_project_syspath():
 		search_path = new_path
 	# END endless loop
 	
+	# if we didn't find anything us the existing info parent path
+	if not found_search_path and existing_info_parent_module:
+		sys.path.append(ospd(existing_info_parent_module))
+	# END handle path
 
 	# IMPORT ROOT PACKAGE
 	#####################
@@ -84,8 +95,7 @@ def prepare_project_syspath():
 		# should be natively installed.
 		# default candidate assumes we are mrv/bin/
 		sys.path.append(ospd(ospd(ospd(os.path.realpath(os.path.abspath(__file__))))))
-		# END handle extra opportunity
-		 
+		
 		try:
 			root = __import__(root_package)
 			info = __import__("%s.info" % root_package, globals(), locals(), [''])
