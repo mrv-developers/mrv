@@ -271,7 +271,18 @@ def init_system( ):
 		# END check python version
 	# END check maya version
 
-
+	
+	# CHECK AND FIX SYSPATH
+	########################
+	# to be very sure: If for some reason we have our own root package
+	# in the path, remove it as we would most likely import our own maya
+	# This appears to happen if mrv is installed as site-package btw. 
+	# remove existing sys-paths containing maya, just to be sure we get the right one
+	for path in sys.path[:]:
+		if os.path.isdir(os.path.join(path, 'maya')) and not path.endswith("site-packages"):
+			sys.path.remove(path)
+		# END if if maya package was found
+	# END for each path in sys.path
 
 	# FINALLY INIALIZE MAYA TO TO MAKE USE OF MAYA STANDALONE
 	###########################################################
@@ -284,18 +295,6 @@ def init_system( ):
 	mayapylibpath = os.path.join( mayalocation, osspecific, "site-packages" )
 	sys.path.append( mayapylibpath )
 	
-
-	# CHECK AND FIX SYSPATH
-	########################
-	# to be very sure: If for some reason we have our own root package
-	# in the path, remove it as we would most likely import our own maya
-	# This appears to happen if mrv is installed as site-package btw.
-	packagename = mrv.__name__
-	for path in sys.path[:]:
-		if path.endswith("/"+packagename) or path.endswith("\\"+packagename):
-			sys.path.remove(path)
-		# END if it is an invalid path
-	# END for each sys path
 
 	# although this was already done, do it again :). Its required if mrv is installed
 	# natively
