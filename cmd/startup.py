@@ -21,7 +21,8 @@ def ipython_apply_user_configuration():
 		print "Set IMRV_CONFIG to point to python script doing additional setup"
 
 def ipython_setup_mrv():
-	"""Initialize MRV"""
+	"""Initialize MRV
+	:return: True if it initializes maya, otherwise return False"""
 	# configure MRV
 	# as IPython is some sort of interactive mode, we load the user preferences
 	for var in ( 	'MRV_STANDALONE_AUTOLOAD_PLUGINS', 
@@ -30,25 +31,34 @@ def ipython_setup_mrv():
 		os.environ[var] = "1"
 	# END env var loop
 	
-	# init maya
-	import mrv.maya
+	# init maya - if possible
+	try:
+		import mrv.maya
+		return True
+	except (EnvironmentError, ImportError):
+		print "Didn't initialize Maya"
+		return False
+	# END handle maya import
 	
 
-def ipython_setup():
+def ipython_setup(maya_support):
 	"""Perform additional ipython initialization"""
 	import IPython
 	import logging
 	
-	# make default imports
-	ip = IPython.ipapi.get()
-	ip.ex("from mrv.maya.all import *")
-	
 	# init logging
 	logging.basicConfig(level=logging.INFO)
 	
-	# prefetch methods for convenience
-	import mrv.maya.nt.typ as typ
-	typ.prefetchMFnMethods()
+	if maya_support:
+		# make default imports
+		ip = IPython.ipapi.get()
+		ip.ex("from mrv.maya.all import *")
+		
+		
+		# prefetch methods for convenience
+		import mrv.maya.nt.typ as typ
+		typ.prefetchMFnMethods()
+	# END handle maya
 
 # } END initialization
 
@@ -183,7 +193,7 @@ def mrv(args, info, args_modifier=None):
 	
 def imrv():
 	"""Get the main ipython system up and running"""
-	ipython_setup_mrv()
+	maya_support = ipython_setup_mrv()
 
 	# init ipython - needs to be available in your local python installation
 	try: 
@@ -193,7 +203,7 @@ def imrv():
 	# END exception handling
 	
 	ips = IPython.Shell.start()
-	ipython_setup()
+	ipython_setup(maya_support)
 	ipython_apply_user_configuration()
 	ips.mainloop()
 
