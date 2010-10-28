@@ -1,6 +1,9 @@
 #################
 Commandline Tools
 #################
+
+.. commandline_tools_start
+
 This document contains a full listing of the included commandline tools as well as how to use them.
 
 All production level programs are located in ``mrv/bin``, all testing utilities can be found in ``mrv/test/bin``. 
