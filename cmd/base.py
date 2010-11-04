@@ -3,15 +3,18 @@
 import os
 import sys
 import subprocess
-from mrv.path import make_path
+from mrv.path import make_path, BasePath
 import logging
+import optparse
+
 log = logging.getLogger("mrv.cmd.base")
 
 __docformat__ = "restructuredtext"
 
 __all__ = ( 'is_supported_maya_version', 'python_version_of', 'parse_maya_version', 'update_env_path', 
 			'maya_location', 'update_maya_environment', 'exec_python_interpreter', 'uses_mayapy', 
-			'exec_maya_binary', 'available_maya_versions', 'python_executable', 'find_mrv_script' )
+			'exec_maya_binary', 'available_maya_versions', 'python_executable', 'find_mrv_script',
+			'log_exception', 'SpawnedHelpFormatter', 'SpawnedOptionParser', 'SpawnedCommand')
 
 #{ Globals
 maya_to_py_version_map = {
@@ -461,7 +464,405 @@ def exec_maya_binary(args, maya_version):
 	
 #} END Maya initialization
 
+#{ Decorators
+
+def log_exception( func ):
+	"""Assures that exceptions result in a logging message.
+	Currently only works with a SpawnedCommand as we need a log instance.
+	On error, the server exits with status 64"""
+	def wrapper(self, *args, **kwargs):
+		try:
+			return func(self, *args, **kwargs)
+		except Exception, e:
+			if self.parser.spawned:
+				self.log.critical("Program %r aborted with a unhandled exception: %s" % (self.k_log_application_id, str(e)), exc_info=True)
+				sys.exit(64)
+			else:
+				raise
+			# END handle sysexit gracefully
+	# END wrapper 
+	
+	wrapper.__name__ = func.__name__
+	return wrapper
+
+#} END decorators
+
+#{ Classes
+
+class SpawnedHelpFormatter(optparse.TitledHelpFormatter):
+	"""Formatter assuring our help looks good"""
+	
+	def _format_text(self, text):
+		"""Don't wrap the text at all"""
+		if self.parser:
+			text = self.parser.expand_prog_name(text)
+		# END program name expansion if possible
+		
+		if self.level == 0:
+			return text
+		lines = text.splitlines(True)
+		return ''.join('  '*self.level + l for l in lines)
+		
+	def format_usage(self, usage):
+		return "usage: %s\n" % usage
 
 
+class SpawnedOptionParser(optparse.OptionParser):
+	"""Customized version to ease use of SpawnedCommand
+	
+	Initialized with the 'spawned' keyword in addition 
+	to the default keywords to prevent a system exit"""
+	
+	def __init__(self, *args, **kwargs):
+		self.spawned = kwargs.pop('spawned', False)
+		kwargs['formatter'] = SpawnedHelpFormatter()
+		optparse.OptionParser.__init__(self, *args, **kwargs)
+	
+	def exit(self, status=0, msg=None):
+		if msg:
+			sys.stderr.write(msg)
+		
+		if self.spawned:
+			sys.exit(status)
+		else:
+			# reraise if possible as we have not been spawned
+			exc_type, value, traceback = sys.exc_info()
+			if value:
+				raise
+			else:
+				raise optparse.OptParseError(msg)
+		# END options
+			
 
+
+class SpawnedCommand(object):
+	"""Implements a command wich can be started easily by specifying a class path
+	such as package.cmd.module.CommandClass whose instance should be started in 
+	a standalone process.
+	
+	The target command must be derived from this class and must implement the 
+	'execute' method.
+	
+	To use this class, derive from it and change the configuration variables
+	accordingly.
+	
+	The instance will always own a logger instance at its member called 'log', 
+	the configuration will be applied according to k_log_application_id
+	
+	The parser used to parse all options is vailable at its member called 'parser', 
+	its set during ``option_parser``
+	
+	The instance may also be created within an existing process and 
+	executed manually - in that case it will not exit automatically if a 
+	serious event occours"""
+	
+	#{ Configuration 
+	# If not None, the name will be available for printing help text, and other tasks
+	# such as application specific initialization of modules
+	k_log_application_id = None
+	
+	# path at which your class is located. It must be derived from SpawnedCommand
+	k_class_path = "package.module.YourClass"
+	
+	# An identifier for the version of your command
+	k_version = None
+	
+	# Path to the executable
+	_exec_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'bin', 'mrv')
+	
+	# additional arguments to pass on to the newly created process
+	_add_args = ['--mrv-no-maya']
+	
+	# The usage of your command in BMF
+	# i.e. %prog [options]
+	k_usage = None
+	
+	# a short description of your command printed below its usage
+	k_description = None
+	
+	# the name of your program's actual executable
+	k_program_name = None
+	
+	# File mode creation mask of the daemon.
+	# If None, current one will not be changed
+	_daemon_umask = None
+	
+	# Default working directory for the daemon.
+	# If None, the current one will not be changed
+	_daemon_workdir = None
+	
+	# Default maximum for the number of available file descriptors that we try to close
+	_daemon_maxfd = 64
+	
+	# The standard I/O file descriptors are redirected to /dev/null by default.
+	if (hasattr(os, "devnull")):
+	   _daemon_redirect_to = os.devnull
+	else:
+	   _daemon_redirect_to = "/dev/null"
+	
+	#} END configuration
+	
+	__slots__ = ('parser', 'log')
+	
+	
+	def __init__(self, *args, **kwargs):
+		"""
+		:param _spawned: If True, default False, we assume we have our own process.
+			Otherwise we will do nothing that would adjust the current process, such as:
+			
+			* sys.exit
+			* change configuration of logging system"""
+		try:
+			super(SpawnedCommand, self).__init__(*args, **kwargs)
+		except TypeError:
+			# in python 2.6 and newer, object will not accept to be called with 
+			# arguments anymore. Problem is that we don't know whether super is an 
+			# object or some mixed in type, which is a design flaw, and which breaks
+			# code as well.
+			pass
+		# END py 2.6 special case
+		
+		
+		spawned = kwargs.get('_spawned', False)
+		self.parser = SpawnedOptionParser(	usage=self.k_usage, version=self.k_version, 
+											description=self.k_description,  add_help_option=True,
+											prog=self.k_program_name, spawned=spawned)
+		self.log = logging.getLogger(self.k_program_name)
+		
+	@classmethod
+	def spawn(cls, *args, **kwargs):
+		"""Spawn a new standalone process of this command type
+		Additional arguments passed to the command process
+		
+		:param kwargs: Additional keyword arguments to be passed to Subprocess.Popen, 
+			use it to configure your IO
+		
+		Returns: Subprocess.Popen instance"""
+		import spcmd
+		margs = [cls._exec_path, spcmd.__file__, cls.k_class_path]
+		margs.extend(args)
+		margs.extend(cls._add_args)
+		
+		if os.name == 'nt':
+			margs.insert(0, sys.executable)
+		# END handle windows inabilitiess
+		
+		return subprocess.Popen(margs, **kwargs)
+		
+	@classmethod
+	def daemonize(cls, *args):
+		"""
+		Damonize the spawned command, passing *args to the instanciated command's
+		execute method.
+		
+		:return: None in calling process, no return in the daemon
+			as sys.exit will be called.
+		:note: see configuration variables prefixed with _daemon_
+		:note: based on Chad J. Schroeder createDaemon method, 
+			see http://code.activestate.com/recipes/278731-creating-a-daemon-the-python-way
+		"""
+		if sys.platform.startswith("win"):
+			raise OSError("Cannot daemonize on windows")
+		# END handle operating system
+		
+		try:
+			# Fork a child process so the parent can exit.	This returns control to
+			# the command-line or shell.	It also guarantees that the child will not
+			# be a process group leader, since the child receives a new process ID
+			# and inherits the parent's process group ID.  This step is required
+			# to insure that the next call to os.setsid is successful.
+			pid = os.fork()
+		except OSError, e:
+			raise Exception, "%s [%d]" % (e.strerror, e.errno)
+	
+		if (pid != 0):
+			# exit() or _exit()?
+			# _exit is like exit(), but it doesn't call any functions registered
+			# with atexit (and on_exit) or any registered signal handlers.	 It also
+			# closes any open file descriptors.	 Using exit() may cause all stdio
+			# streams to be flushed twice and any temporary files may be unexpectedly
+			# removed.	It's therefore recommended that child branches of a fork()
+			# and the parent branch(es) of a daemon use _exit().
+			return None
+		# END exit 
+			
+		##################
+		# The first child.
+		##################
+		# To become the session leader of this new session and the process group
+		# leader of the new process group, we call os.setsid().	The process is
+		# also guaranteed not to have a controlling terminal.
+		os.setsid()
+
+		# Is ignoring SIGHUP necessary?
+		#
+		# It's often suggested that the SIGHUP signal should be ignored before
+		# the second fork to avoid premature termination of the process.	The
+		# reason is that when the first child terminates, all processes, e.g.
+		# the second child, in the orphaned group will be sent a SIGHUP.
+		#
+		# "However, as part of the session management system, there are exactly
+		# two cases where SIGHUP is sent on the death of a process:
+		#
+		#	 1) When the process that dies is the session leader of a session that
+		#		 is attached to a terminal device, SIGHUP is sent to all processes
+		#		 in the foreground process group of that terminal device.
+		#	 2) When the death of a process causes a process group to become
+		#		 orphaned, and one or more processes in the orphaned group are
+		#		 stopped, then SIGHUP and SIGCONT are sent to all members of the
+		#		 orphaned group." [2]
+		#
+		# The first case can be ignored since the child is guaranteed not to have
+		# a controlling terminal.	The second case isn't so easy to dismiss.
+		# The process group is orphaned when the first child terminates and
+		# POSIX.1 requires that every STOPPED process in an orphaned process
+		# group be sent a SIGHUP signal followed by a SIGCONT signal.	Since the
+		# second child is not STOPPED though, we can safely forego ignoring the
+		# SIGHUP signal.	In any case, there are no ill-effects if it is ignored.
+		#
+		# import signal			  # Set handlers for asynchronous events.
+		# signal.signal(signal.SIGHUP, signal.SIG_IGN)
+
+		try:
+			# Fork a second child and exit immediately to prevent zombies.	 This
+			# causes the second child process to be orphaned, making the init
+			# process responsible for its cleanup.	 And, since the first child is
+			# a session leader without a controlling terminal, it's possible for
+			# it to acquire one by opening a terminal in the future (System V-
+			# based systems).	 This second fork guarantees that the child is no
+			# longer a session leader, preventing the daemon from ever acquiring
+			# a controlling terminal.
+			pid = os.fork()	# Fork a second child.
+		except OSError, e:
+			raise Exception, "%s [%d]" % (e.strerror, e.errno)
+
+		if (pid != 0):
+			# exit() or _exit()?	 See below.
+			os._exit(0) # Exit parent (the first child) of the second child.
+		# END exit second child
+		
+		###################
+		# The second child.
+		###################
+		# Since the current working directory may be a mounted filesystem, we
+		# avoid the issue of not being able to unmount the filesystem at
+		# shutdown time by changing it to the root directory.
+		if cls._daemon_workdir is not None:
+			os.chdir(cls._daemon_workdir)
+		# END set working dir
+		
+		# We probably don't want the file mode creation mask inherited from
+		# the parent, so we give the child complete control over permissions.
+		if cls._daemon_umask is not None:
+			os.umask(cls._daemon_umask)
+		# END set umask
+			
+		
+	
+		# Close all open file descriptors.	This prevents the child from keeping
+		# open any file descriptors inherited from the parent.  There is a variety
+		# of methods to accomplish this task.	Three are listed below.
+		#
+		# Try the system configuration variable, SC_OPEN_MAX, to obtain the maximum
+		# number of open file descriptors to close.	If it doesn't exists, use
+		# the default value (configurable).
+		#
+		# try:
+		#	  maxfd = os.sysconf("SC_OPEN_MAX")
+		# except (AttributeError, ValueError):
+		#	  maxfd = MAXFD
+		#
+		# OR
+		#
+		# if (os.sysconf_names.has_key("SC_OPEN_MAX")):
+		#	  maxfd = os.sysconf("SC_OPEN_MAX")
+		# else:
+		#	  maxfd = MAXFD
+		#
+		# OR
+		#
+		# Use the getrlimit method to retrieve the maximum file descriptor number
+		# that can be opened by this process.	If there is not limit on the
+		# resource, use the default value.
+		#
+		import resource		# Resource usage information.
+		maxfd = resource.getrlimit(resource.RLIMIT_NOFILE)[1]
+		if (maxfd == resource.RLIM_INFINITY):
+			maxfd = cls._daemon_maxfd
+
+		debug_daemon = False
+		
+		# Iterate through and close all file descriptors.
+		for fd in range(debug_daemon*3, maxfd):
+			try:
+				os.close(fd)
+			except OSError: # ERROR, fd wasn't open to begin with (ignored)
+				pass
+		# END for each fd in range
+	
+		# Redirect the standard I/O file descriptors to the specified file. Since
+		# the daemon has no controlling terminal, most daemons redirect stdin,
+		# stdout, and stderr to /dev/null.	This is done to prevent side-effects
+		# from reads and writes to the standard I/O file descriptors.
+	
+		# This call to open is guaranteed to return the lowest file descriptor,
+		# which will be 0 (stdin), since it was closed above.
+		if not debug_daemon:
+			os.open(cls._daemon_redirect_to, os.O_RDWR)	# standard input (0)
+		
+			# Duplicate standard input to standard output and standard error.
+			os.dup2(0, 1)			# standard output (1)
+			os.dup2(0, 2)			# standard error (2)
+		# END handle standard descriptors
+	
+		# RUN THE SPAWNED COMMAND
+		#########################
+		cmdinstance = cls(_spawned=True)
+		return cmdinstance._execute(*args)
+	
+	def _preprocess_args(self, options, args):
+		""":return: tuple(options, args) tuple of parsed options and remaining args
+			The arguments can be preprocessed"""
+		return options, args
+	
+	def _execute(self, *args):
+		"""internal method handling the basic arguments in a pre-process before 
+		calling ``execute``
+		
+		We will parse all options, process the default ones and pass on the 
+		call to the ``execute`` method"""
+		options, args = self._preprocess_args(*self.option_parser().parse_args(list(args)))
+		
+		# make sure we have a default setup at least !
+		logging.basicConfig()
+		
+		# call the subclassed method
+		try:
+			return self.execute(options, args)
+		except Exception, e:
+			if self.parser.spawned:
+				sys.stderr.write('%s: %s\n' % (type(e).__name__, str(e)))
+				sys.exit(1)
+			else:
+				raise
+		# END help the user in case he provides invalid options
+		
+	#{ Overridable 
+	@log_exception
+	def execute(self, options, args):
+		"""Method implementing the actual functionality of the command
+		:param options: Values instance of the optparse module
+		:param args: remaining positional arguments passed to the process on the commandline
+		:note: if you like to terminate, raise an exception"""
+		pass
+	
+	def option_parser(self):
+		""":return: OptionParser Instance containing all supported options
+		:note: Should be overridden by subclass to add additional options and 
+			option groups themselves after calling the base class implementation"""
+		return self.parser
+	#} END needing subclass
+		
+		
+#} END classes
 
