@@ -51,8 +51,8 @@ class TerminatableThread(threading.Thread):
 	"""
 	__slots__ = '_terminate'
 	
-	def __init__(self):
-		super(TerminatableThread, self).__init__()
+	def __init__(self, *args, **kwargs):
+		super(TerminatableThread, self).__init__(*args, **kwargs)
 		self._terminate = False
 		
 		
@@ -63,7 +63,10 @@ class TerminatableThread(threading.Thread):
 		
 	def _terminated(self):
 		"""Called once the thread terminated. Its called in the main thread
-		and may perform cleanup operations"""
+		and may perform cleanup operations
+		:note: in the current implementation, this method will only be called if 
+			the thread was stopped by ``stop_and_join``. If you have very important
+			cleanup to do, you should do it before you exit your run method"""
 		pass
 
 	def start(self):
@@ -74,7 +77,12 @@ class TerminatableThread(threading.Thread):
 	#} END subclass interface
 		
 	#{ Interface 
-		
+	
+	def schedule_termination(self):
+		"""Schedule this thread to be terminated as soon as possible.
+		:note: this method does not block."""
+		self._terminate = True
+	
 	def stop_and_join(self):
 		"""Ask the thread to stop its operation and wait for it to terminate
 		:note: Depending on the implenetation, this might block a moment"""
