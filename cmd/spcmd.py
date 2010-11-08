@@ -10,7 +10,6 @@ def main(args):
 		raise Exception("Invalid Arguments, call command as follows:\nspcmd package.module.ServerClassName [additional options for execute method]")
 
 	# needs that order as paths will be adjusted here
-	import vault
 	try:
 		tokens = args[0].split('.')
 		args = args[1:]		# remaining args
