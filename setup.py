@@ -181,12 +181,13 @@ class _GitMixin(object):
 	def branch_name(self):
 		""":return: name of the branch identifying our current release configuration"""
 		root_name = self.distribution.pinfo.root_package
+		ver = self.distribution.pinfo.version
 		if self.branch_suffix is None:
 			raise ValueError("Branch suffix is not set")
 		return root_name + self.branch_suffix
 		
 	def set_head_to(self, repo, head_name):
-		"""et our head to point to the given head_name. If possible, 
+		"""set our head to point to the given head_name. If possible, 
 		update the index to represent the tree the head points to
 		
 		:return: Head named head_name
@@ -433,7 +434,7 @@ class _GitMixin(object):
 			# END handle commit already set
 			
 			# rewrite the line with the sha
-			lines[ln] = "%s = %r\n" % (self.commit_sha_var_name, root_commit.sha)
+			lines[ln] = "%s = %r\n" % (self.commit_sha_var_name, root_commit.hexsha)
 			adjusted = True
 			break
 		# END for each line
@@ -587,6 +588,18 @@ class _GitMixin(object):
 		
 		# checkout the target branch gently ( index and head only )
 		branch_name = self.branch_name()
+		
+		# assure we have the latest target branch - otherwise our commit
+		# will be based on an out-dated commit
+		repo_remotes = repo.remotes
+		for remote in self.dist_remotes:
+			try:
+				repo_remotes[remote].fetch()
+			except (KeyError, git.GitCommandError):
+				pass
+			# END ignore exceptions
+		# END for each remote to update
+		
 		head_ref = self.set_head_to(repo, branch_name)
 		assert repo.head.ref == head_ref
 		
