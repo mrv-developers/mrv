@@ -447,6 +447,30 @@ class _GitMixin(object):
 			log.info("Didn't find line with %s in info module at %r" % ( self.commit_sha_var_name, info_module_path))
 		# END write changes
 		
+	def find_distro_parent(self, dist_head_ref, prev_head_commit):
+		"""Parse all hex-shas in the distribution head and find the closest one
+		in the commits shas of the prev-head-rev
+		:param dist_head_ref: reference into the distribution commit graph
+		:return: commit hexsha to be used as most suitable parent, or None if
+			none was found"""
+		dist_hexshas = list()			# pair(commit_hex_sha, source_hex_sha)
+		for c in dist_head_ref.commit.traverse(branch_first=False, ignore_self=False):
+			t = c.message.split("@")
+			if not t or len(t[-1]) != 40:
+				continue
+			dist_hexshas.append((c.hexsha, t[-1]))
+		# END for each parent commit
+		
+		# parse all commits into a set for quick lookups
+		hc = set(c.hexsha for c in prev_head_commit.iter_parents())			# head-commits
+		hc.add(prev_head_commit.hexsha)
+		
+		# the first match is the best
+		for shexsha, dhexsha in dist_hexshas:
+			if dhexsha in hc:
+				return shexsha
+		#END for eeach hexsha
+		return None
 		
 	def add_files_and_commit(self, root_repo, repo, root_dir, root_tag):
 		"""
@@ -576,7 +600,7 @@ class _GitMixin(object):
 		
 		# we require the current commit to be tagged
 		root_tag = self.distribution.handle_version_and_tag()
-		
+		prev_commit = repo.head.commit
 		try:
 			prev_head_ref = repo.head.ref
 			__IndexCleanup = CallOnDeletion(lambda : self.set_head_to(repo, prev_head_ref))
@@ -602,6 +626,19 @@ class _GitMixin(object):
 		
 		head_ref = self.set_head_to(repo, branch_name)
 		assert repo.head.ref == head_ref
+		
+		# FIND GOOD PARENT
+		##################
+		# Parse all source commit shas from the destination branch in the remote 
+		# repository and try to find the best match in the history of our previously
+		# checked-out branch.
+		if head_ref.is_valid():
+			parent_hexsha = self.find_distro_parent(head_ref, prev_commit)
+			if parent_hexsha is not None:
+				head_ref.commit = parent_hexsha
+			# END handle 
+		# END if we have a valid head-ref
+		
 		
 		# add our all files below our root
 		root_head, commit = self.add_files_and_commit(root_repo, repo, root_dir, root_tag)
