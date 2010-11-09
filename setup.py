@@ -178,13 +178,18 @@ class _GitMixin(object):
 		options.append(('dist-remotes=', 'd', "Default remotes to push the distribution branches to"))
 		options.append(('root-remotes=', 'r', "Default remotes to push the the main source branch to"))
 	
-	def branch_name(self):
-		""":return: name of the branch identifying our current release configuration"""
-		root_name = self.distribution.pinfo.root_package
-		ver = self.distribution.pinfo.version
+	def branch_name(self, include_version=False):
+		""":return: name of the branch identifying our current release configuration
+		:param include_version: If True, the major and minor version will be included, as well as the string-tag"""
 		if self.branch_suffix is None:
 			raise ValueError("Branch suffix is not set")
-		return root_name + self.branch_suffix
+		root_name = self.distribution.pinfo.root_package
+		ver = self.distribution.pinfo.version
+		middle = ''
+		if include_version:
+			middle  = ("-%i.%i-%s" % (ver[0], ver[1], ver[3]))
+		# END handle include version
+		return root_name + middle + self.branch_suffix
 		
 	def set_head_to(self, repo, head_name):
 		"""set our head to point to the given head_name. If possible, 
@@ -451,6 +456,7 @@ class _GitMixin(object):
 		"""Parse all hex-shas in the distribution head and find the closest one
 		in the commits shas of the prev-head-rev
 		:param dist_head_ref: reference into the distribution commit graph
+		:param prev_head_commit: our commit in the source commit graph
 		:return: commit hexsha to be used as most suitable parent, or None if
 			none was found"""
 		dist_hexshas = list()			# pair(commit_hex_sha, source_hex_sha)
@@ -611,7 +617,7 @@ class _GitMixin(object):
 		
 		
 		# checkout the target branch gently ( index and head only )
-		branch_name = self.branch_name()
+		branch_name = self.branch_name(include_version=True)
 		
 		# assure we have the latest target branch - otherwise our commit
 		# will be based on an out-dated commit
