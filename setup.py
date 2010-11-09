@@ -1529,6 +1529,7 @@ class Distribution(object, BaseDistribution):
 	
 	# directory containing all external packages
 	ext_dir = 'ext'
+	
 	#} END configuration
 	
 	
@@ -1537,7 +1538,7 @@ class Distribution(object, BaseDistribution):
 	
 	BaseDistribution.global_options.extend(
 		( ('%s=' % opt_maya_version, 'm', "Specify the maya version to operate on"),
-		  ('regression-tests=', 't', "If set (default), the regression tests will be executed, distribution fails if one test fails"),
+		  ('regression-tests=', 't', "If set 1(default), the regression tests will be executed, distribution fails if one test fails. Can be a comma-separated list of maya-versions to test as well"),
 		  ('use-git=', 'g', "If set (default), the build results will be put into a git repository"),
 		  ('force-git-tag', 'f', "If set, the corresponding git tag will be moved to your current root repository commit"),
 		  ('add-requires=', 'r', "Specifies a comma separated list of 'requires' ids to be added to ones given to setup()"),
@@ -1815,7 +1816,12 @@ Would you like to adjust your version info or abort ?
 		import mrv.cmd.base
 		tmrvrpath = self._regressiontest_relapath()
 		
-		p = self.spawn_python_interpreter((tmrvrpath, ))
+		args = tuple()
+		if isinstance(self.regression_tests, tuple):
+			args = self.regression_tests
+		# END handle test args
+		
+		p = self.spawn_python_interpreter((tmrvrpath, ) + args)
 		if p.wait():
 			raise ValueError("Regression Tests failed")
 			
@@ -2002,7 +2008,15 @@ Would you like to adjust your version info or abort ?
 		# handle evil types - the underlying systems puts strings into the variables
 		# ... how can you ?
 		self.use_git = int(self.use_git)
-		self.regression_tests = int(self.regression_tests)
+		try:
+			self.regression_tests = int(self.regression_tests)
+			if self.regression_tests > 1:
+				self.regression_tests = str(self.regression_tests)
+				raise ValueError("Handle single maya version, e.g. 2010, which is a valid int")
+			# END handle single version
+		except ValueError:
+			self.regression_tests = tuple(mv.strip() for mv in self.regression_tests.split(","))
+		# END try parsing the individual maya-versions to test
 
 
 		is_build_mode = 'install' not in self.commands and 'bdist_egg' not in self.commands
