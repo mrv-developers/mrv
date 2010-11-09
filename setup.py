@@ -164,11 +164,13 @@ class _GitMixin(object):
 		* remote name - name of the remote for which branches should be created/updated"""
 		self.root_remotes = list()
 		self.dist_remotes = list()
+		self.omit_release_version_for = list()
 	
 	def finalize_options(self):
 		"""Assure our args are of the correct type"""
 		self.root_remotes = self.distribution.fixed_list_arg(self.root_remotes)
 		self.dist_remotes = self.distribution.fixed_list_arg(self.dist_remotes)
+		self.omit_release_version_for = self.distribution.fixed_list_arg(self.omit_release_version_for)
 	
 	#{ Utilities
 	
@@ -177,16 +179,25 @@ class _GitMixin(object):
 		"""Append git specific user options to the given options"""
 		options.append(('dist-remotes=', 'd', "Default remotes to push the distribution branches to"))
 		options.append(('root-remotes=', 'r', "Default remotes to push the the main source branch to"))
+		options.append(('omit-release-version-for=', 'o', "If set, and the release string matches the given one, the branch version will be omitted"))
 	
-	def branch_name(self):
-		""":return: name of the branch identifying our current release configuration"""
-		root_name = self.distribution.pinfo.root_package
+	def branch_name(self, include_version=False):
+		""":return: name of the branch identifying our current release configuration
+		:param include_version: If True, the major and minor version will be included, as well as the string-tag"""
 		if self.branch_suffix is None:
 			raise ValueError("Branch suffix is not set")
-		return root_name + self.branch_suffix
+		root_name = self.distribution.pinfo.root_package
+		ver = self.distribution.pinfo.version
+		middle = ''
+		if include_version:
+			if ver[3] not in self.omit_release_version_for:
+				middle  = ("-%i.%i" % (ver[0], ver[1]))
+			middle += "-%s" % ver[3]
+		# END handle include version
+		return root_name + middle + self.branch_suffix
 		
 	def set_head_to(self, repo, head_name):
-		"""et our head to point to the given head_name. If possible, 
+		"""set our head to point to the given head_name. If possible, 
 		update the index to represent the tree the head points to
 		
 		:return: Head named head_name
@@ -433,7 +444,7 @@ class _GitMixin(object):
 			# END handle commit already set
 			
 			# rewrite the line with the sha
-			lines[ln] = "%s = %r\n" % (self.commit_sha_var_name, root_commit.sha)
+			lines[ln] = "%s = %r\n" % (self.commit_sha_var_name, root_commit.hexsha)
 			adjusted = True
 			break
 		# END for each line
@@ -446,6 +457,31 @@ class _GitMixin(object):
 			log.info("Didn't find line with %s in info module at %r" % ( self.commit_sha_var_name, info_module_path))
 		# END write changes
 		
+	def find_distro_parent(self, dist_head_ref, prev_head_commit):
+		"""Parse all hex-shas in the distribution head and find the closest one
+		in the commits shas of the prev-head-rev
+		:param dist_head_ref: reference into the distribution commit graph
+		:param prev_head_commit: our commit in the source commit graph
+		:return: commit hexsha to be used as most suitable parent, or None if
+			none was found"""
+		dist_hexshas = list()			# pair(commit_hex_sha, source_hex_sha)
+		for c in dist_head_ref.commit.traverse(branch_first=False, ignore_self=False):
+			t = c.message.split("@")
+			if not t or len(t[-1]) != 40:
+				continue
+			dist_hexshas.append((c.hexsha, t[-1]))
+		# END for each parent commit
+		
+		# parse all commits into a set for quick lookups
+		hc = set(c.hexsha for c in prev_head_commit.iter_parents())			# head-commits
+		hc.add(prev_head_commit.hexsha)
+		
+		# the first match is the best
+		for shexsha, dhexsha in dist_hexshas:
+			if dhexsha in hc:
+				return shexsha
+		#END for eeach hexsha
+		return None
 		
 	def add_files_and_commit(self, root_repo, repo, root_dir, root_tag):
 		"""
@@ -575,7 +611,7 @@ class _GitMixin(object):
 		
 		# we require the current commit to be tagged
 		root_tag = self.distribution.handle_version_and_tag()
-		
+		prev_commit = repo.head.commit
 		try:
 			prev_head_ref = repo.head.ref
 			__IndexCleanup = CallOnDeletion(lambda : self.set_head_to(repo, prev_head_ref))
@@ -586,9 +622,34 @@ class _GitMixin(object):
 		
 		
 		# checkout the target branch gently ( index and head only )
-		branch_name = self.branch_name()
+		branch_name = self.branch_name(include_version=True)
+		
+		# assure we have the latest target branch - otherwise our commit
+		# will be based on an out-dated commit
+		repo_remotes = repo.remotes
+		for remote in self.dist_remotes:
+			try:
+				repo_remotes[remote].fetch()
+			except (KeyError, git.GitCommandError):
+				pass
+			# END ignore exceptions
+		# END for each remote to update
+		
 		head_ref = self.set_head_to(repo, branch_name)
 		assert repo.head.ref == head_ref
+		
+		# FIND GOOD PARENT
+		##################
+		# Parse all source commit shas from the destination branch in the remote 
+		# repository and try to find the best match in the history of our previously
+		# checked-out branch.
+		if head_ref.is_valid():
+			parent_hexsha = self.find_distro_parent(head_ref, prev_commit)
+			if parent_hexsha is not None:
+				head_ref.commit = parent_hexsha
+			# END handle 
+		# END if we have a valid head-ref
+		
 		
 		# add our all files below our root
 		root_head, commit = self.add_files_and_commit(root_repo, repo, root_dir, root_tag)
