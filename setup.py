@@ -164,11 +164,13 @@ class _GitMixin(object):
 		* remote name - name of the remote for which branches should be created/updated"""
 		self.root_remotes = list()
 		self.dist_remotes = list()
+		self.omit_release_version_for = list()
 	
 	def finalize_options(self):
 		"""Assure our args are of the correct type"""
 		self.root_remotes = self.distribution.fixed_list_arg(self.root_remotes)
 		self.dist_remotes = self.distribution.fixed_list_arg(self.dist_remotes)
+		self.omit_release_version_for = self.distribution.fixed_list_arg(self.omit_release_version_for)
 	
 	#{ Utilities
 	
@@ -177,6 +179,7 @@ class _GitMixin(object):
 		"""Append git specific user options to the given options"""
 		options.append(('dist-remotes=', 'd', "Default remotes to push the distribution branches to"))
 		options.append(('root-remotes=', 'r', "Default remotes to push the the main source branch to"))
+		options.append(('omit-release-version-for=', 'o', "If set, and the release string matches the given one, the branch version will be omitted"))
 	
 	def branch_name(self, include_version=False):
 		""":return: name of the branch identifying our current release configuration
@@ -187,7 +190,9 @@ class _GitMixin(object):
 		ver = self.distribution.pinfo.version
 		middle = ''
 		if include_version:
-			middle  = ("-%i.%i-%s" % (ver[0], ver[1], ver[3]))
+			if ver[3] not in self.omit_release_version_for:
+				middle  = ("-%i.%i" % (ver[0], ver[1]))
+			middle += "-%s" % ver[3]
 		# END handle include version
 		return root_name + middle + self.branch_suffix
 		

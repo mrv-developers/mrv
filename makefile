@@ -11,6 +11,7 @@ GIT_BETA_ARGS=--force-git-tag --use-git=1
 GIT_RELEASE_ARGS=--use-git=1
 GIT_DIST_ARGS=--dist-remotes=tdistro --root-remotes=bak
 BUILD_PY=build_py
+BETA_OMIT_RELEASE_VERSION=--omit-release-version-for=beta
 
 PYTHON_SETUP=/usr/bin/python setup.py
 
@@ -22,7 +23,7 @@ release-docs:
 	$(PYTHON_SETUP) $(PYVERSION_ARGS) $(GIT_RELEASE_ARGS) docdist $(DOC_ARGS) $(GIT_DIST_ARGS)
 	
 beta-docs:
-	$(PYTHON_SETUP) $(PYVERSION_ARGS) $(GIT_BETA_ARGS) docdist $(DOC_ARGS) $(GIT_DIST_ARGS)
+	$(PYTHON_SETUP) $(PYVERSION_ARGS) $(GIT_BETA_ARGS) docdist $(DOC_ARGS) $(GIT_DIST_ARGS) $(BETA_OMIT_RELEASE_VERSION)
 
 # make beta docs, don't commit to git
 test-beta-docs:
@@ -30,7 +31,7 @@ test-beta-docs:
 
 # Moving-Tag Preview Commit 
 beta:
-	$(PYTHON_SETUP) $(PYVERSION_ARGS) $(GIT_BETA_ARGS) clean --all $(BUILD_PY) $(GIT_DIST_ARGS)
+	$(PYTHON_SETUP) $(PYVERSION_ARGS) $(GIT_BETA_ARGS) clean --all $(BUILD_PY) $(GIT_DIST_ARGS) $(BETA_OMIT_RELEASE_VERSION)
 	
 release:
 	$(PYTHON_SETUP) $(PYVERSION_ARGS) $(GIT_RELEASE_ARGS) $(REG_ARGS) clean --all $(BUILD_PY) $(GIT_DIST_ARGS)

@@ -266,14 +266,19 @@ The git command base allows to configure to which remotes the distribution data 
 
 If the ``setup`` script's standard output is attached to a tty, the user will be asked to confirm the selection of branches and tags to be pushed to the remotes, which includes the option to alter the selection as desired.
 
-* ..cmdoption:: --root-remotes=REMOTE[,REMOTE...] (-r)
+* .. cmdoption:: --root-remotes=REMOTE[,REMOTE...] (-r)
 
  * The data of the branch currently checked out in your root repository, including the tag located at the commit to which it points, will be pushed to the given list of comma separated remote names.
  
-* ..cmdoption:: --dist-remotes=REMOTE[,REMOTE...] (-d)
+* .. cmdoption:: --dist-remotes=REMOTE[,REMOTE...] (-d)
 
  * The data of the distribution branch including the tag located at the commit to which it points will be pushed to the given comma separated list of remote names. 
 
+* .. cmdoption:: --omit-release-version-for=RELEASE_STRING[,...] (-o)
+
+ * If set, and if the given release string(s) matches the currently set release-string in the :doc:`info module <pinfo>`, the major and minor version numbers will not be part of the distribution branch name.
+ * Use this create something like beta-distributions, which will keep a single branch throughout their lifetime.
+ 
 =======
 Testing
 =======
