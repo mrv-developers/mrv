@@ -12,7 +12,7 @@ import mrv.doc
 
 import mrv.test.cmd as cmd
 
-from mrv.path import make_path
+from mrv.path import (make_path, Path)
 
 ospd = os.path.dirname
 
