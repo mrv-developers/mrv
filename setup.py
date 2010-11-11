@@ -933,6 +933,13 @@ class BuildPython(_GitMixin, _RegressionMixin, build_py):
 		
 		return rval
 		
+	def copy_file(self, infile, outfile, preserve_mode=True, **kwargs):
+		"""Correct the forced base class behaviour to not preserve the mode. I do
+		want executables to stay executables, wtf ? In the code it says preserve_mode
+		is the right thing, but when copying it, it suddenly disables it without 
+		a note why exactly that would be required"""
+		return super(BuildPython, self).copy_file(infile, outfile, preserve_mode=True, **kwargs)
+		
 	def get_data_files(self):
 		"""Can you feel the pain ? So, in python2.5 and python2.4 coming with maya, 
 		the line dealing with the ``plen`` has a bug which causes it to truncate too much.
