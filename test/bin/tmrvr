@@ -10,6 +10,10 @@ __docformat__ = "restructuredtext"
 
 #{ Globals 
 _mrv_mayapy_flag = '--mrv-mayapy'
+_test_single_prefix = "test_single_"
+
+_pyc = '.pyc'
+_py = '.py'
 #} END globals
 
 def parse_opts(args):
@@ -60,8 +64,23 @@ interpreter may be available."""
 	# END for each version
 	
 	return (options, sorted(maya_versions))
-	
-	
+
+# use a set, so the execution order is MORE RANDOM
+def verified_add(fpath, to_set):
+	pext = _pyc
+	if fpath.endswith(pext):
+		pext = pext[:-1]
+	# END figure out extension to search for
+	base, ext = os.path.splitext(fpath)
+	nfpath = base + pext
+	if nfpath not in to_set:
+		to_set.add(fpath)
+	elif ext  == _py:
+		# see whether we can prefer the .py file'
+		to_set.remove(nfpath)
+		to_set.add(fpath)
+	# END handle set addition
+
 def tmrvrmain(args):
 	# pull in mrv 
 	ospd = os.path.dirname
@@ -112,8 +131,8 @@ def tmrvrmain(args):
 		tmrvpath = tmrvrelapath
 	# END use optically shortest path
 	
-	# find the single tests to run
-	testfiles = [None]	# none indicates no test file, which runs all tests
+	# find the single tests to run - may contain single file strings or a list of strings
+	testfiles = list()
 	search_root = os.path.join('.', 'test')
 	
 	# on windows though, things are a little different so that we have to specify 
@@ -123,18 +142,40 @@ def tmrvrmain(args):
 		testfiles[0] = search_root
 	# END windoze special handling as usual
 	
+
+	acc_tests = set()
+	single_tests = set()
+	
+	# find all files that nose would choose
+	for root, dirs, files in os.walk(search_root):
+		for f in files:
+			if f.startswith('test_') and (f.endswith(_py) or f.endswith(_pyc)):
+				fpath = os.path.join(root, f)
+				if f.startswith(_test_single_prefix):
+					verified_add(fpath, single_tests)
+				else:
+					verified_add(fpath, acc_tests)
+				# END sort by type 
+			# END if its a python file
+		# END for each file
+	
+	# all single files are started with a separate instance
+	testfiles.append(tuple(acc_tests))
 	if not options.skip_single:
-		for root, dirs, files in os.walk(search_root):
-			testfiles.extend(os.path.join(root, f) for f in files if f.startswith('test_single_') and f.endswith('.py'))
-		# END filter fiels
-	# END find single tests
+		testfiles.extend(tuple(single_tests))
+	# END handle skip single tests
 	
 	for version in maya_versions:
 		for testfile in testfiles:
 			args = baseargs + (tmrvpath, "%g" % version)
 			if testfile:
-				args += (testfile, )
+				if isinstance(testfile, tuple):
+					args += testfile
+				else:
+					args += (testfile, )
+				# END handle testfile type
 			# END add testfile
+			
 			if options.mayapy_only:
 				args += (_mrv_mayapy_flag, )
 			# END add mayapy only flag
@@ -149,7 +190,7 @@ def tmrvrmain(args):
 		# END for each testfile
 	# END for each maya_version
 	
-	if options.skip_single and testfiles > 1:
+	if options.skip_single and single_tests:
 		raise ValueError("Cannot pass regression test as single tests have been skipped")
 	# END fail if we skipped single tests
 	

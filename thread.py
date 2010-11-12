@@ -15,6 +15,7 @@ def do_terminate_threads(whitelist=list()):
 			continue
 		if whitelist and t not in whitelist:
 			continue
+		t.schedule_termination()
 		if isinstance(t, WorkerThread):
 			t.inq.put(t.quit)
 		# END worker special handling
