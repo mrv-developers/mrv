@@ -249,7 +249,10 @@ output: html"""
 		if self._sphinx:
 			self.remove_version_info('sphinx')
 			ip = self.index_rst_path()
-			if ip.isfile():
+			iph = ip+'.header'
+			# only remove index.rst if it appears we are generating it using 
+			# header and footer
+			if iph.isfile() and ip.isfile():
 				ip.remove()
 			# END remove generated index
 			
@@ -385,9 +388,14 @@ output: html"""
 		import mrv
 		
 		indexpath = self.index_rst_path()
+		index_header = indexpath+'.header'
+		if not index_header.isfile():
+			return
+		# END handle header doesn't exist
+		
 		ifp = open(indexpath, 'wb')
 		# write header
-		ifp.write((indexpath+'.header').bytes())
+		ifp.write(index_header.bytes())
 		
 		# write api index
 		if self._sphinx_autogen:
