@@ -2,7 +2,7 @@
 Changelog
 #########
 
-******
-v1.0.0
-******
- * TODO: Fill in changes if there are any
+*************
+v1.0.1 stable
+*************
+ * initial release

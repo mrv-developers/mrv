@@ -1551,12 +1551,19 @@ class DocDistro(_GitMixin, Command):
 			elif 'build_py' in cmds or 'build' in cmds:
 				bcmd = self.get_finalized_command('build_py', create=True)
 				base_dir = bcmd._build_dir()
+			else:
+				# just assume we are just in our actual project root directory
+				base_dir = os.getcwd()
 			# END handle build_py
 			
 			if base_dir is None:
 				raise EnvironmentError("Could not determine valid documentation directory")
 			# END handle error
 			doc_dir = os.path.join(base_dir, doc_dir)
+			
+			if not os.path.isdir(doc_dir):
+				raise EnvironmentError("Determined documentation base directory at %r did not exist" % doc_dir)
+			#END handle invalid directory
 		# END handle build version docs generation
 		
 		return doc_dir
