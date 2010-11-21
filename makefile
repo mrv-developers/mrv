@@ -22,10 +22,10 @@ all:
 	echo "Nothing to do - specify an actual target"
 	exit 1
 
-release-docs: release
+release-docs:
 	$(PYTHON_SETUP) $(PYVERSION_ARGS) $(GIT_RELEASE_ARGS) docdist $(DOC_ARGS) $(GIT_DOCDIST_ARGS)
 	
-beta-docs: beta
+beta-docs:
 	$(PYTHON_SETUP) $(PYVERSION_ARGS) $(GIT_BETA_ARGS) docdist $(DOC_ARGS) $(GIT_DOCDIST_ARGS) $(BETA_OMIT_RELEASE_VERSION)
 
 # make beta docs, don't commit to git
