@@ -46,8 +46,14 @@ The notation used is: NAME_OF_VARIABLE (=default value). Variables with *_STANDA
 * *MRV_STANDALONE_RUN_USER_SETUP* (=0)
  
  * If enabled, MRV runs the userSetup.(mel|py) at the very end of its initialization routine.
+ 
+* *MRV_INFO_DIR* 
+
+ * If set, it points to one or more paths which are to contain the *info* module used by the mrv executable to allow the initial import of it.
+ * Overrides all other paths which may contain the info module, which makes it a good way to be explicit about how to configure your sub-project.
   
 .. note:: Environment variables are only effective if they are set before the respective mrv modules are imported, hence it is not possible to alter the behavior after the import in most cases.
+
 
 *******
 Logging
