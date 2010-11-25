@@ -18,10 +18,6 @@ BETA_OMIT_RELEASE_VERSION=--omit-release-version-for=develop
 
 PYTHON_SETUP=/usr/bin/python setup.py
 
-# this is currently required, to prevent it from finding our root info file
-# during source distribution
-export MRV_INFO_DIR=/home/byron/projects/mrv/sdist_tmp/mrv
-
 all:
 	echo "Nothing to do - specify an actual target"
 	exit 1

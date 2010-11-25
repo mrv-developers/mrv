@@ -47,8 +47,8 @@ src_commit_sha = '0'*40
 # to work, it needs a hint to where to find the respective executables.
 # These are assumed to be compatible to the ones provided by MRV in case 
 # you provide an own implementation.
-regression_test_exec = 'test/bin/tmrvr'
-nosetest_exec = 'test/bin/tmrv'
+regression_test_exec = 'mrv/test/bin/tmrvr'
+nosetest_exec = 'mrv/test/bin/tmrv'
 # makedoc is special in that it wants to be started from within the project's doc
 # directory. The path given here is relative to it
 makedoc_exec = 'makedoc'
@@ -59,9 +59,9 @@ makedoc_exec = 'makedoc'
 # MRV's distribution system is based on distutils. The following dictionary will 
 # be passed to the setup routine of the distutils and applies additional configuration.
 # Read more about the distutils: http://docs.python.org/distutils/
-__scripts_bin = ['bin/mrv', 'bin/imrv']
-__scripts_test_bin = ['test/bin/tmrv', 'test/bin/tmrvr']
-__scripts_test_bin_s = [ p.replace('test/', '') for p in __scripts_test_bin ]
+__scripts_bin = ['mrv/bin/mrv', 'mrv/bin/imrv']
+__scripts_test_bin = ['mrv/test/bin/tmrv', 'mrv/test/bin/tmrvr']
+__scripts_test_bin_s = [ p.replace('mrv/test/', '') for p in __scripts_test_bin ]
 __ld = """MRV is a multi-platform python development environment to ease rapid development 
 of maintainable, reliable and high-performance code to be used in and around Autodesk Maya."""
 __requires = [ 'nose', 'epydoc', 'sphinx', 'gitpython' ]
@@ -128,7 +128,7 @@ setup_kwargs = dict(
 																	'mrv.test.test_conf', 'mrv.test.test_dg', 
 																	'mrv.test.test_batch', 'mrv.test.test_mdp', 
 																	'mrv.test.test_conf') }, 
-									build_scripts={ 'exclude_scripts' : ['test/bin/tmrvr']}) 
+									build_scripts={ 'exclude_scripts' : ['mrv/test/bin/tmrvr']}) 
                     )
 
 
@@ -138,6 +138,6 @@ setup_kwargs = dict(
 # to configure the epydoc source documentaiton generator.
 doc_config = dict(
 				epydoc_show_source = 'yes',
-				epydoc_modules = "modules: unittest\nmodules: pydot,pyparsing\nmodules: ../,../ext/networkx/networkx",
+				epydoc_modules = "modules: unittest\nmodules: pydot,pyparsing\nmodules: ../,../mrv/ext/networkx/networkx",
 				epydoc_exclude = "mrv.test,mrv.doc,mrv.cmd.ipythonstartup",
 				)
