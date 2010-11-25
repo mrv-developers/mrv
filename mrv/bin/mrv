@@ -73,12 +73,12 @@ def prepare_project_syspath():
 	# TRY TO FIND INFO MODULE
 	#########################
 	# try to import the root info
-	# We search upwards, prefer cwd, but take our file if required, which somewhat
+	# We search upwards,  take our file if required, which somewhat
 	# limits the choice to our own package unless someone has overwritten the 
-	# __file__ before executing us
+	# __file__ before executing us.
 	if not info_override:
 		found_search_path = False
-		for search_path in (os.getcwd(), ospd(os.path.realpath(__file__))):
+		for search_path in (ospd(os.path.realpath(__file__)), os.getcwd()):
 			while True:
 				sys.path.append(search_path)
 				try:
