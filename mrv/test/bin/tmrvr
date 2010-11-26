@@ -33,9 +33,13 @@ always fail in that case"""
 	
 	hlp = """If set, mayapy will be used to startup the mrv tests even though the system
 interpreter may be available."""
-	parser.add_option(_mrv_mayapy_flag, dest='mayapy_only', action='store_true', help=hlp) 
-	options, args = parser.parse_args(args)
+	parser.add_option(_mrv_mayapy_flag, dest='mayapy_only', action='store_true', help=hlp)
 	
+	hlp = """If set, specify the directory which should be searched for nosetest compatible test modules.
+Otherwise the current working directory will be used instead"""
+	parser.add_option('--search-root', dest='search_root', help=hlp)
+	
+	options, args = parser.parse_args(args)
 	
 	# PARSE MAYA VERSIONS
 	######################
@@ -125,6 +129,7 @@ def tmrvrmain(args):
 	# END handle windows
 	
 	
+	import mrv
 	from mrv.path import Path
 	tmrvrelapath = Path(tmrvpath).relpath()
 	if len(tmrvrelapath) < len(tmrvpath):
@@ -133,7 +138,7 @@ def tmrvrmain(args):
 	
 	# find the single tests to run - may contain single file strings or a list of strings
 	testfiles = list()
-	search_root = os.path.join(os.path.dirname(root.__file__), 'test')
+	search_root = (options.search_root and options.search_root) or os.path.join(os.path.dirname(mrv.pinfo.__file__), 'test')
 	
 	# on windows though, things are a little different so that we have to specify 
 	# absolute paths, and to run all tests
