@@ -31,6 +31,7 @@ def makedoc_main(args):
 	prepare_project_package()
 	import mrv
 	import mrv.info
+	
 	# import docgenerator
 	var = "docgen_class_path"
 	gen_path = getattr(mrv.pinfo, var, getattr(mrv.info, var))
@@ -41,7 +42,8 @@ def makedoc_main(args):
 		raise ImportError("Docgenerator class path %r did not lead to a valid module" % gen_path)
 	#END handle exceptions
 	
-	# PERFORM DOC GENERATION
+	# DOC GENERATION
+	################
 	try:
 		getattr(genmod, tokens[-1]).makedoc(args)
 	except AttributeError:

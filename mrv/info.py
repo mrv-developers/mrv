@@ -142,6 +142,6 @@ setup_kwargs = dict(
 # to configure the epydoc source documentaiton generator.
 doc_config = dict(
 				epydoc_show_source = 'yes',
-				epydoc_modules = "modules: unittest\nmodules: pydot,pyparsing\nmodules: ../,../mrv/ext/networkx/networkx",
-				epydoc_exclude = "mrv.test,mrv.doc,mrv.cmd.ipythonstartup",
+				epydoc_modules = "modules: unittest,../%s" % root_package,
+				epydoc_exclude = "mrv.test,%s.cmd.ipythonstartup" % root_package,
 				)
