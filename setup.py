@@ -669,16 +669,9 @@ class _GitMixin(object):
 class _RegressionMixin(object):
 	"""Provides a simple interface allowing to perform a regression test"""
 	
-	#{ Configuration
-	# default directory containing the actual tests.
-	# Specifying subdirectories may limit the amount of tests run
-	test_dir_default = 'test'
-	#} END configuration
-	
-	
 	def __init__(self, *args, **kwargs):
 		self.post_testing = list()
-		self.test_dir = self.test_dir_default 
+		self.test_dir = None 
 	
 	#{ Interface 
 	
@@ -689,7 +682,7 @@ class _RegressionMixin(object):
 		
 	def finalize_options(self):
 		self.post_testing = self.distribution.fixed_list_arg(self.post_testing)
-		self.test_dir = getattr(self.distribution.pinfo, 'test_root', self.test_dir)
+		self.test_dir = self.distribution._test_dir()
 		
 	def _find_test_modules(self, root_dir):
 		"""
@@ -1915,8 +1908,8 @@ Would you like to adjust your version info or abort ?
 		if isinstance(self.regression_tests, tuple):
 			args = self.regression_tests
 		# END handle test args
-		
-		p = self.spawn_python_interpreter((tmrvrpath, ) + args)
+		args = list(args) + ['--search-root', self._test_dir()] 
+		p = self.spawn_python_interpreter([tmrvrpath] + args)
 		if p.wait():
 			raise ValueError("Regression Tests failed")
 			
@@ -1925,10 +1918,13 @@ Would you like to adjust your version info or abort ?
 	
 	#{ Path Generators
 	
+	def _test_dir(self):
+		return getattr(self.pinfo, 'test_root', 'test')
+	
 	def _rootpath(self):                   
 		""":return: path to the root of the rootpackage, which includes all modules
 		and subpackages directly"""
-		return ospd(os.path.abspath(self.pinfo.root_package)) 
+		return ospd(ospd(os.path.abspath(self.pinfo.__file__))) 
 
 	def _test_relapath(self):
 		""":return: tmrv compatible test executable"""
