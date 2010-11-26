@@ -133,7 +133,7 @@ def tmrvrmain(args):
 	
 	# find the single tests to run - may contain single file strings or a list of strings
 	testfiles = list()
-	search_root = os.path.join('.', 'test')
+	search_root = os.path.join(os.path.dirname(root.__file__), 'test')
 	
 	# on windows though, things are a little different so that we have to specify 
 	# absolute paths, and to run all tests

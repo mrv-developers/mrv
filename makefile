@@ -9,9 +9,9 @@ REG_ARGS=--regression-tests=1
 DOC_ARGS=--zip-archive --from-build-version
 GIT_BETA_ARGS=--force-git-tag --use-git=1
 GIT_RELEASE_ARGS=--use-git=1
-GIT_ROOT_REMOTE_ARGS=--root-remotes=gitorious,hub
-GIT_DIST_ARGS=--dist-remotes=distro,hubdistro $(GIT_ROOT_REMOTE_ARGS) 
-GIT_DOCDIST_ARGS=--dist-remotes=docdistro,hubdocdistro $(GIT_ROOT_REMOTE_ARGS)
+GIT_ROOT_REMOTE_ARGS=--root-remotes=hub
+GIT_DIST_ARGS=--dist-remotes=hubdistro $(GIT_ROOT_REMOTE_ARGS) 
+GIT_DOCDIST_ARGS=--dist-remotes=hubdocdistro $(GIT_ROOT_REMOTE_ARGS)
 SDIST=sdist --format=zip
 POST_TESTING_ARGS=--post-testing=$(MAYA_VERSION)
 BETA_OMIT_RELEASE_VERSION=--omit-release-version-for=develop
