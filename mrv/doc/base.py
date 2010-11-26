@@ -37,10 +37,9 @@ class DocGenerator(object):
 	# EPYDOC
 	epydoc_show_source = 'yes'
 	epydoc_modules = """modules: unittest
-modules: pydot,pyparsing
-modules: ../,../ext/networkx/networkx"""
+modules: ../mrv,../mrv/ext/networkx/networkx,../mrv/ext/pyparsing/src,../mrv/ext/pydot"""
 
-	epydoc_exclude = "mrv.test,mrv.doc,mrv.cmd.ipythonstartup"
+	epydoc_exclude = "mrv.test,mrv.cmd.ipythonstartup"
 
 
 	# DYNAMICALLY ADJUSTED MEMBERS
@@ -70,7 +69,6 @@ output: html"""
 			self._retrieve_project_info(base_dir)
 		# END asssure project info is set
 		
-		
 		self._sphinx = sphinx
 		self._sphinx_autogen = sphinx_autogen
 		self._coverage = coverage
@@ -81,10 +79,27 @@ output: html"""
 		# We assume to be in the project's doc directory, otherwise we cannot
 		# automatically handle the project information
 		if self._base_dir.abspath().basename() != 'doc':
-			raise EnvironmentError("Basedirectory needs to be the 'doc' directory, not %s" % self._base_dir)
+			raise EnvironmentError("Basedirectory needs to be the 'doc' directory, not %s" % self._base_dir.abspath())
 			
 		
 		self._project_dir = make_path(self._base_dir / "..")
+	
+	@classmethod
+	def _apply_epydoc_config(cls):
+		"""Read package info configuration and apply it"""
+		assert cls.pinfo is not None
+		dcon = getattr(cls.pinfo, 'doc_config', dict())
+		for k,v in dcon.items():
+			if k.startswith('epydoc'):
+				setattr(cls, k, v)
+		# END apply project info 
+		
+		cls.epydoc_cfg = cls.epydoc_cfg % (cls.pinfo.project_name, 
+											cls.pinfo.url, 
+											cls.epydoc_show_source,
+											cls.epydoc_modules, 
+											cls.epydoc_exclude)
+		
 	
 	#{ Public Interface
 	
@@ -352,6 +367,21 @@ output: html"""
 		"""Store the project information of the actual project in our class members
 		for later use
 		:note: must be called exactly once"""
+		if cls.pinfo is not None:
+			return cls.pinfo
+		#END handle cached pinfo
+		
+		
+		try:
+			cls.pinfo = mrv.pinfo
+			cls.rootmodule = __import__(cls.pinfo.root_package)
+			return
+		except (AttributeError, ImportError):
+			# now we have to try our own way
+			pass
+		#END try cached package info
+		
+		# TODO: Revise this - it might not be necessary
 		rootpath, packageroot, packagename = cls.package_info(base_dir)
 		
 		# for now, we assume our root package is already in the path
@@ -367,20 +397,7 @@ output: html"""
 		except ImportError:
 			raise EnvironmentError("Project information module %r could not be imported:" % pinfo_package)
 		# END handle import
-		
-		# APPLY DOC-CONFIG 
-		###################
-		dcon = getattr(cls.pinfo, 'doc_config', dict())
-		for k,v in dcon.items():
-			if k.startswith('epydoc'):
-				setattr(cls, k, v)
-		# END apply project info 
-		
-		cls.epydoc_cfg = cls.epydoc_cfg % (cls.pinfo.project_name, 
-											cls.pinfo.url, 
-											cls.epydoc_show_source,
-											cls.epydoc_modules, 
-											cls.epydoc_exclude)
+
 
 	def _make_sphinx_index(self):
 		"""Generate the index.rst file according to the modules and packages we
@@ -399,7 +416,7 @@ output: html"""
 		
 		# write api index
 		if self._sphinx_autogen:
-			basepath = self._base_dir / ".."
+			basepath = self._base_dir / ".." / self.pinfo.root_package
 			rootmodule = basepath.abspath().basename()
 			for root, dirs, files in os.walk(basepath):
 				remove_dirs = list()
@@ -559,6 +576,8 @@ output: html"""
 		
 	def _make_epydoc(self):
 		"""Generate epydoc documentation"""
+		self._apply_epydoc_config()
+		
 		# start epydocs in a separate process
 		# as maya support is required
 		epytarget = self.epydoc_target_dir()
@@ -571,7 +590,8 @@ output: html"""
 		open(epydoc_cfg_file, 'wb').write(self.epydoc_cfg)
 		
 		args = ['epydoc', '-q', '-q', '--config', epydoc_cfg_file, '-o', str(epytarget)]
-				
+		
+		print "Launching in-process epydoc: ", " ".join(args)
 		origargs = sys.argv[:]
 		del(sys.argv[:])
 		sys.argv.extend(args)

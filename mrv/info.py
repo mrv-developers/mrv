@@ -53,6 +53,10 @@ nosetest_exec = 'mrv/test/bin/tmrv'
 # directory. The path given here is relative to it
 makedoc_exec = 'makedoc'
 
+# Import path to the DocGenerator derived type which is going to handle the doc 
+# generation. If unset in your info.py, this default will be used
+docgen_class_path = "mrv.doc.base.DocGenerator"
+
 
 # SETUP SCRIPT KWARGS
 #####################
@@ -138,6 +142,6 @@ setup_kwargs = dict(
 # to configure the epydoc source documentaiton generator.
 doc_config = dict(
 				epydoc_show_source = 'yes',
-				epydoc_modules = "modules: unittest\nmodules: pydot,pyparsing\nmodules: ../,../mrv/ext/networkx/networkx",
-				epydoc_exclude = "mrv.test,mrv.doc,mrv.cmd.ipythonstartup",
+				epydoc_modules = "modules: unittest,../%s" % root_package,
+				epydoc_exclude = "mrv.test,%s.cmd.ipythonstartup" % root_package,
 				)

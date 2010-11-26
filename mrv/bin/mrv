@@ -157,11 +157,22 @@ def prepare_project_syspath():
 		cmdbase.update_env_path(os.environ, envppath, ospd(ospd(os.path.abspath(p.__file__))), append=False)
 	# END utility
 	
+	# this should be available here
+	try:
+		import mrv
+	except ImportError:
+		raise ImportError("Parent package %r needs to add mrv to the system path" % root)
+	#END handle mrv import
+	
 	add_package_to_env(root)
 	if root.__name__ != default_package:
 		import mrv
 		add_package_to_env(mrv)
 	# END add mrv specificallys
+	
+	# keep the root-info around in the mrv pacakge, allowing mrv tools to 
+	# access the extra root info, instead of its own
+	mrv.pinfo = info
 	
 	return root, info
 	
