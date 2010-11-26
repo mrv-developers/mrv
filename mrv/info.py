@@ -53,6 +53,10 @@ nosetest_exec = 'mrv/test/bin/tmrv'
 # directory. The path given here is relative to it
 makedoc_exec = 'makedoc'
 
+# Import path to the DocGenerator derived type which is going to handle the doc 
+# generation. If unset in your info.py, this default will be used
+docgen_class_path = "mrv.doc.base.DocGenerator"
+
 
 # SETUP SCRIPT KWARGS
 #####################

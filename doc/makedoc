@@ -13,7 +13,7 @@ def prepare_project_package():
 	"""Assure we are able to import the root package. If this is not the case, 
 	resort to manually including the required code to set everything up"""
 	ospd = os.path.dirname
-	mrvpath = os.path.join(ospd(ospd(os.path.realpath(os.path.abspath(__file__)))), 'bin', 'mrv')
+	mrvpath = os.path.join(ospd(ospd(os.path.realpath(os.path.abspath(__file__)))),'mrv', 'bin', 'mrv')
 	globals()['__name__'] = "prevent execution of main"
 	globals()['__file__'] = mrvpath
 	
@@ -29,8 +29,24 @@ def prepare_project_package():
 def makedoc_main(args):
 	"""Parse args, initialize a builder, and run it"""
 	prepare_project_package()
-	import base
-	base.DocGenerator.makedoc(args)
+	import mrv
+	import mrv.info
+	# import docgenerator
+	var = "docgen_class_path"
+	gen_path = getattr(mrv.pinfo, var, getattr(mrv.info, var))
+	tokens = gen_path.split('.')
+	try:
+		genmod = __import__('.'.join(tokens[:-1]), globals(), locals(), [tokens[-1]])
+	except ImportError:
+		raise ImportError("Docgenerator class path %r did not lead to a valid module" % gen_path)
+	#END handle exceptions
+	
+	# PERFORM DOC GENERATION
+	try:
+		getattr(genmod, tokens[-1]).makedoc(args)
+	except AttributeError:
+		raise EnvironmentError("DocGenerator at path %r did not support the class makedoc method, or did not exist" % gen_path)
+	#END handle attribute error
 
 #} END initialization
 
