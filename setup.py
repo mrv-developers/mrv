@@ -678,8 +678,7 @@ class _RegressionMixin(object):
 	
 	def __init__(self, *args, **kwargs):
 		self.post_testing = list()
-		self.test_dir = self.test_dir_default
-	
+		self.test_dir = self.test_dir_default 
 	
 	#{ Interface 
 	
@@ -690,6 +689,7 @@ class _RegressionMixin(object):
 		
 	def finalize_options(self):
 		self.post_testing = self.distribution.fixed_list_arg(self.post_testing)
+		self.test_dir = getattr(self.distribution.pinfo, 'test_root', self.test_dir)
 		
 	def _find_test_modules(self, root_dir):
 		"""
@@ -1091,7 +1091,9 @@ class BuildPython(_GitMixin, _RegressionMixin, build_py):
 		
 		# POST REGRESSION TESTING
 		#########################
-		test_root = os.path.join(self._build_dir(), self.distribution.pinfo.root_package, self.test_dir)
+		pinfo = self.distribution.pinfo
+		test_root = os.path.join(self._build_dir(), pinfo.root_package, 
+								getattr(pinfo.root_package, 'test_root', self.test_dir))
 		self.post_regression_test(self._build_dir(), self._test_abspath(), test_root)
 		
 		# FIX SCRIPTS

@@ -21,6 +21,10 @@ project_name = "mrv"
 # usually all lower case letters
 root_package = "mrv"
 
+# The directory, relative to this file, containing all unit test. If it is not
+# set, it will default to 'test'
+test_root = 'test'
+
 # The full name of the original author(s)
 author = "Sebastian Thiel"
 
