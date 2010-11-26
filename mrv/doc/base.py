@@ -342,7 +342,13 @@ output: html"""
 	def _mrv_maya_version(self):
 		""":return: maya version with which mrv subcommands should be started with"""
 		import mrv.cmd.base
-		return mrv.cmd.base.available_maya_versions()[-1]
+		try:
+			return mrv.cmd.base.available_maya_versions()[-1]
+		except IndexError:
+			print >> sys.stderr, "No maya version available, trying without"
+			import mrv.cmd
+			return mrv.cmd.mrv_nomaya_flag
+		#END handle no maya available
 		
 	def _call_python_script(self, *args, **kwargs):
 		"""Wrapper of subprocess.call which assumes that we call a python script.
