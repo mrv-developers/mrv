@@ -32,7 +32,7 @@ author = "Sebastian Thiel"
 author_email = 'byronimo@gmail.com'
 
 # URL of the project's home page, or '' if there is None
-url = "http://gitorious.org/mrv"
+url = "https://github.com/Byron/mrv"
 
 # A short description of your project, usually not more than one line.
 description ='Development Framework for Autodesk Maya'
