@@ -1974,6 +1974,7 @@ Would you like to adjust your version info or abort ?
 				try:
 					import info
 					cls.pinfo = info
+					break
 				except ImportError:
 					# it wasn't in this one
 					continue 
@@ -1996,11 +1997,12 @@ Would you like to adjust your version info or abort ?
 		try:
 			cls.rootpackage = __import__(cls.pinfo.root_package)
 		except ImportError:
-			packageroot = os.path.realpath(os.path.abspath(basedir))
+			packageroot = ospd(os.path.realpath(os.path.abspath(cls.pinfo.__file__)))
 			sys.path.append(ospd(packageroot))
 			try:
 				cls.rootpackage = __import__(cls.pinfo.root_package)
-			except ImportError:
+			except ImportError, e:
+				print str(e)
 				log.info("Contents of your sys.path:")
 				for p in sys.path: log.info("%r" % p)
 				del(sys.path[-1])
