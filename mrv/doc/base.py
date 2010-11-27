@@ -526,6 +526,9 @@ output: html"""
 			agp.makedirs()
 		# END handle existing directory
 		
+		# make sure the instance will actually find our info file, and not 
+		# its own one, otherwise it cannot make the necessary imports
+		os.environ['MRV_INFO_DIR'] = os.path.dirname(self.pinfo.__file__)
 		args = [mrvpath, str(self._mrv_maya_version()), '-c', code, 
 				'-o', agp, 
 				self.index_rst_path()]

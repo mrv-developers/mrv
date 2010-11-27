@@ -56,17 +56,28 @@ def prepare_project_syspath():
 	info_override = False
 	if env_mrv_info_dir in os.environ:
 		val = os.environ[env_mrv_info_dir]
-		for path in val.split(os.pathsep):
-			sys.path.append(path)
-		# END for each extra path
+		info_dirs = val.split(os.pathsep)
 		
-		try:
-			import info
-			root_package = info.root_package
-			info_override = True
-		except ImportError:
-			print >> sys.stderr, "WARNING: Although %s was explicitly set, no info module could be found in one of %s (CWD=%s)" % (env_mrv_info_dir, val, os.getcwd())
-		#END exception handling 
+		
+		for path in info_dirs:
+			sys.path.append(path)
+			
+			try:
+				try:
+					import info
+					root_package = info.root_package
+					info_override = True
+					# add the one which allows to import the root package with the name we now have
+					sys.path.append(ospd(os.path.abspath(path)))
+					break
+				except ImportError:
+					print >> sys.stderr, "WARNING: Although %s was explicitly set, no info module could be found in one of %s (CWD=%s)" % (env_mrv_info_dir, val, os.getcwd())
+				#END exception handling
+			finally:
+				# remove all previously added info-dir paths
+				sys.path.remove(path)
+			#END handle sys.path cleanup
+		# END for each extra path
 	#END handle extra include paths
 	
 
@@ -105,7 +116,7 @@ def prepare_project_syspath():
 		# END for each possible search-base
 	#END additional search if nothing else was found
 	
-	# if we didn't find anything us the existing info parent path
+	# if we didn't find anything use the existing info parent path
 	if not info_override and root_package == default_package and existing_info_parent_module:
 		sys.path.append(ospd(existing_info_parent_module))
 	# END handle path
