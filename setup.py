@@ -399,7 +399,7 @@ class _GitMixin(object):
 	def _adjust_commit_sha(self, root_commit, root_dir):
 		"""Write the src_commit_sha in the info.py file to the value in root_commit
 		or skip it if the file is not available"""
-		info_module_path = os.path.join(root_dir, 'info.py')
+		info_module_path = os.path.join(root_dir, self.distribution.pinfo.root_package, 'info.py')
 		if not os.path.isfile(info_module_path):
 			log.warn("Couldn't write the %s value as the info module at %r did not exist" % (self.commit_sha_var_name, info_module_path))
 			return
