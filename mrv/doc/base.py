@@ -41,12 +41,16 @@ modules: ../mrv,../mrv/ext/networkx/networkx,../mrv/ext/pyparsing/src,../mrv/ext
 
 	epydoc_exclude = "mrv.test,mrv.cmd.ipythonstartup"
 
+	# BOOTSTRAPPING
+	# To be set by derived types in order to define the root package name that 
+	# shouldbe imported
+	package_name = None
 
 	# DYNAMICALLY ADJUSTED MEMBERS
 	# These members will be adjusted after reading the current project's 
 	# information
-	rootmodule = None
 	pinfo = None
+	rootmodule = None
 	epydoc_cfg = """[epydoc]
 name: %s
 url: %s
@@ -65,7 +69,7 @@ output: html"""
 		:param sphinx: If True, sphinx documentation will be produced
 		:param coverage: If True, the coverage report will be generated
 		:param epydoc: If True, epydoc documentation will be generated"""
-		if self.rootmodule is None:
+		if self.pinfo is None:
 			self._retrieve_project_info(base_dir)
 		# END asssure project info is set
 		
@@ -153,6 +157,9 @@ output: html"""
 		Make documentation or remove the generated files."""
 		parser = optparse.OptionParser(usage=usage)
 		
+		hlp = "Specify the name of the package to import, defaults to 'mrv'"
+		parser.add_option('-p', '--package', dest='package_name', help=hlp)
+		
 		hlp = """Specifies to build sphinx documentation"""
 		parser.add_option('-s', '--sphinx', dest='sphinx', type='int',default=1,
 							help=hlp, metavar='STATE')
@@ -173,17 +180,14 @@ output: html"""
 		return parser
 		
 	@classmethod
-	def package_info(cls, basedir='.'):
-		""":return: tuple(root_path, package_root_path, root_package_name ) tuple of the path containing
-		all modules, path containing the root package, as well as the name of our root package 
-		as deduced from the package_root_path
+	def root_dir(cls, basedir='.'):
+		"""
+		:return: path which includes our package - if it would be in the sys.path, 
+			we should be able to import it
 		:param basedir: we expect to be in the root/doc path of the project - if this is not 
-		the case, the basedir can be adjusted accordingly to 'virtually' chdir into the 
-		doc directory"""
-		rootpath = ospd(os.path.realpath(os.path.abspath(basedir)))
-		packageroot = ospd(rootpath)
-		packagename = os.path.basename(rootpath)
-		return (rootpath, packageroot, packagename)
+			the case, the basedir can be adjusted accordingly to 'virtually' chdir into the 
+			doc directory"""
+		return ospd(os.path.realpath(os.path.abspath(basedir)))
 		
 	@classmethod
 	def makedoc(cls, args):
@@ -198,6 +202,19 @@ output: html"""
 		options, args = p.parse_args(args)
 		clean = options.clean
 		del(options.clean)
+		
+		# commandline overrides class configuration
+		cls.package_name = options.package_name or cls.package_name
+		# assume mrv, and assert it really is in our root path
+		default_package = 'mrv'
+		if cls.package_name is None and os.path.isdir(os.path.join(cls.root_dir(), default_package)):
+			cls.package_name = default_package
+		#END handle default
+		
+		if cls.package_name is None:
+			p.error("Please specify the --package that should be imported")
+		#END assure package is set
+		del(options.package_name)
 		
 		dgen = cls(*args, **options.__dict__)
 		if clean:
@@ -377,27 +394,24 @@ output: html"""
 			return cls.pinfo
 		#END handle cached pinfo
 		
+		if cls.package_name is None:
+			raise ValueError("Package name needs to be set, but was None")
+		#END assure package is set
+		
+		# Even though we could use the mrv.pinfo module, which is the top-level
+		# package info, we should prefer to start a search based on our current 
+		# directory as the user must call us from his own doc-path, from which 
+		# we can conclude quite a lot
+		rootpath = cls.root_dir(base_dir)
+		sys.path.append(rootpath)
 		
 		try:
-			cls.pinfo = mrv.pinfo
-			cls.rootmodule = __import__(cls.pinfo.root_package)
-			return
-		except (AttributeError, ImportError):
-			# now we have to try our own way
-			pass
-		#END try cached package info
-		
-		# TODO: Revise this - it might not be necessary
-		rootpath, packageroot, packagename = cls.package_info(base_dir)
-		
-		# for now, we assume our root package is already in the path
-		try:
-			cls.rootmodule = __import__(packagename)
+			cls.rootmodule = __import__(cls.package_name)
 		except ImportError:
-			raise EnvironmentError("Root package %s could not be imported" % packagename)
+			raise EnvironmentError("Root package %s could not be imported" % cls.package_name)
 		# END handle import
 		
-		pinfo_package =  "%s.info" % packagename
+		pinfo_package =  "%s.info" % cls.package_name
 		try:
 			cls.pinfo = __import__(pinfo_package, fromlist=[''])
 		except ImportError:

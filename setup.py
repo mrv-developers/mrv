@@ -1527,7 +1527,8 @@ class DocDistro(_GitMixin, Command):
 		
 		args = ('-a', str(self.sphinx_autogen), 
 				'-c', str(self.coverage),
-				'-e', str(self.epydoc) )
+				'-e', str(self.epydoc),
+				'--package', self.distribution.pinfo.root_package)
 		
 		# makedoc must be started from the doc directory
 		p = self.distribution.spawn_python_interpreter((makedocpath, ) + args, cwd=doc_dir)
@@ -1589,7 +1590,7 @@ class DocDistro(_GitMixin, Command):
 		# try to use an overriden docgenerator, then our own one
 		GenCls = None
 		try:
-			docbase = __import__("%s.doc.base" % self.pinfo.root_package, fromlist=['doesntmatter'])
+			docbase = __import__("%s.doc.base" % self.distribution.pinfo.root_package, fromlist=['doesntmatter'])
 			GenCls = docbase.DocGenerator
 		except (ImportError, AttributeError):
 			import mrv.doc.base as docbase
@@ -1600,6 +1601,8 @@ class DocDistro(_GitMixin, Command):
 			raise EnvironmentError("Cannot build documentation as '%s' directory does not exist" % doc_dir)
 		# END check doc dir exists
 		
+		# assure it knows about the package to use
+		GenCls.package_name = self.distribution.pinfo.root_package
 		self.docgen = GenCls(base_dir=doc_dir)
 		return self.docgen
 	
