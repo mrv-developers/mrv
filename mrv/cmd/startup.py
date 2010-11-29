@@ -87,12 +87,13 @@ def mrv(args, info, args_modifier=None):
 	for i, flag in enumerate((mrv.cmd.mrv_ui_flag,
 							  mrv.cmd.mrv_mayapy_flag, 
 							  mrv.cmd.mrv_nomaya_flag)):
-		try:
+		# intentionally don't cause an exception to be set - even if we catch
+		# it, its still hanging around and could be picked up by others who 
+		# explicitly query it
+		if flag in lrargs:
 			lrargs.remove(flag)
 			config[i] = True
-		except ValueError:
-			pass
-		# HANDLE maya in UI mode
+		#END handle removal
 	# END for each flag to handle
 	start_maya, mayapy_only, no_maya = config
 	rargs = lrargs

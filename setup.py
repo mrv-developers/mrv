@@ -399,7 +399,7 @@ class _GitMixin(object):
 	def _adjust_commit_sha(self, root_commit, root_dir):
 		"""Write the src_commit_sha in the info.py file to the value in root_commit
 		or skip it if the file is not available"""
-		info_module_path = os.path.join(root_dir, 'info.py')
+		info_module_path = os.path.join(root_dir, self.distribution.pinfo.root_package, 'info.py')
 		if not os.path.isfile(info_module_path):
 			log.warn("Couldn't write the %s value as the info module at %r did not exist" % (self.commit_sha_var_name, info_module_path))
 			return
@@ -669,17 +669,9 @@ class _GitMixin(object):
 class _RegressionMixin(object):
 	"""Provides a simple interface allowing to perform a regression test"""
 	
-	#{ Configuration
-	# default directory containing the actual tests.
-	# Specifying subdirectories may limit the amount of tests run
-	test_dir_default = 'test'
-	#} END configuration
-	
-	
 	def __init__(self, *args, **kwargs):
 		self.post_testing = list()
-		self.test_dir = self.test_dir_default
-	
+		self.test_dir = None 
 	
 	#{ Interface 
 	
@@ -690,6 +682,7 @@ class _RegressionMixin(object):
 		
 	def finalize_options(self):
 		self.post_testing = self.distribution.fixed_list_arg(self.post_testing)
+		self.test_dir = self.distribution._test_dir()
 		
 	def _find_test_modules(self, root_dir):
 		"""
@@ -716,8 +709,9 @@ class _RegressionMixin(object):
 		# END while walking
 		return test_modules
 		
-	def post_regression_test(self, testexecutable, test_root_dir):
+	def post_regression_test(self, cwd, testexecutable, test_root_dir):
 		"""Perform a regression test for the maya version's the user supplied.
+		:param cwd: current working directory to use when spawning the interpreter
 		:param testexecutable: path to the tmrv-compatible executable - it is 
 			expected to be inside a tree which allows the project to put itself into the path.
 		:param root_dir: root directory under which tests can be found
@@ -725,17 +719,26 @@ class _RegressionMixin(object):
 		if not self.post_testing:
 			return 
 		# END early abort
-		
 		# need explicit test modules
-		test_modules = tuple(self._find_test_modules(test_root_dir))
-		if not test_modules:
-			return 
+		cur_wd = os.getcwd()
+		os.chdir(cwd)
+		test_root_dir = os.path.relpath(test_root_dir, cwd)
+		testexecutable = os.path.relpath(testexecutable, cwd)
+		try:
+			test_modules = tuple(self._find_test_modules(test_root_dir))
+			if not test_modules:
+				print >> sys.stderr, "WARNING: Didn't find any test cases for post-testing in %s" % test_root_dir
+				return 
+			#END handle no tests
+		finally:
+			os.chdir(cur_wd)
+		#END restore previous wd
 		
 		# select everything which looks like a test for it as nose officially 
 		# ignores compiled files
 		for maya_version_str in self.post_testing:
 			args = (testexecutable, maya_version_str ) + test_modules
-			if self.distribution.spawn_python_interpreter(args).wait():
+			if self.distribution.spawn_python_interpreter(args, cwd=cwd).wait():
 				raise EnvironmentError("Post-Operation test failed")
 			# END call test program
 		# END for each maya version
@@ -1081,8 +1084,10 @@ class BuildPython(_GitMixin, _RegressionMixin, build_py):
 		
 		# POST REGRESSION TESTING
 		#########################
-		test_root = os.path.join(self._build_dir(), self.test_dir)
-		self.post_regression_test(self._test_abspath(), test_root)
+		pinfo = self.distribution.pinfo
+		test_root = os.path.join(self._build_dir(), pinfo.root_package, 
+								getattr(pinfo.root_package, 'test_root', self.test_dir))
+		self.post_regression_test(self._build_dir(), self._test_abspath(), test_root)
 		
 		# FIX SCRIPTS
 		##############
@@ -1345,11 +1350,11 @@ class GitSourceDistribution(_GitMixin, _RegressionMixin, sdist):
 		
 		# RUN REGRESSION TEST
 		#######################
-		# will only actually run if it is enabled - we need the preprartion to
+		# will only actually run if it is enabled - we need the preparation to
 		# build the docs anyway
 		testexec = os.path.join(base_dir, self.distribution._test_relapath())
-		test_root = os.path.join(base_dir, self.test_dir)
-		self.post_regression_test(testexec, test_root)
+		test_root = os.path.join(base_dir, self.distribution.pinfo.root_package, self.test_dir)
+		self.post_regression_test(base_dir, testexec, test_root)
 		
 		# HOOK IN DOC DISTRO
 		####################
@@ -1522,7 +1527,8 @@ class DocDistro(_GitMixin, Command):
 		
 		args = ('-a', str(self.sphinx_autogen), 
 				'-c', str(self.coverage),
-				'-e', str(self.epydoc) )
+				'-e', str(self.epydoc),
+				'--package', self.distribution.pinfo.root_package)
 		
 		# makedoc must be started from the doc directory
 		p = self.distribution.spawn_python_interpreter((makedocpath, ) + args, cwd=doc_dir)
@@ -1584,7 +1590,7 @@ class DocDistro(_GitMixin, Command):
 		# try to use an overriden docgenerator, then our own one
 		GenCls = None
 		try:
-			docbase = __import__("%s.doc.base" % self.pinfo.root_package, fromlist=['doesntmatter'])
+			docbase = __import__("%s.doc.base" % self.distribution.pinfo.root_package, fromlist=['doesntmatter'])
 			GenCls = docbase.DocGenerator
 		except (ImportError, AttributeError):
 			import mrv.doc.base as docbase
@@ -1595,6 +1601,8 @@ class DocDistro(_GitMixin, Command):
 			raise EnvironmentError("Cannot build documentation as '%s' directory does not exist" % doc_dir)
 		# END check doc dir exists
 		
+		# assure it knows about the package to use
+		GenCls.package_name = self.distribution.pinfo.root_package
 		self.docgen = GenCls(base_dir=doc_dir)
 		return self.docgen
 	
@@ -1645,15 +1653,7 @@ class Distribution(object, BaseDistribution):
 		stream accordingly.
 		
 		:note: needs to be called before setup of the distutils is called"""
-		rargs = [sys.argv[0]]
-		args = sys.argv[1:]
-		while args:
-			arg = args.pop(0)
-			rargs.append(arg)
-		# END while there are args
-		
-		del(sys.argv[:])
-		sys.argv.extend(rargs)
+		# does nothing for now
 	
 	@classmethod
 	def version_string(cls, version_info):
@@ -1911,8 +1911,8 @@ Would you like to adjust your version info or abort ?
 		if isinstance(self.regression_tests, tuple):
 			args = self.regression_tests
 		# END handle test args
-		
-		p = self.spawn_python_interpreter((tmrvrpath, ) + args)
+		args = list(args) + ['--search-root', self._test_dir()] 
+		p = self.spawn_python_interpreter([tmrvrpath] + args)
 		if p.wait():
 			raise ValueError("Regression Tests failed")
 			
@@ -1921,10 +1921,13 @@ Would you like to adjust your version info or abort ?
 	
 	#{ Path Generators
 	
+	def _test_dir(self):
+		return getattr(self.pinfo, 'test_root', 'test')
+	
 	def _rootpath(self):                   
 		""":return: path to the root of the rootpackage, which includes all modules
 		and subpackages directly"""
-		return ospd(os.path.abspath(self.pinfo.__file__)) 
+		return ospd(ospd(os.path.abspath(self.pinfo.__file__))) 
 
 	def _test_relapath(self):
 		""":return: tmrv compatible test executable"""
@@ -1960,12 +1963,30 @@ Would you like to adjust your version info or abort ?
 	def retrieve_project_info(cls):
 		"""import the project information module
 		:return: package info module object"""
-		try:
-			import info
-			cls.pinfo = info
-		except ImportError:
-			raise ImportError("Failed to import package information module (info.py)"); 
-		# END import exception handling
+		if cls.pinfo is not None:
+			return cls.pinfo
+		#END handle multiple calls
+		
+		# try to every folder, including the root
+		for directory in [os.getcwd()] + [p for p in os.listdir('.') if os.path.isdir(p)]:
+			sys.path.append(directory)
+			try:
+				try:
+					import info
+					cls.pinfo = info
+					break
+				except ImportError:
+					# it wasn't in this one
+					continue 
+				# END import exception handling
+			finally:
+				sys.path.pop()
+			#END handle sys.path restore
+		#END for each search path
+		
+		if cls.pinfo is None:
+			raise ImportError("Failed to import package information module (info.py)");
+		#END handle not found
 		
 		return cls.pinfo
 		
@@ -1976,11 +1997,12 @@ Would you like to adjust your version info or abort ?
 		try:
 			cls.rootpackage = __import__(cls.pinfo.root_package)
 		except ImportError:
-			packageroot = os.path.realpath(os.path.abspath(basedir))
+			packageroot = ospd(os.path.realpath(os.path.abspath(cls.pinfo.__file__)))
 			sys.path.append(ospd(packageroot))
 			try:
 				cls.rootpackage = __import__(cls.pinfo.root_package)
-			except ImportError:
+			except ImportError, e:
+				print str(e)
 				log.info("Contents of your sys.path:")
 				for p in sys.path: log.info("%r" % p)
 				del(sys.path[-1])
@@ -1992,8 +2014,8 @@ Would you like to adjust your version info or abort ?
 	
 	def get_packages(self):
 		""":return: list of all packages in rootpackage in __import__ compatible form"""
-		base_packages = [self.pinfo.root_package] + [ self.pinfo.root_package + '.' + pkg for pkg in find_packages(self._rootpath())]
-
+		#base_packages = [self.pinfo.root_package] + [ self.pinfo.root_package + '.' + pkg for pkg in find_packages(self._rootpath())]
+		base_packages =  [self.pinfo.root_package] + find_packages(self._rootpath())
 		for search_path in self.package_search_dirs:
 			if not os.path.isdir(search_path):
 				log.debug("package search path %r did not exist" % search_path)
@@ -2024,7 +2046,7 @@ Would you like to adjust your version info or abort ?
 				# process paths
 				for dir in dirs:
 					dirpath = os.path.join(root, dir)
-					base_packages.append(self.pinfo.root_package+"."+dirpath.replace(os.sep, '.'))
+					base_packages.append(dirpath.replace(os.sep, '.'))
 				# END for each remaining valid directory
 			# END walking external dir
 		# END for each search dir
@@ -2086,7 +2108,7 @@ Would you like to adjust your version info or abort ?
 		rval = BaseDistribution.parse_command_line(self)
 		
 		if self.package_search_dirs is None:
-			self.package_search_dirs = [self.ext_dir]
+			self.package_search_dirs = [os.path.join(self.pinfo.root_package, self.ext_dir)]
 		else:
 			self.package_search_dirs = self.fixed_list_arg(self.package_search_dirs)
 		# END handle package search dirs
@@ -2222,7 +2244,7 @@ def main(args, distclass=Distribution):
 		  author_email = info.author_email,
 		  url = info.url,
 		  license = info.license,
-		  package_dir = {info.root_package : ''},
+		  package_dir = {info.root_package : info.root_package},
 		  zip_safe=False,
 		  **info.setup_kwargs
 		  )

@@ -14,9 +14,8 @@ Links
 Issues are tracked by Lighthouse:
 http://byronimo.lighthouseapp.com/projects/51780-mrv/overview
 
-Developers can obtain the source code from github or gitorious, which also enable collaboration:
-http://gitorious.org/mrv     ( main )
-http://github.com/Byron/mrv  ( secondary )
+Developers can obtain the source code from github, which also enables collaboration:
+http://github.com/Byron/mrv
 
 If there are any questions about MRV, direct them to the mailing list:
 http://groups.google.de/group/mrv-dev

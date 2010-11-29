@@ -2,44 +2,44 @@
 # if some of the following gets included, check the tests and fixtures as 
 # they have to be included as well
 
-graft maya
-prune automation 
+graft mrv/maya
+prune mrv/automation 
 prune maya/automation
-exclude dge.py 
-exclude dgfe.py 
-exclude batch.py 
-exclude mdp.py
-exclude conf.py
+exclude mrv/dge.py 
+exclude mrv/dgfe.py 
+exclude mrv/batch.py 
+exclude mrv/mdp.py
+exclude mrv/conf.py
 
-graft test
-prune test/automation
-prune test/maya/automation
-exclude test/test_conf.py 
-exclude test/test_dge.py 
-exclude test/test_dgfe.py 
-exclude test/test_batch.py 
-exclude test/test_mdp.py
-exclude maya/ui/qa.py
+graft mrv/test
+prune mrv/test/automation
+prune mrv/test/maya/automation
+exclude mrv/test/test_conf.py 
+exclude mrv/test/test_dge.py 
+exclude mrv/test/test_dgfe.py 
+exclude mrv/test/test_batch.py 
+exclude mrv/test/test_mdp.py
+exclude mrv/maya/ui/qa.py
 
-graft test/fixtures
-prune test/fixtures/ma/huge
+graft mrv/test/fixtures
+prune mrv/test/fixtures/ma/huge
 
 # excluded as long conf.py is excluded
-prune test/fixtures/*ini*
-prune test/fixtures/*INI*
+prune mrv/test/fixtures/*ini*
+prune mrv/test/fixtures/*INI*
 
-graft bin
-graft test/bin
+graft mrv/bin
+graft mrv/test/bin
 recursive-include doc *.py makedoc
-graft doc/source
-prune doc/source/generated
+graft mrv/doc/source
+prune mrv/doc/source/generated
 
 include AUTHORS
 
-graft ext
-prune ext/networkx/.git
-prune ext/pydot/.git
-prune ext/pyparsing/.git
+graft mrv/ext
+prune mrv/ext/networkx/.git
+prune mrv/ext/pydot/.git
+prune mrv/ext/pyparsing/.git
 
 
 global-exclude .git*

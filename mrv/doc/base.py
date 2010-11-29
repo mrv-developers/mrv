@@ -37,17 +37,20 @@ class DocGenerator(object):
 	# EPYDOC
 	epydoc_show_source = 'yes'
 	epydoc_modules = """modules: unittest
-modules: pydot,pyparsing
-modules: ../,../ext/networkx/networkx"""
+modules: ../mrv,../mrv/ext/networkx/networkx,../mrv/ext/pyparsing/src,../mrv/ext/pydot"""
 
-	epydoc_exclude = "mrv.test,mrv.doc,mrv.cmd.ipythonstartup"
+	epydoc_exclude = "mrv.test,mrv.cmd.ipythonstartup"
 
+	# BOOTSTRAPPING
+	# To be set by derived types in order to define the root package name that 
+	# shouldbe imported
+	package_name = None
 
 	# DYNAMICALLY ADJUSTED MEMBERS
 	# These members will be adjusted after reading the current project's 
 	# information
-	rootmodule = None
 	pinfo = None
+	rootmodule = None
 	epydoc_cfg = """[epydoc]
 name: %s
 url: %s
@@ -66,10 +69,9 @@ output: html"""
 		:param sphinx: If True, sphinx documentation will be produced
 		:param coverage: If True, the coverage report will be generated
 		:param epydoc: If True, epydoc documentation will be generated"""
-		if self.rootmodule is None:
+		if self.pinfo is None:
 			self._retrieve_project_info(base_dir)
 		# END asssure project info is set
-		
 		
 		self._sphinx = sphinx
 		self._sphinx_autogen = sphinx_autogen
@@ -81,10 +83,27 @@ output: html"""
 		# We assume to be in the project's doc directory, otherwise we cannot
 		# automatically handle the project information
 		if self._base_dir.abspath().basename() != 'doc':
-			raise EnvironmentError("Basedirectory needs to be the 'doc' directory, not %s" % self._base_dir)
+			raise EnvironmentError("Basedirectory needs to be the 'doc' directory, not %s" % self._base_dir.abspath())
 			
 		
 		self._project_dir = make_path(self._base_dir / "..")
+	
+	@classmethod
+	def _apply_epydoc_config(cls):
+		"""Read package info configuration and apply it"""
+		assert cls.pinfo is not None
+		dcon = getattr(cls.pinfo, 'doc_config', dict())
+		for k,v in dcon.items():
+			if k.startswith('epydoc'):
+				setattr(cls, k, v)
+		# END apply project info 
+		
+		cls.epydoc_cfg = cls.epydoc_cfg % (cls.pinfo.project_name, 
+											cls.pinfo.url, 
+											cls.epydoc_show_source,
+											cls.epydoc_modules, 
+											cls.epydoc_exclude)
+		
 	
 	#{ Public Interface
 	
@@ -138,6 +157,9 @@ output: html"""
 		Make documentation or remove the generated files."""
 		parser = optparse.OptionParser(usage=usage)
 		
+		hlp = "Specify the name of the package to import, defaults to 'mrv'"
+		parser.add_option('-p', '--package', dest='package_name', help=hlp)
+		
 		hlp = """Specifies to build sphinx documentation"""
 		parser.add_option('-s', '--sphinx', dest='sphinx', type='int',default=1,
 							help=hlp, metavar='STATE')
@@ -158,17 +180,14 @@ output: html"""
 		return parser
 		
 	@classmethod
-	def package_info(cls, basedir='.'):
-		""":return: tuple(root_path, package_root_path, root_package_name ) tuple of the path containing
-		all modules, path containing the root package, as well as the name of our root package 
-		as deduced from the package_root_path
+	def root_dir(cls, basedir='.'):
+		"""
+		:return: path which includes our package - if it would be in the sys.path, 
+			we should be able to import it
 		:param basedir: we expect to be in the root/doc path of the project - if this is not 
-		the case, the basedir can be adjusted accordingly to 'virtually' chdir into the 
-		doc directory"""
-		rootpath = ospd(os.path.realpath(os.path.abspath(basedir)))
-		packageroot = ospd(rootpath)
-		packagename = os.path.basename(rootpath)
-		return (rootpath, packageroot, packagename)
+			the case, the basedir can be adjusted accordingly to 'virtually' chdir into the 
+			doc directory"""
+		return ospd(os.path.realpath(os.path.abspath(basedir)))
 		
 	@classmethod
 	def makedoc(cls, args):
@@ -183,6 +202,19 @@ output: html"""
 		options, args = p.parse_args(args)
 		clean = options.clean
 		del(options.clean)
+		
+		# commandline overrides class configuration
+		cls.package_name = options.package_name or cls.package_name
+		# assume mrv, and assert it really is in our root path
+		default_package = 'mrv'
+		if cls.package_name is None and os.path.isdir(os.path.join(cls.root_dir(), default_package)):
+			cls.package_name = default_package
+		#END handle default
+		
+		if cls.package_name is None:
+			p.error("Please specify the --package that should be imported")
+		#END assure package is set
+		del(options.package_name)
 		
 		dgen = cls(*args, **options.__dict__)
 		if clean:
@@ -327,7 +359,13 @@ output: html"""
 	def _mrv_maya_version(self):
 		""":return: maya version with which mrv subcommands should be started with"""
 		import mrv.cmd.base
-		return mrv.cmd.base.available_maya_versions()[-1]
+		try:
+			return mrv.cmd.base.available_maya_versions()[-1]
+		except IndexError:
+			print >> sys.stderr, "No maya version available, trying without"
+			import mrv.cmd
+			return mrv.cmd.mrv_nomaya_flag
+		#END handle no maya available
 		
 	def _call_python_script(self, *args, **kwargs):
 		"""Wrapper of subprocess.call which assumes that we call a python script.
@@ -352,35 +390,34 @@ output: html"""
 		"""Store the project information of the actual project in our class members
 		for later use
 		:note: must be called exactly once"""
-		rootpath, packageroot, packagename = cls.package_info(base_dir)
+		if cls.pinfo is not None:
+			return cls.pinfo
+		#END handle cached pinfo
 		
-		# for now, we assume our root package is already in the path
+		if cls.package_name is None:
+			raise ValueError("Package name needs to be set, but was None")
+		#END assure package is set
+		
+		# Even though we could use the mrv.pinfo module, which is the top-level
+		# package info, we should prefer to start a search based on our current 
+		# directory as the user must call us from his own doc-path, from which 
+		# we can conclude quite a lot
+		rootpath = cls.root_dir(base_dir)
+		sys.path.append(rootpath)
+		
 		try:
-			cls.rootmodule = __import__(packagename)
+			cls.rootmodule = __import__(cls.package_name)
 		except ImportError:
-			raise EnvironmentError("Root package %s could not be imported" % packagename)
+			raise EnvironmentError("Root package %s could not be imported" % cls.package_name)
 		# END handle import
 		
-		pinfo_package =  "%s.info" % packagename
+		pinfo_package =  "%s.info" % cls.package_name
 		try:
 			cls.pinfo = __import__(pinfo_package, fromlist=[''])
 		except ImportError:
 			raise EnvironmentError("Project information module %r could not be imported:" % pinfo_package)
 		# END handle import
-		
-		# APPLY DOC-CONFIG 
-		###################
-		dcon = getattr(cls.pinfo, 'doc_config', dict())
-		for k,v in dcon.items():
-			if k.startswith('epydoc'):
-				setattr(cls, k, v)
-		# END apply project info 
-		
-		cls.epydoc_cfg = cls.epydoc_cfg % (cls.pinfo.project_name, 
-											cls.pinfo.url, 
-											cls.epydoc_show_source,
-											cls.epydoc_modules, 
-											cls.epydoc_exclude)
+
 
 	def _make_sphinx_index(self):
 		"""Generate the index.rst file according to the modules and packages we
@@ -399,7 +436,7 @@ output: html"""
 		
 		# write api index
 		if self._sphinx_autogen:
-			basepath = self._base_dir / ".."
+			basepath = self._base_dir / ".." / self.pinfo.root_package
 			rootmodule = basepath.abspath().basename()
 			for root, dirs, files in os.walk(basepath):
 				remove_dirs = list()
@@ -489,11 +526,21 @@ output: html"""
 			agp.makedirs()
 		# END handle existing directory
 		
+		# make sure the instance will actually find our info file, and not 
+		# its own one, otherwise it cannot make the necessary imports
+		os.environ['MRV_INFO_DIR'] = os.path.dirname(self.pinfo.__file__)
 		args = [mrvpath, str(self._mrv_maya_version()), '-c', code, 
 				'-o', agp, 
 				self.index_rst_path()]
 		
 		self._call_python_script(args)
+		
+		# it could be that there was absolutely no autogenerated part in the 
+		# index, hence it didn't write any rst files for it
+		if not agp.isdir():
+			print >> sys.stderr, "WARNING: No autogenerated rst files written to %s" % agp.abspath()
+			return
+		#END handle no autogen docs
 		
 		# POST PROCESS
 		##############
@@ -559,6 +606,8 @@ output: html"""
 		
 	def _make_epydoc(self):
 		"""Generate epydoc documentation"""
+		self._apply_epydoc_config()
+		
 		# start epydocs in a separate process
 		# as maya support is required
 		epytarget = self.epydoc_target_dir()
@@ -571,7 +620,8 @@ output: html"""
 		open(epydoc_cfg_file, 'wb').write(self.epydoc_cfg)
 		
 		args = ['epydoc', '-q', '-q', '--config', epydoc_cfg_file, '-o', str(epytarget)]
-				
+		
+		print "Launching in-process epydoc: ", " ".join(args)
 		origargs = sys.argv[:]
 		del(sys.argv[:])
 		sys.argv.extend(args)

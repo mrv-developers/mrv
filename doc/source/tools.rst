@@ -174,6 +174,14 @@ Flags
         $ # Run all tests, but skip the single tests
         $ test/bin/tmrvr --skip-single
 
+* .. cmdoption:: --mrv-mayapy
+
+    If set, tmrvr will launch ``tmrv`` using mayapy instead of the system's native python interpreter.
+    
+* ..  cmdoption:: --search-root
+
+    If set, test cases will be searched in the given directory. Otherwise the projects root/test directory will be used instead.
+        
 *************
 Release Tools
 *************

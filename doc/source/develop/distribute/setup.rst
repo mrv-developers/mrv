@@ -14,7 +14,7 @@ The main class, ``Distribution``, manages its subcommands and can be seen as com
 
 A short example should illustrate how to call ``setup.py`` in general, and how flags map to the ``Distribution`` and to `Subcommands`_::
     
-    $ python setup.py --use-git=1 --regression-tests=1 clean --all sdist --format=zip --dist-remotes=distro,hubdistro --root-remotes=gitorious,hub
+    $ python setup.py --use-git=1 --regression-tests=1 clean --all sdist --format=zip --dist-remotes=distro,hubdistro --root-remotes=hub
 
 The ``--use-git`` and ``--regression-tests`` flags are given to the ``Distribution`` instance to serve as general information for subcommands or to trigger general events, such as to run all regression tests.
 
