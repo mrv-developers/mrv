@@ -727,7 +727,7 @@ class _RegressionMixin(object):
 		try:
 			test_modules = tuple(self._find_test_modules(test_root_dir))
 			if not test_modules:
-				print >> sys.stderr, "WARNING: Didn't find any test cases for post-testing in %s" % test_root_dir
+				print >> sys.stderr, "WARNING: Didn't find any test cases for post-testing in %s (CWD = %s)" % (test_root_dir, cwd)
 				return 
 			#END handle no tests
 		finally:
@@ -1085,8 +1085,8 @@ class BuildPython(_GitMixin, _RegressionMixin, build_py):
 		# POST REGRESSION TESTING
 		#########################
 		pinfo = self.distribution.pinfo
-		test_root = os.path.join(self._build_dir(), pinfo.root_package, 
-								getattr(pinfo.root_package, 'test_root', self.test_dir))
+		# in build mode, we don't have an intermediate package dir
+		test_root = os.path.join(self._build_dir(), getattr(pinfo.root_package, 'test_root', self.test_dir))
 		self.post_regression_test(self._build_dir(), self._test_abspath(), test_root)
 		
 		# FIX SCRIPTS
