@@ -11,10 +11,10 @@ log = logging.getLogger("mrv.cmd.base")
 
 __docformat__ = "restructuredtext"
 
-__all__ = ( 'is_supported_maya_version', 'python_version_of', 'parse_maya_version', 'update_env_path', 
+__all__ = [ 'is_supported_maya_version', 'python_version_of', 'parse_maya_version', 'update_env_path', 
 			'maya_location', 'update_maya_environment', 'exec_python_interpreter', 'uses_mayapy', 
 			'exec_maya_binary', 'available_maya_versions', 'python_executable', 'find_mrv_script',
-			'log_exception', 'SpawnedHelpFormatter', 'SpawnedOptionParser', 'SpawnedCommand')
+			'log_exception', 'SpawnedHelpFormatter', 'SpawnedOptionParser', 'SpawnedCommand']
 
 #{ Globals
 maya_to_py_version_map = {
@@ -536,7 +536,7 @@ class SpawnedOptionParser(optparse.OptionParser):
 
 
 class SpawnedCommand(object):
-	"""Implements a command wich can be started easily by specifying a class path
+	"""Implements a command which can be started easily by specifying a class path
 	such as package.cmd.module.CommandClass whose instance should be started in 
 	a standalone process.
 	

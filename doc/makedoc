@@ -44,11 +44,13 @@ def makedoc_main(args):
 	
 	# DOC GENERATION
 	################
-	try:
-		getattr(genmod, tokens[-1]).makedoc(args)
-	except AttributeError:
-		raise EnvironmentError("DocGenerator at path %r did not support the class makedoc method, or did not exist" % gen_path)
-	#END handle attribute error
+	if not hasattr(genmod, tokens[-1]):
+		raise EnvironmentError("DocGenerator at path %r did not exist" % gen_path)
+	#END verify class exists
+
+	# assume the best, just fail if something is wrong with the type - its up
+	# to the programmer to fix it, and he should get a full stack-trace
+	getattr(genmod, tokens[-1]).makedoc(args)
 
 #} END initialization
 

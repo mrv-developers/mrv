@@ -19,6 +19,7 @@ ospd = os.path.dirname
 
 __all__ = [ "DocGenerator" ]
 
+
 class DocGenerator(object):
 	"""Encapsulates all functionality required to create sphinx/epydoc documentaiton"""
 
@@ -606,6 +607,12 @@ output: html"""
 		
 	def _make_epydoc(self):
 		"""Generate epydoc documentation"""
+		try:
+			import epydoc
+		except ImportError:
+			raise ImportError("Epydoc could not be imported, please make sure it is available in your PYTHONPATH")
+		#END handle epydoc installation
+		
 		self._apply_epydoc_config()
 		
 		# start epydocs in a separate process
@@ -615,19 +622,61 @@ output: html"""
 			epytarget.makedirs()
 		# END assure directory exists
 		
+		# SETUP MONKEYPATCH
+		def visit_paragraph(this, node):
+			"""Epydoc patch - will be applied on demand"""
+			if this.summary is not None:
+				# found a paragraph after the first one
+				this.other_docs = True
+				raise docutils.nodes.NodeFound('Found summary')
+		
+			summary_pieces = []
+		
+			# Extract the first sentence.
+			for child in node:
+				if isinstance(child, docutils.nodes.Text):
+					m = this._SUMMARY_RE.match(child)
+					if m:
+						summary_pieces.append(docutils.nodes.Text(m.group(1)))
+						other = child[m.end():]
+						if other and not other.isspace():
+							this.other_docs = True
+						break
+				summary_pieces.append(child)
+		
+			summary_doc = this.document.copy() # shallow copy
+			summary_para = node.copy() # shallow copy
+			summary_doc[:] = [summary_para]
+			summary_para[:] = summary_pieces
+			this.summary = ParsedRstDocstring(summary_doc)
+		#END monkaypatch method
+		
 		# write epydoc.cfg file temporarily
 		epydoc_cfg_file = "epydoc.cfg"
 		open(epydoc_cfg_file, 'wb').write(self.epydoc_cfg)
 		
-		args = ['epydoc', '-q', '-q', '--config', epydoc_cfg_file, '-o', str(epytarget)]
+		args = ['epydoc', '-q', '-q', '--debug', '--config', epydoc_cfg_file, '-o', str(epytarget)]
 		
 		print "Launching in-process epydoc: ", " ".join(args)
 		origargs = sys.argv[:]
 		del(sys.argv[:])
 		sys.argv.extend(args)
 		try:
-			import epydoc.cli
-			epydoc.cli.cli()
+			try:
+				# apply patch
+				import docutils.nodes
+				import epydoc.markup.restructuredtext
+				from epydoc.markup.restructuredtext import ParsedRstDocstring
+				epydoc.markup.restructuredtext._SummaryExtractor.visit_paragraph = visit_paragraph
+				
+				import epydoc.cli
+				epydoc.cli.cli()
+			except:
+				import pdb
+				print >> sys.stderr, "Epydoc encountered an exception - use pdb to figure out which code it couldn't handle"
+				pdb.post_mortem(sys.exc_info()[-1])
+				raise
+			#END ease debugging
 		finally:
 			os.remove(epydoc_cfg_file)
 			del(sys.argv[:])
