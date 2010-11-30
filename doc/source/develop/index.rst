@@ -22,9 +22,9 @@ If you get stuck or need some help regarding MRV, direct your questions to the m
 ***************
 Bugs and Issues
 ***************
-Did you find a reproducable bug that should get fixed ? Please file it on lighthouse: 
+Did you find a reproducable bug that should get fixed ? Please file it on github: 
  
- http://byronimo.lighthouseapp.com/projects/51780-mrv/overview
+ https://github.com/mrv-developers/mrv/issues
 
 
 ********

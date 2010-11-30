@@ -137,7 +137,7 @@ Testing of user interfaces used to be a manual process, which clearly degrades t
 
 Using python, it became far easier to automate user interface testing as your interface elements may provide a clear interface to interact with them. Within certain limits - you will most probably not get around testing a few things manually - you  can at least outline the expected functionality and verify the functionality within these bounds. 
 
-The tests currently available in the ``mrv.test.maya.ui`` package are showing a few windows, the knowing user may also click a few buttons to verify that callbacks work alright. Considering the possibilities, the tests are rather primitive and are assumed to be working if there is no exception - there are `other tools <https://github.com/Byron/AnimIO>`_ which do much better in that respect.
+The tests currently available in the ``mrv.test.maya.ui`` package are showing a few windows, the knowing user may also click a few buttons to verify that callbacks work alright. Considering the possibilities, the tests are rather primitive and are assumed to be working if there is no exception - there are `other tools <https://github.com/mrv-developers/AnimIO>`_ which do much better in that respect.
 
 These tests currently only show that the UI system is not fundamentally broken, and that Callbacks and Signals work - nonetheless the manual nature of them causes them not to be run very often.
 

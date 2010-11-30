@@ -128,7 +128,7 @@ Python Package Index:
     http://pypi.python.org/pypi/MRV
     
 GitHub:
-    http://github.com/Byron/mrv-distro/downloads
+   https://github.com/mrv-developers/mrv-distro/downloads
     
 Extract the archive into a folder of your choice.
 
@@ -137,7 +137,7 @@ Extract the archive into a folder of your choice.
 ===========
 Using a shell of your choice, checkout the git repository keeping the mrv source distribution::
 
-    $ git clone git://github.com/Byron/mrv-distro.git mrv
+    $ git clone git://github.com/mrv-developers/mrv-distro.git mrv
     
 On windows, the commandline would be the same, except that you would use the 'Git Bash Here' on a folder in the Explorer first to obtain a shell.
 

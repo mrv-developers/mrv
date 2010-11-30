@@ -66,7 +66,7 @@ Once the job was done, after only 11 months, I left Stockholm and arrived back i
 
 When the time passed, I got a little fed up with that new lifestyle of mine, and wanted to get back into the old one to be productive once again. This time, it should be the version 3 of a maya based production pipeline, which of course is owned by no one but myself.
 
-During the evolution of the next-gen pipeline project, MayaRV didn't evolve at all as I was busy developing the very foundation of any production, the data storage solution. My one would be distributed by nature, based on git, using `git-python <https://github.com/Byron/GitPython>`_. From time to time, when the storage solution would upset me, I switched to MayaRV to improve existing things, which is how MayaRV would get nose support, as well as sphinx ( in the beginnings, it would only use epydoc ).
+During the evolution of the next-gen pipeline project, MayaRV didn't evolve at all as I was busy developing the very foundation of any production, the data storage solution. My one would be distributed by nature, based on git, using `git-python <https://github.com/gitpython-developers/GitPython>`_. From time to time, when the storage solution would upset me, I switched to MayaRV to improve existing things, which is how MayaRV would get nose support, as well as sphinx ( in the beginnings, it would only use epydoc ).
 
 When the first rumors of Maya 2011 would reach my ears, saying it would use QT as GUI framework, I started getting very interested as it would clearly help me developing platform- and software-independent interfaces, one of these would be the GUI for the git-based storage management system.
 

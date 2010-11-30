@@ -125,7 +125,7 @@ In the most common case, convenience can be added directly to the node type in q
 	
 If the type in question has not been implemented yet, it can be added to an existing or new module in the ``mrv.maya.nt`` package. As this package is only being accessed as a whole, its absolutely valid and common practice to reorganize the types within the modules as the modules grow.
 
-If you intend to adjust MRVs code base, please have a closer look at the :ref:`development-workflow-label` section. In short words, its important to use git during development as it keeps you connected to the mainline of the development, and once you have cloned the MRV repository hosted at https://github.com/Byron/mrv, you are ready to go.
+If you intend to adjust MRVs code base, please have a closer look at the :ref:`development-workflow-label` section. In short words, its important to use git during development as it keeps you connected to the mainline of the development, and once you have cloned the MRV repository hosted at https://github.com/mrv-developers/mrv, you are ready to go.
 
 Even if you don't want to ( or cannot ) contribute it is highly advised to work on a git clone of the MRV mainline as git will allow you to rebase your changes onto the latest version.
 

@@ -7,13 +7,13 @@ The Template Project
 
 As MRV calls itself a 'Development Framework', it must be simple to create new tools based upon it. The template project gives you a kick-start to do exactly that.
 
-At this stage, the template project itself is still to be created, however, there is a demo project from which it will be derived one day - its called `AnimIO <https://github.com/Byron/AnimIO>`_  by Martin Freitag, and allows to export and import animation of nodes.
+At this stage, the template project itself is still to be created, however, there is a demo project from which it will be derived one day - its called `AnimIO <https://github.com/mrv-developers/AnimIO>`_  by Martin Freitag, and allows to export and import animation of nodes.
 
 AnimIO was initially created as MEL script, which makes it especially interesting to see it re-implemented in python, using an Object-Based design and TDD.
 
-The interested reader may have a look at its code. After cloning the repository at https://github.com/Byron/AnimIO ( ``git clone`` ), it is required to recursively initialize the submodules ( ``git submodule update --init --recursive`` ). Now you would be ready to run the tests. To sum it up::
+The interested reader may have a look at its code. After cloning the repository at https://github.com/mrv-developers/AnimIO ( ``git clone`` ), it is required to recursively initialize the submodules ( ``git submodule update --init --recursive`` ). Now you would be ready to run the tests. To sum it up::
 	
-	$ git clone git://github.com/Byron/AnimIO.git animio
+	$ git clone git://github.com/mrv-developers/AnimIO.git
 	$ cd animio
 	$ git submodule update --init --recursive
 	

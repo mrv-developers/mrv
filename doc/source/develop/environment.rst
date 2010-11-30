@@ -57,11 +57,11 @@ Alternatively, copy the ``nose`` package into *"C:\\Program Files\\Autodesk\\May
 
 2. Get A or Your Repository Clone
 ---------------------------------
-Clone the MRV mainline repository from github, or fork your own on http://www.github.com/Byron/mrv and clone from your fork, or clone from the mainline repository as shown here.
+Clone the MRV mainline repository from github, or fork your own on https://github.com/mrv-developers/mrv and clone from your fork, or clone from the mainline repository as shown here.
 
 Execute the following::
 
- $ git clone git://github.com/Byron/mrv.git mrv
+ $ git clone git@github.com:mrv-developers/mrv.git mrv
  $ cd mrv
  $ git submodule update --init
  

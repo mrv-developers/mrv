@@ -2,7 +2,7 @@
 Roadmap
 #######
 
-A full list of milestones as well as associated tasks can be found on `lighthouse <http://byronimo.lighthouseapp.com/projects/51780-mrv/overview>`_.
+A full list of milestones as well as associated tasks can be found on `github <https://github.com/mrv-developers/mrv/issues>`_ - select the respective milestone label to apply it as a filter.
 
 ******
 v1.0.0

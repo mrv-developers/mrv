@@ -18,7 +18,7 @@ Using Git
 =========
 Once you have cloned your initial copy from the mainline repository ( see :ref:`repo-clone-label` ), you stay up-to-date by fetching ( ``git fetch`` ) the latest changes from mainline and by merging them into your master branch ( ``git merge`` ).
 
-In order to contribute though, the by far easiest workflow is to create your own MRV fork on `www.github.com <http://www.github.com/Byron/mrv>`_. 
+In order to contribute though, the by far easiest workflow is to create your own MRV fork on `www.github.com <https://github.com/mrv-developers/mrv>`_. 
 
 When creating own features or patches, you just put them into a separate branch ( using ``git co -b myfeature`` ), commit your changes using ``git commit ...`` and finally push everything into your public repository ( ``git push ...`` ) and create a merge request. Once it has been merged into the mainline repository, your change automatically makes it into the next MRV release and the mainline repository. 
 
