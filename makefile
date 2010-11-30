@@ -11,7 +11,6 @@ GIT_BETA_ARGS=--force-git-tag --use-git=1
 GIT_RELEASE_ARGS=--use-git=1
 GIT_ROOT_REMOTE_ARGS=--root-remotes=hub
 GIT_DIST_ARGS=--dist-remotes=hubdistro $(GIT_ROOT_REMOTE_ARGS) 
-GIT_DOCDIST_ARGS=--dist-remotes=hubdocdistro $(GIT_ROOT_REMOTE_ARGS)
 SDIST=sdist --format=zip
 POST_TESTING_ARGS=--post-testing=$(MAYA_VERSION)
 BETA_OMIT_RELEASE_VERSION=--omit-release-version-for=develop
@@ -27,10 +26,10 @@ clean:
 	$(PYTHON_SETUP) clean --all
 	
 release-docs:
-	$(PYTHON_SETUP) $(PYVERSION_ARGS) $(GIT_RELEASE_ARGS) docdist $(DOC_ARGS) $(GIT_DOCDIST_ARGS)
+	$(PYTHON_SETUP) $(PYVERSION_ARGS) $(GIT_RELEASE_ARGS) docdist $(DOC_ARGS) $(GIT_DIST_ARGS)
 	
 beta-docs:
-	$(PYTHON_SETUP) $(PYVERSION_ARGS) $(GIT_BETA_ARGS) docdist $(DOC_ARGS) $(GIT_DOCDIST_ARGS) $(BETA_OMIT_RELEASE_VERSION)
+	$(PYTHON_SETUP) $(PYVERSION_ARGS) $(GIT_BETA_ARGS) docdist $(DOC_ARGS) $(GIT_DIST_ARGS) $(BETA_OMIT_RELEASE_VERSION)
 
 # make beta docs, don't commit to git
 test-beta-docs:
