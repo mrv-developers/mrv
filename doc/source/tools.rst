@@ -174,9 +174,11 @@ Flags
         $ # Run all tests, but skip the single tests
         $ test/bin/tmrvr --skip-single
 
-* .. cmdoption:: --mrv-mayapy
+* .. cmdoption:: ---mrv-mayapy
 
     If set, tmrvr will launch ``tmrv`` using mayapy instead of the system's native python interpreter.
+    
+    .. note:: The first of the three ``-`` characters in ``---mrv-mayapy`` is just required for the documentation generator not to barf, and must be left out when using the flag.
     
 * ..  cmdoption:: --search-root
 
