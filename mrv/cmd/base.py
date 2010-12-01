@@ -570,6 +570,10 @@ class SpawnedCommand(object):
 	# Path to the executable
 	_exec_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'bin', 'mrv')
 	
+	# If set, its the directory containing your project's info file. It must be set from the
+	# derived class, as it knows its actual position
+	_mrv_info_dir = None
+	
 	# additional arguments to pass on to the newly created process
 	_add_args = ['--mrv-no-maya']
 	
@@ -647,7 +651,20 @@ class SpawnedCommand(object):
 			margs.insert(0, sys.executable)
 		# END handle windows inabilitiess
 		
-		return subprocess.Popen(margs, **kwargs)
+		old_mrvinfo_val = None
+		env_mrv_info = 'MRV_INFO_DIR'
+		if cls._mrv_info_dir is not None:
+			old_mrvinfo_val = os.environ.get(env_mrv_info)
+			os.environ[env_mrv_info] = cls._mrv_info_dir
+		#END handle mrv_info
+		
+		try:
+			return subprocess.Popen(margs, **kwargs)
+		finally:
+			if old_mrvinfo_val is not None:
+				os.environ[env_mrv_info] = old_mrvinfo_val
+			#END reset prevous value
+		#END handle environment change
 		
 	@classmethod
 	def daemonize(cls, *args):
