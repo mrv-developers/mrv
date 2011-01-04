@@ -49,31 +49,31 @@ if not hasattr( sys, "_maya_pyPickleData_trackingDict" ):
 # at this point, openMayaAnim has been initialized already which in fact 
 # loads OpenMayaMPx that we would try to delay. 
 
-def createStorageAttribute( dataType ):
+def createStorageAttribute(dataType, name_prefix=''):
 	""" This method creates an Attribute in a configuration suitable to be used
 	with the ``StorageBase`` interface. 
 	
 	:note: this allows your own plugin node to receive storage compatibility
 	:param dataType: the type of the typed attribute - either MTypeID or MFnData enumeration
 		An MTypeID must point to a valid and already registered plugin data.
-		In order for the ``StorageBase`` interface to work, it must by ``PyPickleData.kPluginDataId``. 
+		In order for the ``StorageBase`` interface to work, it must by ``PyPickleData.kPluginDataId``.
+	:param name_prefix: string to be used as prefix for all short and long attribute names. 
+		Useful if you want to have more than one storage attributes.
 	:return: attribute api object of its master compound attribute"""
 	tAttr = api.MFnTypedAttribute()
 	mAttr = api.MFnMessageAttribute()
 	cAttr = api.MFnCompoundAttribute()
 	nAttr = api.MFnNumericAttribute()
-
-	aData = cAttr.create( "data", "dta" )					# connect to instance transforms
+	p = name_prefix
+	aData = cAttr.create( p+"data", p+"dta" )					# connect to instance transforms
 	if True:
-		dataID = tAttr.create( "dataId", "id", api.MFnData.kString )
-
-		typeInfo = nAttr.create( "dataType", "type", api.MFnNumericData.kInt )	# can be used for additional type info
-
-		typedData = tAttr.create( "value", "dval", dataType )
+		dataID = tAttr.create( p+"dataId", p+"id", api.MFnData.kString )
+		typeInfo = nAttr.create( p+"dataType", p+"type", api.MFnNumericData.kInt )	# can be used for additional type info
+		typedData = tAttr.create( p+"value", p+"dval", dataType )
 
 		# even though its a child attribute, we cannot use 'message' as it is already
 		# taken on the DependNode
-		messageData = mAttr.create( "mmessage", "dmsg" )
+		messageData = mAttr.create( p+"mmessage", p+"dmsg" )
 		mAttr.setArray( True )
 
 

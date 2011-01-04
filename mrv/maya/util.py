@@ -22,7 +22,7 @@ __all__ = ("noneToList", "isIterable", "pythonToMel", "makeEditOrQueryMethod",
 def noneToList( res ):
 	""":return: list instead of None"""
 	if res is None:
-		return []
+		return list()
 	return res
 	
 def isIterable( obj ):
