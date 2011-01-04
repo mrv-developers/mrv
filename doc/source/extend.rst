@@ -73,7 +73,7 @@ In the case of the simple ``StorageNode`` maya type, the plugin does (nearly) no
 The most significant difference between using a custom Plugin and Virtual Subtypes is that MRV will not automatically create these for you when they are encountered, instead you have to use your own methods to wrap the Virtual Subtypes around existing nodes.
 
 The process of doing so is outlined here, for a fully working example, see ``mrv.test.maya.nt.test_general.StorageNetworkNode`` and ``mrv.test.maya.nt.test_general.test_virtual_subtype``:
-	#. Derive your Virtual Subtype from an existing MRV node type, it is *not* required to be a leaf-leve type.
+	#. Derive your Virtual Subtype from an existing MRV node type, it is *not* required to be a leaf-level type.
 	#. Define the ``__mrv_virtual_subtype__`` class member and set it to a True value.
 	#. Create a new instance of your Virtual Subtype by wrapping an existing node of the correct maya type - your constructor (``__new__``) by default supports everything that ``mrv.maya.nt.base.Node`` supports, i.e. ``MyVirtualType(node.object())`` is just fine.
 	

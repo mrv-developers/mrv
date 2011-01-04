@@ -41,6 +41,8 @@ class StorageNetworkNode(nt.Network, nt.StorageBase):
 		"""Create a new Network node with storage node capabilities"""
 		n = nt.Network()
 		n.addAttribute(persistence.createStorageAttribute(persistence.PyPickleData.kPluginDataId))
+		# add another attribute with a prefix - multiple data attributes should be possible
+		n.addAttribute(persistence.createStorageAttribute(persistence.PyPickleData.kPluginDataId, 'a'))
 		return StorageNetworkNode(n.object())
 		
 	@classmethod
@@ -54,58 +56,7 @@ class StorageNetworkNode(nt.Network, nt.StorageBase):
 		# END for each network node
 	
 	
-class Bar(object):
-	pass 
-
-
-class Foo(object):
-	"""A Foo containing Bars
-	:note: Documentation Example"""
-	def __init__ (self, bars):
-		self.bars = tuple(bars)
-		if not self.bars:
-			raise ValueError("Need bars")
-
-
-class BigFoo(Foo):
-	"""A BigFoo is a better Foo"""
-	pass
-
-		
-def makeFoo(bar_iterable, big=False):
-	"""Create a new Foo instance which contains the Bar instances
-	retrieved from the bar_iterable.
-	
-	:return: ``Foo`` compatible instance. If big was True, it will 
-		support the ``BigFoo`` interface
-	:param bar_iterable: iterable yielding Bar instances. As Foo's
-		cannot exist without Bars, an empty iterable is invalid.
-	:param big: if True, change the return type from ``Foo`` to ``BigFoo``
-	:raise ValueError: if bar_iterable did not yield any Bar instance"""
-	if big:
-		return BigFoo(bar_iterable)
-	return Foo(bar_iterable)
-
-
 class TestCases( unittest.TestCase ):
-	
-	def test_makeFoo(self):
-		# assure it returns Foo instances, BigFoo if the flag is set
-		bars = (Bar(), Bar()) 
-		for big in range(2):
-			foo = makeFoo(iter(bars), big)
-			assert isinstance(foo, Foo)
-			if big:
-				assert isinstance(foo, BigFoo)
-			# END check rval type
-			
-			# which contain the bars we passed in
-			assert foo.bars == bars
-			
-			# empty iterables raise
-			self.failUnlessRaises(ValueError, makeFoo, tuple(), big)
-		# END for each value of 'big'
-	
 	@with_persistence
 	def test_virtual_subtype(self):
 		n = nt.Network()
@@ -197,7 +148,7 @@ class TestCases( unittest.TestCase ):
 		# interface will get a fully functional network node at least.
 		# As we do not 'tighten' the interface, code that doesn't expect our type
 		# will not get into trouble.
-		self.failUnlessRaises(AttributeError, n2.dataIDs)
+		self.failUnlessRaises(RuntimeError, n2.dataIDs)
 		assert isinstance(n2, OldNetwork)
 		n2.sayaloha()
 		
@@ -857,7 +808,13 @@ class TestCases( unittest.TestCase ):
 		mrv.Scene.save(tmpscene)
 		mrv.Scene.open(tmpscene)
 		
-		assert len(Node(snn).objectSet(did, 0)) == 1
+		snn = Node(snn)
+		objset = snn.objectSet(did, 0)
+		assert len(objset) == 1
+		assert objset.isValid()
+		snn.deleteObjectSet(did, 0)
+		assert not objset.isValid()
+		
 		
 		os.remove(tmpscene)
 		

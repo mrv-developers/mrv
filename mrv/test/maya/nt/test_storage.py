@@ -158,7 +158,7 @@ class TestStorage( unittest.TestCase ):
 
 		# PREFIXES
 		############
-		snode._attrprefix = "prefix"				# must create new one
+		snode.setDataPrefix("prefix")				# must create new one
 		pval = snode.pythonData( "othertest", autoCreate=True )
 		assert len( data ) == 3 
 		assert pval._plug.mparent().mchildByName('id').asString() == "prefixothertest" 

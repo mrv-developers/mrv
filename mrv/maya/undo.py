@@ -47,7 +47,7 @@ __docformat__ = "restructuredtext"
 import sys
 import os
 
-__all__ = ("undoable", "forceundoable", "notundoable", "StartUndo", "endUndo", "undoAndClear", 
+__all__ = ("undoable", "forceundoable", "notundoable", "MuteUndo", "StartUndo", "endUndo", "undoAndClear", 
            "UndoRecorder", "Operation", "GenericOperation", "GenericOperationStack", "DGModifier", 
            "DagModifier")
 
