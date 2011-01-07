@@ -314,7 +314,7 @@ class StorageBase(iDuplicatable):
 			self._updateCalled = True
 	# END class pypickle value
 
-
+	__slots__ = ('_dprefix', '_aprefix', '_node')
 
 	#{ Overridden Methods
 	def __init__(self, data_prefix='', maya_node = None, attr_prefix=''):
