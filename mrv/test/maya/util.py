@@ -5,14 +5,14 @@ import os
 import sys
 
 __all__ = ('save_temp_file', 'save_for_debugging', 'get_maya_file', 'with_scene', 
-			'with_undo', 'with_persistence')
+			'with_undo', 'with_persistence', 'with_new_scene')
 
 
-def save_temp_file( filename ):
+def save_temp_file(filename):
 	"""save the current scene as given filename in a temp directory, print path"""
 	import mrv.maya as mrvmaya		# late import
-	filepath = tempfile.gettempdir( ) + "/" + filename
-	savedfile = mrvmaya.Scene.save( filepath )
+	filepath = tempfile.gettempdir() + "/" + filename
+	savedfile = mrvmaya.Scene.save(filepath)
 	print "SAVED TMP FILE TO: %s" % savedfile
 	return savedfile
 
@@ -27,7 +27,7 @@ def save_for_debugging(scene_name):
 	return scene_path
 
 #{ Decorators
-def with_scene( basename ):
+def with_scene(basename):
 	"""Loads the specified scene . the basename is supposed to be in our fixtures
 	directory"""
 	import mrv.maya as mrvmaya		# late import
@@ -53,7 +53,7 @@ def with_scene( basename ):
 	# END wrapper
 	return wrapper
 
-def with_undo( func ):
+def with_undo(func):
 	"""All tests that require the undo system to be enabled must be decorated that 
 	way as we will assure two things: 
 	 * If undo is globally disabled, we state that issue to stderr and exit the test
@@ -80,12 +80,23 @@ def with_undo( func ):
 	wrapper.__name__ = func.__name__
 	return wrapper
 	
-def with_persistence( func ):
+def with_persistence(func):
 	"""Simple utility decorator which enforces the persitence system to be loaded
 	before the test runs"""
 	import mrv.maya.nt
 	def wrapper(*args, **kwargs):
 		mrv.maya.nt.enforcePersistence()
+		return func(*args, **kwargs)
+	# END wrapper
+	
+	wrapper.__name__ = func.__name__
+	return wrapper
+
+def with_new_scene(func):
+	"""Utility which creates a new scene before the actual function is called"""
+	import mrv.maya
+	def wrapper(*args, **kwargs):
+		mrv.maya.Scene.new(force=True)
 		return func(*args, **kwargs)
 	# END wrapper
 	
@@ -98,7 +109,7 @@ def with_persistence( func ):
 #{ TestBases 
 
 # must not be put in __all__ !
-class StandaloneTestBase( unittest.TestCase ):
+class StandaloneTestBase(unittest.TestCase):
 	"""Provides a base implementation for all standalone tests which need to 
 	initialize the maya module to operate. It will bail out if the module 
 	is initialized already. Otherwise it will call the post_standalone_initialized
