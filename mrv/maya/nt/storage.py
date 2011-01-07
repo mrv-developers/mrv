@@ -31,6 +31,7 @@ def findStoragePlug(masterPlug, dataID):
 	# END for each elemnt (in search for mathching dataID)
 	return None
 
+@undoable
 def _makeElementPlug(masterPlug, dataID):
 	"""Find an empty logical plug index and return the newly created
 	logical plug with given dataID - unconditionally"""
@@ -195,10 +196,11 @@ def setPartition(mdplug, state):
 		# END if we have a partision
 	# END state check
 
+# implicitly undoable
 def clearDataPlug(vdplug):
 	"""Clear the data in the given value data plug"""
 	plugindataobj = api.MFnPluginData().create(PyPickleData.kPluginDataId)
-	dplug.msetMObject(plugindataobj)
+	vdplug.msetMObject(plugindataobj)
 
 @undoable
 def clearAllData(masterPlug):
@@ -358,7 +360,7 @@ class StorageBase(iDuplicatable):
 			othervalplug = other.storagePlug(dataid, plugType = self.kValue, autoCreate = False)
 			ownvalplug = self.storagePlug(dataid, plugType = self.kValue, autoCreate = True)
 
-			self._clearData(ownvalplug)
+			clearDataPlug(ownvalplug)
 
 			if shallow:
 				ownvalplug.msetMObject(othervalplug.asMObject())
@@ -473,6 +475,7 @@ class StorageBase(iDuplicatable):
 	#} END query Data
 
 	#{ Set Handling
+	@undoable
 	def objectSet(self, dataID, setIndex, autoCreate = True):
 		"""see module level ``objectSet`` function"""
 		return objectSet(self._elementPlug(dataID, self.kMessage, autoCreate), setIndex, autoCreate, dataID)
