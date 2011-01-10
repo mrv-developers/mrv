@@ -5,6 +5,8 @@ import mrv.maya.nt as nt
 import mrv.maya as mrvmaya
 from mrv.path import make_path
 
+from mrv.maya.nt.persistence import createStorageAttribute, PyPickleData
+
 import maya.cmds as cmds
 
 import tempfile
@@ -88,7 +90,10 @@ class TestStorage(unittest.TestCase):
 
 			cmds.undo()
 			pydataundone = storagenode.pythonData(did, autoCreate =False)
-			assert pydataundone.has_key("string") 
+			assert pydataundone.has_key("string")
+			
+			# test delete method
+			del(pydataundone["string"])
 
 
 			# CREATE REFERENCE
@@ -144,7 +149,7 @@ class TestStorage(unittest.TestCase):
 		# autocreate off
 		self.failUnlessRaises(AttributeError, snode.pythonData, "test")
 
-		data = snode.dta
+		data = snode.masterPlug()
 		val = snode.pythonData("test", autoCreate=True)
 		oval = snode.pythonData("othertest", autoCreate=True)
 		assert len(data) == 2 
@@ -171,6 +176,14 @@ class TestStorage(unittest.TestCase):
 		mainplug = snode.findStoragePlug("othertest")
 		assert mainplug == pval._plug.mparent() 
 
+		# attribute prefix
+		assert snode.attributePrefix() == ''
+		attr_prefix = 'attr_prefix_'
+		snode.addAttribute(createStorageAttribute(PyPickleData.kPluginDataId, name_prefix=attr_prefix))
+		snode.setAttributePrefix(attr_prefix)
+		assert len(snode.masterPlug()) == 0
+		snode.setAttributePrefix('')
+		assert len(snode.masterPlug()) == len(data)
 
 		# CONNECTION PLUGS
 		###################

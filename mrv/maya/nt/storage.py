@@ -26,7 +26,7 @@ def findStoragePlug(masterPlug, dataID):
 	""":return: compound plug containing all data and connections for the given dataID
 	:param masterPlug: compound plug containing all data"""
 	for compoundplug in masterPlug:
-		if compoundplug.mchildByName('id').asString() == dataID:
+		if compoundplug.child(0).asString() == dataID:
 			return compoundplug
 	# END for each elemnt (in search for mathching dataID)
 	return None
@@ -36,7 +36,7 @@ def _makeElementPlug(masterPlug, dataID):
 	"""Find an empty logical plug index and return the newly created
 	logical plug with given dataID - unconditionally"""
 	elementPlug = masterPlug.mnextLogicalPlug()
-	elementPlug.mchildByName('id').msetString(dataID)
+	elementPlug.child(0).msetString(dataID)
 	return elementPlug
 
 @undoable
@@ -65,13 +65,13 @@ def storagePlug(masterPlug, dataID, plugType = None, autoCreate=False):
 	
 	# return the result
 	if plugType is None:
-		return (matchedplug.mchildByName('dval'), matchedplug.mchildByName('dmsg'))
+		return (matchedplug.child(2), matchedplug.child(3))
 	elif plugType == StorageBase.kStorage:
 		return matchedplug
 	elif plugType == StorageBase.kValue:
-		return matchedplug.mchildByName('dval')
+		return matchedplug.child(2)
 	elif plugType == StorageBase.kMessage:
-		return matchedplug.mchildByName('dmsg')
+		return matchedplug.child(3)
 	else:
 		raise TypeError("Invalid plugType value: %s" % plugType)
 
@@ -153,7 +153,7 @@ def dataIDs(masterPlug, data_prefix=''):
 		By default, all data ids will match"""
 	outids = list()
 	for compoundplug in masterPlug:
-		did = compoundplug.mchildByName('id').asString()
+		did = compoundplug.child(0).asString()
 		if did.startswith(data_prefix):
 			outids.append(did[len(data_prefix):])
 		# END if is valid id
@@ -207,7 +207,7 @@ def clearAllData(masterPlug):
 	"""Empty all data storage plugs beneath the given masterPlug. Message connections are currently
 	not affected"""
 	for compoundplug in masterPlug:
-		clearDataPlug(compoundplug.mchildByName('dval'))
+		clearDataPlug(compoundplug.child(2))
 	#END for each element plug
 			
 @undoable
@@ -271,10 +271,11 @@ class StorageBase(iDuplicatable):
 
 		def __init__(self, valueplug, pythondata):
 			"""value plug contains the plugin data in pythondata"""
-			object.__setattr__(self, '_plug', valueplug)
-			object.__setattr__(self, '_pydata', pythondata)
-			object.__setattr__(self, '_isReferenced', valueplug.mwrappedNode().isReferenced())
-			object.__setattr__(self, '_updateCalled', False)
+			sa = object.__setattr__ 
+			sa(self, '_plug', valueplug)
+			sa(self, '_pydata', pythondata)
+			sa(self, '_isReferenced', valueplug.mwrappedNode().isReferenced())
+			sa(self, '_updateCalled', False)
 
 		def __len__(self):
 			return len(self._pydata)
@@ -291,7 +292,6 @@ class StorageBase(iDuplicatable):
 			except AttributeError:
 				self._pydata[attr] = val
 
-
 		def __getitem__(self, key):
 			return self._pydata[key]
 
@@ -299,6 +299,9 @@ class StorageBase(iDuplicatable):
 			self._pydata[key] = value
 			if self._isReferenced:
 				self.valueChanged()		# assure we make it into the reference , but only if we change
+
+		def __delitem__(self, key):
+			del(self._pydata[key])
 
 		def valueChanged(self):
 			"""Will be called automatically if the underlying value changed if
@@ -390,14 +393,14 @@ class StorageBase(iDuplicatable):
 	
 	def makePlug(self, dataID):
 		"""see ``makePlug`` module level function"""
-		return makePlug(self._masterPlug(), self._dprefix + dataID)
+		return makePlug(self.masterPlug(), self._dprefix + dataID)
 
 	@undoable
 	def clearAllData(self):
 		"""see ``clearAllData`` module level method
 		:note: use this method if you want to make sure your node
 			is empty after it has been duplicated (would usually be done in the postContructor"""
-		return clearAllData(self._masterPlug())
+		return clearAllData(self.masterPlug())
 
 	@undoable
 	def clearData(self, dataID):
@@ -415,25 +418,25 @@ class StorageBase(iDuplicatable):
 
 	#{ Query Plugs
 	
-	def _masterPlug(self):
-		""":return: master plug according to our attributePrefix"""
-		return self._node.findPlug(self._aprefix + 'dta')
-		
 	def _elementPlug(self, dataID, dataType, autoCreate=False):
 		""":return: element plug of the given type"""
-		return storagePlug(self._masterPlug(), self._dprefix + dataID, dataType, autoCreate)
+		return storagePlug(self.masterPlug(), self._dprefix + dataID, dataType, autoCreate)
 	
 	def findStoragePlug(self, dataID):
 		""":return: compound plug with given dataID or None"""
-		return findStoragePlug(self._masterPlug(), self._dprefix + dataID)
+		return findStoragePlug(self.masterPlug(), self._dprefix + dataID)
+
+	def masterPlug(self):
+		""":return: master plug according to our attributePrefix"""
+		return self._node.findPlug(self._aprefix + 'dta')
 
 	def dataIDs(self):
 		"""see module level function with the same name"""
-		return dataIDs(self._masterPlug(), self._dprefix)
+		return dataIDs(self.masterPlug(), self._dprefix)
 
 	def storagePlug(self, dataID, plugType = None, autoCreate=False):
 		"""see ``storagePlug`` module level function"""
-		return storagePlug(self._masterPlug(), self._dprefix+dataID, plugType, autoCreate)
+		return storagePlug(self.masterPlug(), self._dprefix+dataID, plugType, autoCreate)
 
 	#} END query plugs
 

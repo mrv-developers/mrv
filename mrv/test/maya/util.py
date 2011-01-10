@@ -13,7 +13,6 @@ def save_temp_file(filename):
 	import mrv.maya as mrvmaya		# late import
 	filepath = tempfile.gettempdir() + "/" + filename
 	savedfile = mrvmaya.Scene.save(filepath)
-	print "SAVED TMP FILE TO: %s" % savedfile
 	return savedfile
 
 def save_for_debugging(scene_name):
