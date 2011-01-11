@@ -296,3 +296,9 @@ class TestDAGTree( unittest.TestCase ):
 	def test_info(self):
 		assert len(info.version) == 5
 		major, minor, micro, level, serial = info.version
+		
+	def test_list_modules_and_packages(self):
+		for fun in (list_submodules, list_subpackages):
+			sm = fun(mrv.__file__)
+			assert len(sm) and isinstance(sm, (list, set))
+		#END for each function to test

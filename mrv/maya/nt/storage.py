@@ -353,10 +353,8 @@ class StorageBase(iDuplicatable):
 		:note: as pickle data always copies by reference to be efficient, we have to explicitly
 			create new data to assure we really copy it
 		:todo: copy connections to our messages as well, make it an option at least"""
-		if self.dataPrefix() != other.dataPrefix():
-			raise AssertionError("Data prefixes between self and other did not match")
-		if self.attributePrefix() != other.attributePrefix():
-			raise AssertionError("Attribute prefixes did not match");
+		self.setDataPrefix(other.dataPrefix())
+		self.setAttributePrefix(other.attributePrefix())
 
 		shallow = kwargs.pop("shallow", False)
 		for dataid in other.dataIDs():
