@@ -16,6 +16,8 @@ from set import ObjectSet
 
 import copy
 
+MFnDependencyNode = api.MFnDependencyNode
+
 __all__ = ("StorageBase", "StorageNode")
 
 #{ Procedural Access
@@ -274,7 +276,8 @@ class StorageBase(iDuplicatable):
 			sa = object.__setattr__ 
 			sa(self, '_plug', valueplug)
 			sa(self, '_pydata', pythondata)
-			sa(self, '_isReferenced', valueplug.mwrappedNode().isReferenced())
+			# note: Dont' use the wrapped node to prevent dependency cycles and improve performance
+			sa(self, '_isReferenced', MFnDependencyNode(valueplug.node()).isFromReferencedFile())
 			sa(self, '_updateCalled', False)
 
 		def __len__(self):
