@@ -152,9 +152,16 @@ class TestStorage(unittest.TestCase):
 		data = snode.masterPlug()
 		val = snode.pythonData("test", autoCreate=True)
 		oval = snode.pythonData("othertest", autoCreate=True)
-		assert len(data) == 2 
+		assert not oval.isReferenced()
+		assert len(data) == 2
 		# have two right now, no prefix
-		assert len(snode.dataIDs()) == 2 
+		assert len(snode.dataIDs()) == 2
+		
+		# check flags plug
+		fplug = snode.storagePlug('test', snode.kFlags)
+		assert fplug.asInt() == 0
+		fplug.msetInt(5)
+		assert fplug.asInt() == 5
 
 		# CLEAR EMPTY DATA
 		######################

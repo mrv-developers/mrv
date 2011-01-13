@@ -52,6 +52,7 @@ def storagePlug(masterPlug, dataID, plugType = None, autoCreate=False):
 		StorageBase.kMessage: return message array plug only
 		StorageBase.kValue: return python pickle array plug only
 		StorageBase.kStorage: return the storage plug itself containing message and the value plug
+		StorageBase.kFlags return plug to integer which can be used as storage for bitflags to accompany the id
 		None: return (picklePlug , messagePlug)
 	:param autoCreate: if True, a plug with the given dataID will be created if it does not
 		yet exist
@@ -74,8 +75,11 @@ def storagePlug(masterPlug, dataID, plugType = None, autoCreate=False):
 		return matchedplug.child(2)
 	elif plugType == StorageBase.kMessage:
 		return matchedplug.child(3)
+	elif plugType == StorageBase.kFlags:
+		return matchedplug.child(1)
 	else:
 		raise TypeError("Invalid plugType value: %s" % plugType)
+	#END handle plug type
 
 @undoable
 def makePlug(masterPlug, dataID):
@@ -263,7 +267,7 @@ class StorageBase(iDuplicatable):
 	:note: attribute accepts on the generic attribute should be set by a plugin node when it
 		creates its attributes
 	:todo: should self._node be stored as weakref ?"""
-	kValue, kMessage, kStorage = range(3)
+	kValue, kMessage, kStorage, kFlags = range(4)
 	kPartitionIdAttr = "bda_storagePartition"		# may not change !
 
 	class PyPickleValue(object):
@@ -301,12 +305,12 @@ class StorageBase(iDuplicatable):
 		def __setitem__(self, key, value):
 			self._pydata[key] = value
 			if self._isReferenced:
-				self.valueChanged()		# assure we make it into the reference , but only if we change
+				self._valueChanged()		# assure we make it into the reference , but only if we change
 
 		def __delitem__(self, key):
 			del(self._pydata[key])
-
-		def valueChanged(self):
+			
+		def _valueChanged(self):
 			"""Will be called automatically if the underlying value changed if
 			the node of the underlying plug is referenced
 			
@@ -318,6 +322,14 @@ class StorageBase(iDuplicatable):
 				return
 			self._plug.msetMObject(self._plug.asMObject())
 			self._updateCalled = True
+
+		#{ Interface
+		
+		def isReferenced(self):
+			""":return: True if the data is from a referenced plug"""
+			return self._isReferenced
+
+		#} END interface
 	# END class pypickle value
 
 	__slots__ = ('_dprefix', '_aprefix', '_node')
