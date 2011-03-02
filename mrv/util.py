@@ -313,7 +313,8 @@ class Event(object):
 				references will be created for event handlers, if False it will be strong
 				references
 			 * remove_failed: if True, defailt False, failed callback handlers
-			 	will be removed silently"""
+			 	will be removed silently
+			 * sender_as_argument - see class member"""
 		self.use_weakref = kwargs.get("weak", self.__class__.use_weakref)
 		self.remove_on_error = kwargs.get("remove_failed", self.__class__.remove_on_error)
 		self.sender_as_argument = kwargs.get("sender_as_argument", self.__class__.sender_as_argument)

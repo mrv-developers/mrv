@@ -1,4 +1,5 @@
 from mrv.test.lib import *
+from mrv.path import Path 
 import tempfile
 import time
 import os
@@ -9,19 +10,16 @@ __all__ = ('save_temp_file', 'save_for_debugging', 'get_maya_file', 'with_scene'
 
 
 def save_temp_file(filename):
-	"""save the current scene as given filename in a temp directory, print path"""
+	"""save the current scene as given filename in a temp directory as .ma file"""
 	import mrv.maya as mrvmaya		# late import
-	filepath = tempfile.gettempdir() + "/" + filename
-	savedfile = mrvmaya.Scene.save(filepath)
-	return savedfile
+	filepath = tempfile.mktemp(prefix=filename, suffix='.ma')
+	savedfile = mrvmaya.Scene.save(filepath, force=True)
+	return Path(savedfile)
 
 def save_for_debugging(scene_name):
 	"""Save the currently actve scene as MayaAscii for debugging purposes
 	:return: absolute path string at which the file was saved"""
-	import mrv.maya as mrvmaya		# late import
-	scene_path = os.path.join(tempfile.gettempdir(), scene_name + ".ma")
-	mrvmaya.Scene.save(scene_path, force=True)
-	
+	scene_path = save_temp_file(scene_name)
 	print "Saved scene for debugging at: %r" % scene_path
 	return scene_path
 
