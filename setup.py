@@ -1911,7 +1911,12 @@ Would you like to adjust your version info or abort ?
 		if isinstance(self.regression_tests, tuple):
 			args = self.regression_tests
 		# END handle test args
-		args = list(args) + ['--search-root', self._test_dir()] 
+		
+		# NOTE: we use maya's builtin interpreter to assure we don't have trouble
+		# with possibly incompatible local python interpreters, such as on osx 
+		# where the target architecture might not be compatible.
+		# This requires nose to be available in the maya installation or the python path
+		args = list(args) + ['--mrv-mayapy', '--search-root', self._test_dir()] 
 		p = self.spawn_python_interpreter([tmrvrpath] + args)
 		if p.wait():
 			raise ValueError("Regression Tests failed")

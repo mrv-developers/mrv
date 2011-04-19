@@ -3,7 +3,7 @@
 
 # CONFIGURATION
 # python 2.6
-MAYA_VERSION=2011
+MAYA_VERSION=2012
 PYVERSION_ARGS=--maya-version=$(MAYA_VERSION)
 REG_ARGS=--regression-tests=1
 DOC_ARGS=--zip-archive --from-build-version
