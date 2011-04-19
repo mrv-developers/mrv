@@ -1,5 +1,6 @@
     | addGeometry                             | None                |                                         
     | baseLattice                             | NodeFromObj         |                                         
+    | className                               | None                |                                         
     | create                                  | None                |                                         
     | deformLattice                           | NodeFromObj         |                                         
     | getAffectedGeometry                     | None                |                                         

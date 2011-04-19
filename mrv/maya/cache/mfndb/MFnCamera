@@ -2,6 +2,7 @@
     | cameraScale                             | None                |                                         
     | centerOfInterest                        | None                |                                         
     | centerOfInterestPoint                   | None                |                                         
+    | className                               | None                |                                         
     | computeDepthOfField                     | None                |                                         
     | copyViewFrom                            | None                |                                         
     | create                                  | None                |                                         

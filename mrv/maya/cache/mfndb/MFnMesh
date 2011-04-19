@@ -9,6 +9,7 @@
     | binaryBlindDataComponentId              | None                |                                         
     | booleanOp                               | None                |                                         
     | cachedIntersectionAcceleratorInfo       | None                |                                         
+    | className                               | None                |                                         
     | cleanupEdgeSmoothing                    | None                |                                         
     | clearBlindData                          | None                |                                         
     | clearColors                             | None                |                                         
@@ -34,6 +35,7 @@
     | deleteFace                              | None                |                                         
     | deleteUVSet                             | None                |                                         
     | deleteVertex                            | None                |                                         
+    | displayColors                           | None                |                                         
     | duplicateFaces                          | None                |                                         
     | extractFaces                            | None                |                                         
     | extrudeEdges                            | None                |                                         
@@ -149,6 +151,7 @@
     | setCreaseVertices                       | None                |                                         
     | setCurrentColorSetName                  | None                |                                         
     | setCurrentUVSetName                     | None                |                                         
+    | setDisplayColors                        | None                |                                         
     | setDoubleBlindData                      | None                |                                         
     | setEdgeSmoothing                        | None                |                                         
     | setFaceColor                            | None                |                                         

@@ -1,6 +1,11 @@
     | accepts                                 | None                |                                         
+    | addToCategory                           | None                |                                         
+    | affectsAppearance                       | None                |                                         
+    | className                               | None                |                                         
     | disconnectBehavior                      | None                |                                         
     | getAddAttrCmd                           | None                |                                         
+    | getCategories                           | None                |                                         
+    | hasCategory                             | None                |                                         
     | indexMatters                            | None                |                                         
     | internal                                | None                | isInternal                              
     | isAffectsWorldSpace                     | None                |                                         
@@ -9,6 +14,7 @@
     | isChannelBoxFlagSet                     | None                |                                         
     | isConnectable                           | None                |                                         
     | isDynamic                               | None                |                                         
+    | isExtension                             | None                |                                         
     | isHidden                                | None                |                                         
     | isIndeterminant                         | None                |                                         
     | isKeyable                               | None                |                                         
@@ -21,6 +27,8 @@
     | isWritable                              | None                |                                         
     | name                                    | None                |                                         
     | parent                                  | Attribute           |                                         
+    | removeFromCategory                      | None                |                                         
+    | setAffectsAppearance                    | None                |                                         
     | setAffectsWorldSpace                    | None                |                                         
     | setArray                                | None                |                                         
     | setCached                               | None                |                                         
@@ -32,6 +40,7 @@
     | setIndexMatters                         | None                |                                         
     | setInternal                             | None                |                                         
     | setKeyable                              | None                |                                         
+    | setNiceNameOverride                     | None                |                                         
     | setParent                               | None                |                                         
     | setReadable                             | None                |                                         
     | setRenderSource                         | None                |                                         

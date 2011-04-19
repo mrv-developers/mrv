@@ -2,6 +2,7 @@ x   | addChild                                | None                |
     | boundingBox                             | None                |                                         
     | child                                   | NodeFromObj         |                                         
     | childCount                              | None                |                                         
+    | className                               | None                |                                         
 x   | create                                  | None                |                                         
     | dagPath                                 | None                |                                         
     | dagRoot                                 | NodeFromObj         |                                         

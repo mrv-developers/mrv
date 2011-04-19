@@ -2,6 +2,7 @@
     | bank                                    | None                |                                         
     | bankScale                               | None                |                                         
     | bankThreshold                           | None                |                                         
+    | className                               | None                |                                         
     | create                                  | None                |                                         
     | follow                                  | None                |                                         
     | followAxis                              | None                |                                         

@@ -4,6 +4,7 @@
     | attributeClass                          | None                |                                         
     | attributeCount                          | None                |                                         
     | canBeWritten                            | None                |                                         
+    | className                               | None                |                                         
     | classification                          | None                |                                         
 x   | create                                  | None                |                                         
     | deallocateAllFlags                      | None                |                                         
@@ -24,6 +25,7 @@ x   | create                                  | None                |
     | getConnections                          | None                |                                         
     | hasAttribute                            | None                |                                         
     | hasUniqueName                           | None                |                                         
+    | icon                                    | None                |                                         
     | isDefaultNode                           | None                |                                         
     | isFlagSet                               | None                |                                         
     | isFromReferencedFile                    | None                | isReferenced                            
@@ -39,6 +41,7 @@ x   | create                                  | None                |
     | setAlias                                | None                |                                         
     | setDoNotWrite                           | None                |                                         
     | setFlag                                 | None                |                                         
+    | setIcon                                 | None                |                                         
     | setLocked                               | None                |                                         
 x   | setName                                 | None                |                                         
     | type                                    | None                |                                         

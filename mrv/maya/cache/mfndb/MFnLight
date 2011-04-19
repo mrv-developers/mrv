@@ -1,4 +1,5 @@
     | centerOfIllumination                    | None                |                                         
+    | className                               | None                |                                         
     | color                                   | None                |                                         
     | intensity                               | None                |                                         
     | lightAmbient                            | None                |                                         

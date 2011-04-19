@@ -1,5 +1,6 @@
     | addChild                                | None                |                                         
     | child                                   | Attribute           |                                         
+    | className                               | None                |                                         
     | create                                  | Attribute           |                                         
     | getAddAttrCmds                          | None                |                                         
     | numChildren                             | None                |                                         

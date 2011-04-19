@@ -1,6 +1,7 @@
     | angleIndex                              | None                |                                         
     | axisIndex                               | None                |                                         
     | centerIndex                             | None                |                                         
+    | className                               | None                |                                         
     | connectToAnglePlug                      | None                |                                         
     | create                                  | None                |                                         
     | setAngle                                | None                |                                         

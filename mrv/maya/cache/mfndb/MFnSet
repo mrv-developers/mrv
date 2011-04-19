@@ -1,6 +1,7 @@
     | addMember                               | None                |                                         
     | addMembers                              | None                |                                         
     | annotation                              | None                | getAnnotation                           
+    | className                               | None                |                                         
     | clear                                   | None                |                                         
 x   | create                                  | None                |                                         
     | getIntersection                         | None                |                                         

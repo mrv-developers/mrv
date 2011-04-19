@@ -1,3 +1,4 @@
+    | className                               | None                |                                         
     | componentType                           | None                | getComponentType                        
     | elementCount                            | None                | getElementCount                         
     | hasWeights                              | None                |                                         

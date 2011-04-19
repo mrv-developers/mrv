@@ -1,5 +1,6 @@
     | addElement                              | None                |                                         
     | addElements                             | None                |                                         
+    | className                               | None                |                                         
     | create                                  | None                |                                         
     | element                                 | None                |                                         
     | getCompleteData                         | None                |                                         

@@ -1,5 +1,6 @@
     | ambientShade                            | None                |                                         
     | castSoftShadows                         | None                |                                         
+    | className                               | None                |                                         
     | create                                  | None                |                                         
     | setAmbientShade                         | None                |                                         
     | setCastSoftShadows                      | None                |                                         

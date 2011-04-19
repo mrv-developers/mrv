@@ -2,6 +2,7 @@
     | assignUV                                | None                |                                         
     | assignUVs                               | None                |                                         
     | boundaryType                            | None                |                                         
+    | className                               | None                |                                         
     | clearUVs                                | None                |                                         
     | closestPoint                            | None                |                                         
     | copy                                    | None                |                                         

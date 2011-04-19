@@ -1,4 +1,5 @@
     | addMember                               | None                |                                         
+    | className                               | None                |                                         
 x   | create                                  | None                |                                         
     | isRenderPartition                       | None                |                                         
     | removeMember                            | None                |                                         

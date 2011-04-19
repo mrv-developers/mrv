@@ -9,12 +9,12 @@ attribute                   | MFnAttribute
 blendShape                  | MFnBlendShapeDeformer          
 blinn                       | MFnBlinnShader                 
 camera                      | MFnCamera                      
+cameraSet                   | MFnCameraSet                   
 character                   | MFnCharacter                   
 component                   | MFnComponent                   
 componentListData           | MFnComponentListData           
-compoundAttribute           | MFnCompoundAttribute           
-containerBase               | MFnContainerNode
-dagContainer                | MFnContainerNode
+compoundAttribute           | MFnCompoundAttribute
+dagContainer                | MFnContainerNode               
 dagNode                     | MFnDagNode                     
 data                        | MFnData                        
 dependNode                  | MFnDependencyNode              
@@ -36,6 +36,7 @@ hikEffector                 | MFnHikEffector
 ikEffector                  | MFnIkEffector                  
 ikHandle                    | MFnIkHandle                    
 ikSolver                    | MFnIkSolver                    
+imageSource                 | MFnImageSource                 
 instancer                   | MFnInstancer                   
 intArrayData                | MFnIntArrayData                
 joint                       | MFnIkJoint                     
