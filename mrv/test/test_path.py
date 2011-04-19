@@ -10,9 +10,18 @@ from mrv.path import *
 from mrv.interface import iDagItem
 import tempfile
 import shutil
-import sha
-import md5
 
+class DigestMock(object):
+	def __init__(self):
+		self.dlen = 0
+		
+	def update(self, data):
+		self.dlen += len(data)
+		
+	def digest(self):
+		return self.dlen
+		
+		
 class TestPath( unittest.TestCase ):
 	prev_cwd = os.getcwd()
 	envtmp = 'TESTPATH_TMP'
@@ -373,7 +382,8 @@ class TestPath( unittest.TestCase ):
 		assert len(afile.write_lines(adata).lines()) == 2
 		
 		# digest
-		assert afile.digest(sha.sha()) != afile.digest(md5.md5())
+		digest = DigestMock()
+		assert afile.digest(digest) == 6
 		
 		# os wrapped methods
 		# we just call the methods to verify they are not totally broken
