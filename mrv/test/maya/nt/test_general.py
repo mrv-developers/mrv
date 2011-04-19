@@ -574,7 +574,7 @@ class TestCases( unittest.TestCase ):
 		assert p.tx.isChild()
 		
 		assert p.wm.isArray()
-		assert len(p.wm) == 1
+		assert p.wm.length() == 1
 		
 		for element_plug in p.wm:
 			assert element_plug.isElement()

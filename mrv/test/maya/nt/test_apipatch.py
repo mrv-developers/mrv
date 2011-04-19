@@ -188,7 +188,7 @@ class TestDataBase( unittest.TestCase ):
 		assert len( translate.mchildren() ) == 3 
 
 		# SUB PLUGS GENERAL METHOD
-		assert len( matworld ) == len( matworld.msubPlugs() ) 
+		assert matworld.length()== len( matworld.msubPlugs() ) 
 		assert translate.numChildren() == len( translate.msubPlugs() ) 
 		assert len( translate.msubPlugs() ) == 3 
 
@@ -259,7 +259,7 @@ class TestDataBase( unittest.TestCase ):
 		a = nwnode.affectedBy
 		
 		a.evaluateNumElements()
-		assert len(wm) == 1 and len(a) == 2
+		assert wm.length() == 1 and a.length() == 2
 		assert isinstance(iter(wm).next(), api.MPlug)
 		assert len(list(a)) == 2
 		
@@ -427,7 +427,7 @@ class TestDataBase( unittest.TestCase ):
 		matplug.evaluateNumElements()							# to assure we have something !
 
 		assert matplug.name() == "persp.worldMatrix" 
-		assert len( matplug ) 
+		assert matplug.length() 
 
 		matelm = matplug[0]
 		assert matelm == matplug.elementByLogicalIndex(0)		# get by logical index

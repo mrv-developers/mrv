@@ -322,16 +322,17 @@ class MPlug( api.MPlug ):
 
 	#{ Overridden Methods
 
-	def __len__( self ):
+	def length( self ):
 		"""
 		:return: number of physical elements in the array, but only if they are 
-			not connected. If in doubt, run evaluateNumElements beforehand"""
+			not connected. If in doubt, run evaluateNumElements beforehand
+		:note: cannot use __len__ as it would break printing of pymel"""
 		if not self.isArray( ): return 0
 		return self.numElements( )
 
 	def __iter__( self ):
 		""":return: iterator object"""
-		for i in xrange(len(self)):
+		for i in xrange(self.length()):
 			yield self.elementByPhysicalIndex(i)
 	
 	__str__ = api.MPlug.name

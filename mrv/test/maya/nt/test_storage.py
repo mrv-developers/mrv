@@ -153,7 +153,7 @@ class TestStorage(unittest.TestCase):
 		val = snode.pythonData("test", autoCreate=True)
 		oval = snode.pythonData("othertest", autoCreate=True)
 		assert not oval.isReferenced()
-		assert len(data) == 2
+		assert data.length() == 2
 		# have two right now, no prefix
 		assert len(snode.dataIDs()) == 2
 		
@@ -172,7 +172,7 @@ class TestStorage(unittest.TestCase):
 		############
 		snode.setDataPrefix("prefix")				# must create new one
 		pval = snode.pythonData("othertest", autoCreate=True)
-		assert len(data) == 3 
+		assert data.length() == 3 
 		assert pval._plug.mparent().mchildByName('id').asString() == "prefixothertest" 
 
 		# now that we have a prefix, we only see prefixed attributes
@@ -188,9 +188,9 @@ class TestStorage(unittest.TestCase):
 		attr_prefix = 'attr_prefix_'
 		snode.addAttribute(createStorageAttribute(PyPickleData.kPluginDataId, name_prefix=attr_prefix))
 		snode.setAttributePrefix(attr_prefix)
-		assert len(snode.masterPlug()) == 0
+		assert snode.masterPlug().length() == 0
 		snode.setAttributePrefix('')
-		assert len(snode.masterPlug()) == len(data)
+		assert snode.masterPlug().length() == data.length()
 
 		# CONNECTION PLUGS
 		###################
