@@ -201,7 +201,7 @@ class TestStorage(unittest.TestCase):
 			nextplug = conarray.elementByLogicalIndex(c)
 			persp.message.mconnectTo(nextplug)
 			assert persp.message.misConnectedTo(nextplug) 
-		assert len(conarray) == 10 
+		assert conarray.length() == 10 
 		assert len(persp.message.moutputs()) == 10 
 
 	@with_undo
