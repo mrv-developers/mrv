@@ -6,6 +6,7 @@ from mrv import init_modules
 from mrv.util import capitalize, DAGTree, PipeSeparatedFile
 from mrv.exc import MRVError
 from mrv.path import make_path
+from mrv.cmd.base import maya_to_py_version_map
 
 from itertools import chain
 import logging
@@ -259,14 +260,11 @@ def init_system( ):
 	if len( mayaversion ):
 		pyminor = pymayaversion[1]
 
-		if mayaversion not in [ '8.5', '2008', '2009', '2010', '2011' ]:
-			raise EnvironmentError( "Requires Maya 8.5 or higher for python support, found " + mayaversion + ", or maya version is not implemented" )
-
-		if  ( mayaversion == "8.5" and pyminor != 4 ) or \
-			( mayaversion == "2008" and pyminor != 5 ) or \
-			( mayaversion == "2009" and pyminor != 5 ) or \
-			( mayaversion == "2010" and pyminor != 6 ) or \
-			( mayaversion == "2011" and pyminor != 6 ):
+		if float(mayaversion) not in maya_to_py_version_map:
+			raise EnvironmentError( "Requires Maya 8.5 or higher for python support, found " + mayaversion + " (or maya version is not implemented)" )
+		
+		pyversion = pymayaversion[0] + (pymayaversion[1]/10.0)
+		if maya_to_py_version_map[float(mayaversion)] != pyversion:
 			raise EnvironmentError( "Maya " + mayaversion + " python interpreter requirements not met" )
 		# END check python version
 	# END check maya version
