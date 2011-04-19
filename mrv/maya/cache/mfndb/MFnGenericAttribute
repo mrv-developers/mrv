@@ -1,6 +1,7 @@
     | addAccept                               | None                |                                         
     | addDataAccept                           | None                |                                         
     | addNumericDataAccept                    | None                |                                         
+    | className                               | None                |                                         
     | create                                  | Attribute           |                                         
     | removeAccept                            | None                |                                         
     | removeDataAccept                        | None                |                                         

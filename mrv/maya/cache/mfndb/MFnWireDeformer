@@ -1,5 +1,6 @@
     | addGeometry                             | None                |                                         
     | addWire                                 | None                |                                         
+    | className                               | None                |                                         
     | create                                  | None                |                                         
     | crossingEffect                          | None                |                                         
     | envelope                                | None                |                                         

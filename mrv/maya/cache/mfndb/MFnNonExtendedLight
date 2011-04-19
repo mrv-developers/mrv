@@ -1,4 +1,5 @@
     | castSoftShadows                         | None                |                                         
+    | className                               | None                |                                         
     | depthMapBias                            | None                |                                         
     | depthMapFilterSize                      | None                |                                         
     | depthMapFocus                           | None                |                                         

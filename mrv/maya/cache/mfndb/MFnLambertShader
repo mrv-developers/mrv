@@ -1,4 +1,5 @@
     | ambientColor                            | None                |                                         
+    | className                               | None                |                                         
     | color                                   | None                |                                         
     | create                                  | None                |                                         
     | diffuseCoeff                            | None                |                                         

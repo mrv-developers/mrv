@@ -1,4 +1,5 @@
     | arc                                     | None                |                                         
+    | className                               | None                |                                         
     | colorRamp                               | None                |                                         
     | coneEndRadius                           | None                |                                         
     | create                                  | None                |                                         
@@ -9,6 +10,8 @@
     | setConeEndRadius                        | None                |                                         
     | setEmitAmbient                          | None                |                                         
     | setLightShape                           | None                |                                         
+    | setShadowAngle                          | None                |                                         
     | setVolumeLightDirection                 | None                |                                         
+    | shadowAngle                             | None                |                                         
     | type                                    | None                |                                         
     | volumeLightDirection                    | None                |                                         

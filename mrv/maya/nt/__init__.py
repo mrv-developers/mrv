@@ -151,9 +151,9 @@ def _init_package( ):
 	import mrv.maya.mdb as mdb
 	typ.targetModule = _thismodule			# init metaclass with our module
 	typ._nodesdict = globals()
-	typ.initNodeHierarchy( )
-	typ.initTypeNameToMfnClsMap( )
-	typ.initWrappers( globals() )
+	typ.initNodeHierarchy()
+	typ.initTypeNameToMfnClsMap()
+	typ.initWrappers(globals())
 	
 	# code generator needs an initialized nodes dict to work
 	typ.codegen = mdb.PythonMFnCodeGenerator(typ._nodesdict)
@@ -164,7 +164,7 @@ def _init_package( ):
 
 	# must come last as typ needs full initialization first
 	import apipatch
-	apipatch.init_applyPatches( )
+	apipatch.init_applyPatches()
 	
 	# initialize modules
 	init_modules( __file__, "mrv.maya.nt", self_module = _thismodule )

@@ -4,6 +4,7 @@
     | baseFaceIdFromLong                      | None                |                                         
     | baseFaceIndex                           | None                |                                         
     | baseFaceIndexFromId                     | None                |                                         
+    | className                               | None                |                                         
     | corner                                  | None                |                                         
     | delete_MFnSubdNames                     | None                |                                         
     | first                                   | None                |                                         

@@ -15,6 +15,7 @@ import maya.OpenMaya as api
 import maya.cmds as cmds
 import mrv.maya.ns as nsm
 import mrv.maya.undo as undo
+import mrv.maya.env as env
 from new import instancemethod
 from util import in_double3_out_vector, undoable_in_double3_as_vector
 import logging
@@ -763,12 +764,13 @@ class SetFilter(tuple):
 
 #{ Base
 
+_api_type_tuple = (MObject, MDagPath)
+
 class Node(object):
 	"""Common base for all maya nodes, providing access to the maya internal object
 	representation
 	Use this class to directly create a maya node of the required type"""
 	__metaclass__ = MetaClassCreatorNodes
-	__api_type_tuple = (MObject, MDagPath)
 
 	def __new__ (cls, *args, **kwargs):
 		"""return the proper class for the given object
@@ -804,7 +806,7 @@ class Node(object):
 		mobject_or_mdagpath = None
 
 		# GET AN API OBJECT
-		if isinstance(objorname, cls.__api_type_tuple):
+		if isinstance(objorname, _api_type_tuple):
 			mobject_or_mdagpath = objorname
 		elif isinstance(objorname, basestring):
 			if objorname.find('.') != -1:
@@ -1319,12 +1321,24 @@ class DependNode(Node, iDuplicatable):		# parent just for epydoc -
 	#}END general query
 
 
-class Entity(DependNode):		# parent just for epydoc
-	"""Common base for dagnodes and paritions"""
+if env.appVersion() < 2012:
+	class Entity(DependNode):
+		"""Common base for dagnodes and paritions
+		
+		:note: parent is set by metacls. Parent differs between maya2011 and newer versions, 
+			hence we cannot provide it here for use by the documnetation system"""
+else:
+	class ContainerBase(DependNode):
+		pass
+	
+	class Entity(ContainerBase):
+		pass
+#END handle maya version differences
 
 
 class DagNode(Entity, iDagItem):	# parent just for epydoc
-	""" Implements access to DAG nodes """
+	""" Implements access to DAG nodes"""
+	
 	_sep = "|"
 	kNextPos = MFnDagNode.kNextPos
 

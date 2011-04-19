@@ -1,4 +1,5 @@
     | attenuation                             | None                |                                         
+    | className                               | None                |                                         
     | falloffCurve                            | None                |                                         
     | getForceAtPoint                         | None                |                                         
     | isFalloffCurveConstantOne               | None                |                                         

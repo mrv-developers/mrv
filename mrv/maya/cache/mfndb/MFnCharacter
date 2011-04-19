@@ -2,6 +2,7 @@
     | attachInstanceToCharacter               | None                |                                         
     | attachSourceToCharacter                 | None                |                                         
     | blendExists                             | None                |                                         
+    | className                               | None                |                                         
     | createBlend                             | NodeFromObj         |                                         
     | getBlend                                | NodeFromObj         |                                         
     | getBlendClips                           | None                |                                         

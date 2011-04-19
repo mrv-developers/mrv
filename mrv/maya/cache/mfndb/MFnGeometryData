@@ -1,6 +1,7 @@
     | addObjectGroup                          | None                |                                         
     | addObjectGroupComponent                 | None                |                                         
     | changeObjectGroupId                     | None                |                                         
+    | className                               | None                |                                         
     | copyObjectGroups                        | None                |                                         
     | getMatrix                               | None                |                                         
     | hasObjectGroup                          | None                |                                         

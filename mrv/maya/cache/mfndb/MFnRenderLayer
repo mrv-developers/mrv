@@ -1,3 +1,5 @@
+    | adjustmentPlug                          | None                |                                         
+    | className                               | None                |                                         
     | currentLayer                            | NodeFromObj         |                                         
     | defaultRenderLayer                      | NodeFromObj         |                                         
     | externalRenderPasses                    | None                |                                         

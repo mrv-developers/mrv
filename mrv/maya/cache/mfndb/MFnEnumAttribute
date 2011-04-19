@@ -1,4 +1,5 @@
     | addField                                | None                |                                         
+    | className                               | None                |                                         
     | create                                  | Attribute           |                                         
     | defaultValue                            | None                |                                         
     | fieldIndex                              | None                | getFieldIndex                           

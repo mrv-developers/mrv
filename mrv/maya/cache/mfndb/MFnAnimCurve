@@ -2,6 +2,7 @@
     | addKeyframe                             | None                |                                         
     | addKeys                                 | None                |                                         
     | animCurveType                           | None                | getAnimCurveType                        
+    | className                               | None                |                                         
     | create                                  | Node                |                                         
     | evaluate                                | None                |                                         
     | find                                    | None                |                                         

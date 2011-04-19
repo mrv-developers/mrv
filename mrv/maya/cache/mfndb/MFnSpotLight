@@ -1,5 +1,6 @@
     | barnDoorAngle                           | None                |                                         
     | barnDoors                               | None                |                                         
+    | className                               | None                |                                         
     | coneAngle                               | None                |                                         
     | create                                  | None                |                                         
     | dropOff                                 | None                |                                         

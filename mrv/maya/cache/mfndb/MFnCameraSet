@@ -1,6 +1,7 @@
     | appendLayer                             | None                |                                         
+    | className                               | None                |                                         
     | clear                                   | None                |                                         
- x  | create                                  | None                |                                         
+x   | create                                  | None                |                                         
     | deleteLayer                             | None                |                                         
     | getLayerCamera                          | None                |                                         
     | getLayerOrder                           | None                |                                         

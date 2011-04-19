@@ -1,4 +1,5 @@
     | area                                    | None                |                                         
+    | className                               | None                |                                         
     | closestPoint                            | None                |                                         
     | copy                                    | None                |                                         
     | create                                  | None                |                                         
