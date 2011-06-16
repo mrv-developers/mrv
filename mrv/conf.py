@@ -29,6 +29,7 @@ import sys
 import StringIO
 import os
 import logging
+from util import is_ironpython
 log = logging.getLogger("mrv.conf")
 
 __all__ = ("ConfigParsingError", "ConfigParsingPropertyError", "DictToINIFile", 
@@ -798,6 +799,12 @@ class DictConfigINIFile(DictToINIFile, ExtendedFileInterface):
 class ConfigStringIO(StringIO.StringIO, ExtendedFileInterface):
 	""" cStringIO object implementation of ExtendedFileInterface """
 	__slots__ = tuple()
+
+	#{ Ironpython fix
+	if is_ironpython():
+		# bug in iron python if slots are used ... its terrible
+		__slots__ = ('buf', 'len', 'buflist', 'pos', 'closed', 'softspace')
+	#} END ironpython fix
 
 	def isWritable(self):
 		""" Once we are closed, we are not writable anymore """

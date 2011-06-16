@@ -2,15 +2,21 @@
 import networkx as nx
 from collections import deque as Deque
 import weakref
-import inspect
 import itertools
 from interface import iDuplicatable
 
 from path import make_path
 
-import os
+import os, sys
 import logging
-log = logging.getLogger("mrv.maya.ui.util")
+log = logging.getLogger("mrv.util")
+
+
+def is_ironpython():
+	return "IronPython" in sys.version
+
+if not is_ironpython():
+	import inspect
 
 __docformat__ = "restructuredtext"
 __all__ = ("decodeString", "decodeStringOrList", "capitalize", "uncapitalize", 
@@ -18,7 +24,7 @@ __all__ = ("decodeString", "decodeStringOrList", "capitalize", "uncapitalize",
            "Call", "CallAdv", "WeakInstFunction", "Event", "EventSender", 
            "InterfaceMaster", "Singleton", "CallOnDeletion", 
            "DAGTree", "PipeSeparatedFile", "MetaCopyClsMembers", "And", "Or", 
-           "list_submodules", "list_subpackages") 
+           "list_submodules", "list_subpackages", "is_ironpython") 
            
 
 def decodeString(valuestr):

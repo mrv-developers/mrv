@@ -1,8 +1,6 @@
 """Module with threading utilities"""
 __docformat__ = "restructuredtext"
 import threading
-import inspect
-import Queue
 
 #{ Decorators
 
@@ -130,6 +128,7 @@ class WorkerThread(TerminatableThread):
 		
 	def __init__(self, inq = None, outq = None):
 		super(WorkerThread, self).__init__()
+		import Queue
 		self.inq = inq or Queue.Queue()
 		self.outq = outq or Queue.Queue()
 	
@@ -148,6 +147,7 @@ class WorkerThread(TerminatableThread):
 	def wait_until_idle(self):
 		"""wait until the input queue is empty, in the meanwhile, take all 
 		results off the output queue."""
+		import Queue
 		while not self.inq.empty():
 			try:
 				self.outq.get(False)
@@ -164,6 +164,9 @@ class WorkerThread(TerminatableThread):
 	
 	def run(self):
 		"""Process input tasks until we receive the quit signal"""
+		# late import to get around ironpython issue with inspect's first line
+		# of code - happens on mono, maybe not on .net
+		import inspect
 		while True:
 			if self._should_terminate():
 				break

@@ -16,6 +16,10 @@ from path import Path
 
 
 #{ Common
+
+def is_ironpython():
+	return "IronPython" in sys.version
+
 def init_modules( filepath, moduleprefix, recurse=False, self_module = None):
 	""" Call '__initialize' functions in submodules of module at filepath if they exist
 	These functions should setup the module to be ready for work, its a callback informing
@@ -163,11 +167,9 @@ def _init_internationalization( ):
 	can be garantueed.
 
 	Will map the '_' function to translate enclosed strings """
-	try:
+	if not is_ironpython():
 		import gettext
 		gettext.install( "mrv" )
-	except:
-		pass
 	#END doesn't work in iron python
 
 def _init_logging( ):
