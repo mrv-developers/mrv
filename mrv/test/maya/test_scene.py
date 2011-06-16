@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """ Test the scene methods """
 from mrv.test.maya import *
 from mrv.maya.scene import *

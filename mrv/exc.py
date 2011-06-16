@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """ Contains all exceptions used by the mrv package in general """
 __docformat__ = "restructuredtext"
 

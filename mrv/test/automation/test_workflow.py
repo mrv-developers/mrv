@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """ Test the workflow class """
 import unittest
 import workflows

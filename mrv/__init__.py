@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Initialize mrv system assisting development, debugging and maintenance
 
@@ -205,7 +204,7 @@ def _init_python( ):
 # INITIALIZE
 #############
 _init_syspath( )
-_init_configProvider( )
-_init_internationalization( )
-_init_logging( )
-_init_python( )
+#_init_configProvider( )
+#_init_internationalization( )
+#_init_logging( )
+#_init_python( )

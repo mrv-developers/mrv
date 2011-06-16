@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """ Test ALL features of the undo queue """
 from mrv.test.maya import *
 import mrv.maya as mrvmaya

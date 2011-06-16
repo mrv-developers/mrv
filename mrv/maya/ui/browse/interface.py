@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """module with interfaces to define contracts"""
 __docformat__ = "restructuredtext"
 from mrv.interface import Interface

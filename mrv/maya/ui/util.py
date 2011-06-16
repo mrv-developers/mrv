@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Utilities and classes useful for user interfaces
 """

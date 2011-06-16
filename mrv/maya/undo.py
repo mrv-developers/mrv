@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Contains the undo engine allowing to adjust the scene with api commands while
 providing full undo and redo support.

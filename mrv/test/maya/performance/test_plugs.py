@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Test general MPlug performance
 """

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Module with threading utilities"""
 __docformat__ = "restructuredtext"
 import threading

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # MRV documentation build configuration file, created by
 # sphinx-quickstart on Thu Jul 30 18:13:56 2009.

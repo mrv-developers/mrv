@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """ Test utility classes """
 from mrv.test.maya import *
 from mrv.maya.util import *

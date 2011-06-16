@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """contains report implementations allowing to analyse the callgraph of """
 __docformat__ = "restructuredtext"
 

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Contains workflow classes that conenct processes in a di - graph """
 __docformat__ = "restructuredtext"
 

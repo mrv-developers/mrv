@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Contains some basic  classes that are required to run the UI system
 """

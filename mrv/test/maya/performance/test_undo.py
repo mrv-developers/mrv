@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """ Test undo queue performance """
 from mrv.test.maya import *
 import mrv.maya as mrvmaya

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """generic python style persitance plugin
 This module contains a storage interface able to easily handle python-style
 data within maya scenes. 

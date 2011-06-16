@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Contains all test related startup routines"""
 
 import os

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Contains routines required to initialize mrv"""
 import os
 import sys

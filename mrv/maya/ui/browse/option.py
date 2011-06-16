@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """module with option implementations, to be shown in finder layouts"""
 __docformat__ = "restructuredtext"
 

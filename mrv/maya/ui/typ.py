@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Module containing helpers to create the UI types at runtime.
 """

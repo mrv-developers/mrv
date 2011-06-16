@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """ Inialize the mrv.maya sub-system and startup maya as completely as possible or configured """
 import os, sys
 import mrv

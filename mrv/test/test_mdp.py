@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Tests for the mdp dependency parser commandline tool"""
 from mrv.test.lib import *
 

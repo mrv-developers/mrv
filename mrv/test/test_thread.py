@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """ Test thead classes and functions"""
 from mrv.test.lib import *
 from mrv.thread import *

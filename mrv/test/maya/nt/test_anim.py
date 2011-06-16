@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """ Test animCurves and related types """
 from mrv.test.maya import *
 

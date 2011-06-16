@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """ Test maya node database """
 from mrv.test.maya import *
 # test import all

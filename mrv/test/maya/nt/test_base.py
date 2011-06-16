@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """ Test general nodes features """
 from mrv.test.maya import *
 import mrv.maya as mrvmaya

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Keeps all workflows specific to maya
 
 :note: ``createWorkflow`` method must be supported in a module keeping workflows

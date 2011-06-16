@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """ Tests the geometric nodes, focussing on the set handling """
 from mrv.test.maya import *
 import mrv.maya.nt as nt

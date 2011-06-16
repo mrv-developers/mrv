@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from mrv.test.maya import *
 from mrv.maya.ui import *
 import maya.cmds as cmds

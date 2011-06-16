@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Test all aspects of the configuration management system """
 from mrv.test.lib import *
 import os

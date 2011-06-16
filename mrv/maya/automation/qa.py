@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Specialization of workflow to allow checks to be natively implemented in MEL """
 __docformat__ = "restructuredtext"
 

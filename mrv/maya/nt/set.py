@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """ Contains improved clases for set and partition editing  """
 __docformat__ = "restructuredtext"
 

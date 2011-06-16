@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """ Test the namespace methods """
 from mrv.test.maya import *
 from mrv.maya.ns import *

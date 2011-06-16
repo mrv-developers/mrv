@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """path.py - An object representing a path to a file or directory.
 
 Example:
@@ -48,12 +47,12 @@ __all__ = ['Path', 'BasePath', 'make_path']
 if os.name == 'nt':
 	try:
 		import win32security
-	except ImportError:
+	except Exception:
 		win32security = None
 else:
 	try:
 		import pwd
-	except ImportError:
+	except Exception:
 		pwd = None
 
 # Pre-2.3 support.	Are unicode filenames supported?

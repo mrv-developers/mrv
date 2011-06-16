@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Performance Testing"""
 from mrv.test.maya import *
 

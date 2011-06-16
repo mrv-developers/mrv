@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Tests for the batch processing tool"""
 from mrv.test.lib import *
 

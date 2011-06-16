@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 """Module containing the commandline interface for the Maya Depdendency Parser"""
 # may not be imported directly
 __all__ = None

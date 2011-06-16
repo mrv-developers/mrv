@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """This module is designed to be the equivalent of the enum type in other
 languages. An enumeration object is created at run time, and contains
 named members that are the enumeration elements.

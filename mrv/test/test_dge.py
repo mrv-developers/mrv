@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Test dependency graph engine """
 import unittest
 from mrv.dge import *

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """ Contains implementations ( or improvements ) to mayas geometric shapes """
 __docformat__ = "restructuredtext"
 

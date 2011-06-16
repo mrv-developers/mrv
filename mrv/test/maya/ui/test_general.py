@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """ Test some default ui capababilities """
 from mrv.test.maya import *
 import mrv.maya.ui as ui

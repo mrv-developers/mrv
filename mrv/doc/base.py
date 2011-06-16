@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Contains basic classes and functionaliy"""
 __docformat__ = "restructuredtext"
 import os

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Contains interface definitions """
 __docformat__ = "restructuredtext"
 

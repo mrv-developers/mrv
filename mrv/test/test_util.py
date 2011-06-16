@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Test misc utility classes """
 import unittest
 import sys

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Contains different multi-purpose iterators allowing to conveniently walk the dg and
 dag.

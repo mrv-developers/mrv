@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """ Test the quality assurance framework """
 import unittest
 import workflows

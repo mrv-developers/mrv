@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 All classes required to wrap maya nodes in an object oriented manner into python objects
 and allow easy handling of them.

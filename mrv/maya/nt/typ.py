@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Houses the MetaClass able to setup new types to work within the system. This can 
 be considered the heart of the node wrapping engine, but it plays together with 

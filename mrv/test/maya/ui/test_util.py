@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from mrv.test.maya import *
 from util import *
 import mrv.maya.ui as ui

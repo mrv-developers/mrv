@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Tests for the maya dependency parser"""
 from mrv.test.lib import *
 from mrv.mdepparse import *

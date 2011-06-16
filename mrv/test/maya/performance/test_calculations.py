@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """ Some more math related tests """
 import sys
 import string

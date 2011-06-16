@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """ :note: adjusted by Sebastian Thiel """
 __contact__='garret at bgb dot cc'
 __license__='freeware'

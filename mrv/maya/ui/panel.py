@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Contains implementations of maya editors
 """

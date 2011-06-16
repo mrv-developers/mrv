@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """ Test the reference methods """
 from mrv.test.maya import *
 from mrv.maya.ref import *

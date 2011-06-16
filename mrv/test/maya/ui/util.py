@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Provide UI testing utilities"""
 import mrv.maya.ui as ui
 import traceback

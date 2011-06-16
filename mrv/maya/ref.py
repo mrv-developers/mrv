@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Allows convenient access and handling of references in an object oriented manner
 """

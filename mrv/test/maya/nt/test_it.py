@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """ Test node iterators """
 from mrv.test.maya import *
 from mrv.maya.nt.it import *

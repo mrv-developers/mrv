@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Contains base class and common methods for all processes """
 __docformat__ = "restructuredtext"
 __all__ = list()

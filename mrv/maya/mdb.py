@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Provides classes and functions operating on the MayaAPI class database
 

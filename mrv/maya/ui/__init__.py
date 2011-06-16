@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Initialize the UI framework allowing convenient access to most common user interfaces
 
 All classes of the ui submodules can be accessed by importing this package.

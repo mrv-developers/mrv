@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Contains an implementation for the Persistence plugin for easy access within 
 mrv and derived nodes.
 """

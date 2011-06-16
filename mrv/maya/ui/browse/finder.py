@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 __docformat__ = "restructuredtext"
 import mrv.maya.ui as ui
 from mrv.maya.util import (logException,)

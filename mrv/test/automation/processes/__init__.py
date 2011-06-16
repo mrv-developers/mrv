@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """ Intialize suite checking all processes """
 import mrv.automation.process as process
 import mrv.automation.processes as processes

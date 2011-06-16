@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """ Intialize suite checking all workflows """
 import mrv.test.automation.processes as process # assure procs are initialized
 import mrv.automation.base as wflbase

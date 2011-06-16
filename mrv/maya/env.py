@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Allows to query the maya environment, like variables, version numbers and system
 paths.

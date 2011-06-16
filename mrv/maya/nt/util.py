@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """General utility methods"""
 __docformat__ = "restructuredtext"
 

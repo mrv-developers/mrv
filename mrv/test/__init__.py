@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Initialize the testing framework """
 import os
 import lib

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Contains patch classes that are altering their respective api classes
 

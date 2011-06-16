@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Test basic node features """
 from mrv.test.maya import *
 import mrv.maya as mrvmaya

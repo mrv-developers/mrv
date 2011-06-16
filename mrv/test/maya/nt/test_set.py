@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """ Test sets and partitions """
 from mrv.test.maya import *
 import mrv.maya.nt as nt

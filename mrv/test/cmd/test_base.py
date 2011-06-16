@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Test for commands - the funny thing here is that it needs itself to be working in order
 to run the tests"""
 from mrv.test.lib import *

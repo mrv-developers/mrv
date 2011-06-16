@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Contains implementation of the configuration system allowing to flexibly control
 the programs behaviour.

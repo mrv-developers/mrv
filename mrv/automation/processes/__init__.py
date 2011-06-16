@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Contains all processes """
 __docformat__ = "restructuredtext"
 

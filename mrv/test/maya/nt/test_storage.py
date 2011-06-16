@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """ Test storage system and storage node """
 from mrv.test.maya import *
 import mrv.maya.nt as nt

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Contains routines to startup individual programs"""
 __docformat__ = "restructuredtext"
 

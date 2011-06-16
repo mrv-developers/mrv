@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Contains the most controls like buttons and sliders for more convenient use
 """

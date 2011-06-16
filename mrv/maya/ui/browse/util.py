@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Contains misc utiltiies"""
 __docformat__ = "restructuredtext"
 

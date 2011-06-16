@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Contains some default dialogs as well as layouts suitable for layout dialogs
 """

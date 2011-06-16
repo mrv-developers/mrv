@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """ Contains implementations of animation specific types and utilities """
 __docformat__ = "restructuredtext"
 
