@@ -163,9 +163,12 @@ def _init_internationalization( ):
 	can be garantueed.
 
 	Will map the '_' function to translate enclosed strings """
-	import gettext
-	gettext.install( "mrv" )
-
+	try:
+		import gettext
+		gettext.install( "mrv" )
+	except:
+		pass
+	#END doesn't work in iron python
 
 def _init_logging( ):
 	""" Initialize the default mrv logging interface
@@ -204,7 +207,7 @@ def _init_python( ):
 # INITIALIZE
 #############
 _init_syspath( )
-#_init_configProvider( )
-#_init_internationalization( )
-#_init_logging( )
-#_init_python( )
+_init_configProvider( )
+_init_internationalization( )
+_init_logging( )
+_init_python( )
