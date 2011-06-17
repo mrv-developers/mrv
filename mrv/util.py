@@ -13,6 +13,10 @@ log = logging.getLogger("mrv.util")
 def is_ironpython():
 	return "cli" == sys.platform
 
+def is_deadline():
+	"""Duplicate of mrv.util.is_deadline()"""
+	return is_ironpython() and not "IronPython" in sys.version
+
 if not is_ironpython():
 	import inspect
 
@@ -22,7 +26,7 @@ __all__ = ("decodeString", "decodeStringOrList", "capitalize", "uncapitalize",
            "Call", "CallAdv", "WeakInstFunction", "Event", "EventSender", 
            "InterfaceMaster", "Singleton", "CallOnDeletion", 
            "DAGTree", "PipeSeparatedFile", "MetaCopyClsMembers", "And", "Or", 
-           "list_submodules", "list_subpackages", "is_ironpython") 
+           "list_submodules", "list_subpackages", "is_ironpython", "is_deadline") 
            
 
 def decodeString(valuestr):

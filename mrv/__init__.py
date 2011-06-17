@@ -22,6 +22,7 @@ def is_ironpython():
 	return "cli" == sys.platform
 	
 def is_deadline():
+	"""Duplicate of mrv.util.is_deadline()"""
 	return is_ironpython() and not "IronPython" in sys.version
 
 def init_modules(filepath, moduleprefix, recurse=False, self_module = None):

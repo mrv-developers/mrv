@@ -244,10 +244,29 @@ class Path( _base, iDagItem ):
 	def normcase(self):		 return self.__class__(os.path.normcase(self))
 	def normpath(self):		 return self.__class__(os.path.normpath(self))
 	def realpath(self):		 return self.__class__(os.path.realpath(self._expandvars(self)))
-	def expanduser(self):	 return self.__class__(os.path.expanduser(self))
 	def expandvars(self):	 return self.__class__(self._expandvars(self))
 	def dirname(self):		 return self.__class__(os.path.dirname(self))
 	basename = os.path.basename
+
+	def expanduser(self):	
+		if is_ironpython() and sys.platform != 'win32':
+			path = self
+			if not path.startswith('~'):
+				return path
+			i = path.find('/', 1)
+			userhome = None
+			if i < 0:
+				i = len(path)
+			if i == 1:
+				if 'HOME' in os.environ:
+					userhome = os.environ['HOME']
+			if userhome is None:
+				return path
+			userhome = userhome.rstrip('/') or userhome
+			return self.__class__(userhome + path[i:])
+		else:
+			return self.__class__(os.path.expanduser(self))
+		#END handle deadline
 
 	def expandvars_deep(self):
 		"""Expands all environment variables recursively"""
