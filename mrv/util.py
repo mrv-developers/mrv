@@ -5,15 +5,13 @@ import weakref
 import itertools
 from interface import iDuplicatable
 
-from path import make_path
-
 import os, sys
 import logging
 log = logging.getLogger("mrv.util")
 
 
 def is_ironpython():
-	return "IronPython" in sys.version
+	return "cli" == sys.platform
 
 if not is_ironpython():
 	import inspect
@@ -915,7 +913,8 @@ def list_submodules(path):
 	:return: set(submodule_name, ...) list of submodule names that could 
 		be imported using __import__
 	:param path: module path containing the submodules"""
-	file_package = make_path(path).dirname()
+	import path	# prevent cycle
+	file_package = path.make_path(path).dirname()
 	# convert it to a string, unicode ( on windows ) is not handled by the __import__
 	# statement
 	cut_ext = lambda f: str(os.path.splitext(os.path.basename(f))[0])
@@ -927,6 +926,7 @@ def list_submodules(path):
 	
 def list_subpackages(path):
 	""":return: list of sub-package names""" 
-	return [str(p.basename()) for p in make_path(path).dirname().dirs() if p.files("__init__.py?")]
+	import path
+	return [str(p.basename()) for p in path.make_path(path).dirname().dirs() if p.files("__init__.py?")]
 
 #} END module initialization helpers

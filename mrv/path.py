@@ -37,6 +37,7 @@ import glob
 import shutil
 import codecs
 import re
+from util import is_ironpython
 from interface import iDagItem
 log = logging.getLogger("mrv.path")
 
@@ -50,10 +51,13 @@ if os.name == 'nt':
 	except Exception:
 		win32security = None
 else:
-	try:
-		import pwd
-	except Exception:
-		pwd = None
+	pwd = None
+	if not is_ironpython():
+		try:
+			import pwd
+		except ImportError:
+			pass
+	#END handle ironpython
 
 # Pre-2.3 support.	Are unicode filenames supported?
 _base = str
