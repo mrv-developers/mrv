@@ -19,7 +19,11 @@ def do_terminate_threads(whitelist=list()):
 		if isinstance(t, WorkerThread):
 			t.inq.put(t.quit)
 		# END worker special handling
-		t.stop_and_join()
+		# daemons will just be killed at shutdown - lets not wait for them
+		# at least we told them they should terminate gracefully.
+		if not t.daemon:
+			t.stop_and_join()
+		#END handle daemons
 	# END for each thread
 
 def terminate_threads( func ):
