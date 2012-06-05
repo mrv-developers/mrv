@@ -4,6 +4,7 @@
 x   | create                                  | None                |                                         
     | deleteLayer                             | None                |                                         
     | getLayerCamera                          | None                |                                         
+    | getLayerClearDepthValue                 | None                |                                         
     | getLayerOrder                           | None                |                                         
     | getLayerSceneData                       | None                |                                         
     | getNumLayers                            | None                |                                         
@@ -12,5 +13,6 @@ x   | create                                  | None                |
     | isLayerActive                           | None                |                                         
     | setLayerActive                          | None                |                                         
     | setLayerCamera                          | None                |                                         
+    | setLayerClearDepthValue                 | None                |                                         
     | setLayerOrder                           | None                |                                         
     | setLayerSceneData                       | None                |                                         

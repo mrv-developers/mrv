@@ -9,6 +9,7 @@
     | rotationIndex                           | None                |                                         
     | setInitialRotation                      | None                |                                         
     | setRotateMode                           | None                |                                         
+    | setRotationCenter                       | None                |                                         
     | setSnapIncrement                        | None                |                                         
     | setSnapMode                             | None                |                                         
     | snapIncrement                           | None                |                                         

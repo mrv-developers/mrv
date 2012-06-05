@@ -16,6 +16,7 @@ x   | create                                  | None                |
     | dgTimerOn                               | None                |                                         
     | dgTimerQueryState                       | None                |                                         
     | dgTimerReset                            | None                |                                         
+    | enableDGTiming                          | None                |                                         
     | findAlias                               | None                |                                         
     | findPlug                                | None                |                                         
     | getAffectedAttributes                   | None                |                                         
