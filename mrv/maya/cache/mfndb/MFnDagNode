@@ -1,3 +1,4 @@
+    | activeColor                             | None                |                                         
 x   | addChild                                | None                |                                         
     | boundingBox                             | None                |                                         
     | child                                   | NodeFromObj         |                                         
@@ -6,12 +7,18 @@ x   | addChild                                | None                |
 x   | create                                  | None                |                                         
     | dagPath                                 | None                |                                         
     | dagRoot                                 | NodeFromObj         |                                         
+    | dormantColor                            | None                |                                         
+    | drawOverrideColor                       | None                |                                         
+    | drawOverrideEnabled                     | None                |                                         
+    | drawOverrideIsReference                 | None                |                                         
+    | drawOverrideIsTemplate                  | None                |                                         
     | duplicate                               | NodeFromObj         |                                         
     | fullPathName                            | None                |                                         
     | getAllPaths                             | None                | allPaths                                
 x   | getPath                                 | None                |                                         
     | hasChild                                | None                |                                         
     | hasParent                               | None                |                                         
+    | hiliteColor                             | None                |                                         
     | inModel                                 | None                |                                         
     | inUnderWorld                            | None                |                                         
     | instanceCount                           | None                |                                         
@@ -36,4 +43,5 @@ x   | setObject                               | None                |
     | setUseObjectColor                       | None                |                                         
     | transformationMatrix                    | None                |                                         
     | type                                    | None                |                                         
+    | usingHiliteColor                        | None                |                                         
     | usingObjectColor                        | None                | isUsingObjectColor                      

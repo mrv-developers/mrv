@@ -28,6 +28,7 @@
     | setPostInfinityType                     | None                |                                         
     | setPreInfinityType                      | None                |                                         
     | setTangent                              | None                |                                         
+    | setTangentTypes                         | None                |                                         
     | setTangentsLocked                       | None                |                                         
     | setTime                                 | None                |                                         
     | setUnitlessInput                        | None                |                                         

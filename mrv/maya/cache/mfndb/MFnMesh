@@ -1,3 +1,4 @@
+    | addHoles                                | None                |                                         
     | addPolygon                              | None                |                                         
     | allIntersections                        | None                |                                         
     | anyIntersection                         | None                |                                         
@@ -137,6 +138,7 @@
     | numUVs                                  | None                |                                         
     | numVertices                             | None                |                                         
     | onBoundary                              | None                |                                         
+    | polyTriangulate                         | None                |                                         
     | polygonVertexCount                      | None                |                                         
     | removeFaceColors                        | None                |                                         
     | removeFaceVertexColors                  | None                |                                         

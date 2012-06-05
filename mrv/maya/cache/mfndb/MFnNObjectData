@@ -1,8 +1,12 @@
     | className                               | None                |                                         
     | create                                  | None                |                                         
     | getCached                               | None                |                                         
+    | getClothObjectPtr                       | None                |                                         
     | getCollide                              | None                |                                         
     | getObjectPtr                            | None                |                                         
+    | getParticleObjectPtr                    | None                |                                         
+    | getRigidObjectPtr                       | None                |                                         
+    | isCached                                | None                |                                         
     | setCached                               | None                |                                         
     | setObjectPtr                            | None                |                                         
     | type                                    | None                |                                         
