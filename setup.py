@@ -893,7 +893,17 @@ class BuildPython(_GitMixin, _RegressionMixin, build_py):
 		prev_executable = sys.executable
 		if self.needs_compilation and 'install' not in self.distribution.commands:
 			# this forces to use a standalone process
-			__builtin__.__debug__ = False
+			try:
+				__builtin__.__debug__ = False
+			except SyntaxError:
+				# this only works in some interpreters
+				# This is why this code causes installations to abort, which 
+				# defintely shouldn't ever happen.
+				# TODO: figure out how to properly solve this
+				# We just do it to use the byte_compile code, maybe we just
+				# include it here ?
+				pass
+			#END handle error
 			
 			# which is hopefully in the path
 			sys.executable = "python%g" % self.py_version
@@ -903,7 +913,13 @@ class BuildPython(_GitMixin, _RegressionMixin, build_py):
 		
 		if self.needs_compilation:
 			# restore original values
-			__builtin__.__debug__ = prev_debug
+			try:
+				__builtin__.__debug__ = prev_debug
+			except SyntaxError:
+				# Its okay here, as this wouldn't have worked when we first changed
+				# the variable.
+				pass
+			#END handle error
 			sys.executable = prev_executable
 			
 			# super class implementation handles the compilation and optimization 
