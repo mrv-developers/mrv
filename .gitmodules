@@ -1,12 +1,12 @@
 [submodule "networkx"]
 	path = mrv/ext/networkx
-	url = git://github.com/mrv-developers/mrv-networkx.git
+	url = http://github.com/mrv-developers/mrv-networkx.gitk
 	branch = master
 [submodule "pydot"]
 	path = mrv/ext/pydot
-	url = git://github.com/mrv-developers/mrv-pydot.git
+	url = http://github.com/mrv-developers/mrv-pydot.git
 	branch = master
 [submodule "pyparsing"]
 	path = mrv/ext/pyparsing
-	url = git://github.com/mrv-developers/mrv-pyparsing.git
+	url = http://github.com/mrv-developers/mrv-pyparsing.git
 	branch = master
