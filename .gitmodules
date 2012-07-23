@@ -1,6 +1,6 @@
 [submodule "networkx"]
 	path = mrv/ext/networkx
-	url = http://github.com/mrv-developers/mrv-networkx.gitk
+	url = http://github.com/mrv-developers/mrv-networkx.git
 	branch = master
 [submodule "pydot"]
 	path = mrv/ext/pydot
