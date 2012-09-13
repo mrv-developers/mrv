@@ -99,7 +99,7 @@ def addCustomTypeFromFile( hierarchyfile, **kwargs ):
 	:note: all attributes of `addCustomType` are supported
 	:note: there must be exactly one root type
 	:return: iterator providing all class names that have been added"""
-	dagtree = mrvmaya._dagTreeFromTupleList( mrvmaya._tupleListFromFile( hierarchyfile ) )
+	dagtree = mrvmaya.dag_tree_from_tuple_list( mrvmaya.tuple_list_from_file( hierarchyfile ) )
 	typ._addCustomTypeFromDagtree( globals(), dagtree, **kwargs )
 	return ( capitalize( nodetype ) for nodetype in dagtree.nodes_iter() )
 

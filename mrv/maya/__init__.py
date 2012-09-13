@@ -155,13 +155,15 @@ def tuple_list_from_file( filepath ):
 
 	return hierarchytuples
 
-def initWrappers( mdict, types, metacreatorcls, force_creation = False ):
+def initWrappers( mdict, types, metacreatorcls, force_creation = False, substitute_existing = False):
 	""" Create standin classes that will create the actual class once creation is
 	requested.
 	:param mdict: module dictionary object from which the latter classes will be imported from, 
 	can be obtained using ``globals()`` in the module
 	:param types: iterable containing the names of classnames ( they will be capitalized
-	as classes must begin with a capital letter )"""
+	as classes must begin with a capital letter )
+	:param substitute_existing: if False, an existing type in mdict will be overwritten by a Standin type.
+	This can be useful if a plug-in has registered dummy-types beforehand, and you wish to use your own now"""
 	from mrv.maya.util import StandinClass
 
 	# create dummy class that will generate the class once it is first being instatiated
@@ -170,7 +172,7 @@ def initWrappers( mdict, types, metacreatorcls, force_creation = False ):
 		clsname = capitalize( uitype )
 
 		# do not overwrite hand-made classes
-		if clsname in mdict:
+		if clsname in mdict and not substitute_existing:
 			continue
 
 		standin = StandinClass( clsname, metacreatorcls )

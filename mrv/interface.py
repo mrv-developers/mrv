@@ -267,8 +267,10 @@ class iDuplicatable( Interface ):
 		Only the common classes will be copied to instance
 		
 		:return: altered instance
+		:kwargs:
+		     If 'no_type_check' is given and a true value, we will allow to copy ourselves into any value.
 		:note: instance will be altered during the process"""
-		if type( instance ) != type( self ):
+		if not kwargs.pop('no_type_check', False) and type( instance ) != type( self ):
 			raise TypeError( "copyTo: Instance must be of type %s but was type %s" % ( type( self ), type( instance ) ) )
 		return self.__copyTo( instance, *args, **kwargs )
 

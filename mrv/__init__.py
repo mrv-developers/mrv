@@ -151,7 +151,7 @@ def _init_syspath( ):
 # end __init_syspath
 
 
-def _init_configProvider( ):
+def _init_KeyKeyValueStoreProvider( ):
 	""" Install the configuration provider system
 
 	This allows values and settings to be stored in a convenient way. """
@@ -205,7 +205,7 @@ def _init_python( ):
 # INITIALIZE
 #############
 _init_syspath( )
-_init_configProvider( )
+_init_KeyKeyValueStoreProvider( )
 _init_internationalization( )
 _init_logging( )
 _init_python( )
