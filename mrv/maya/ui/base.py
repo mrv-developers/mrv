@@ -44,7 +44,14 @@ def wrapUI( uinameOrList, ignore_errors = False ):
     # END input list handling
     out = list()
     for uiname in uinames:
-        uitype = getUIType( uiname )
+        try:
+            uitype = getUIType( uiname )
+        except RuntimeError:
+            # happens if the UI item could not be found, which seems possible
+            if ignore_errors:
+                continue
+            raise
+        # end handle non-existing items
         clsname = capitalize( uitype )
 
         try:
