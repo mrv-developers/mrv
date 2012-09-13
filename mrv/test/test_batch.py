@@ -4,11 +4,11 @@ from mrv.test.lib import *
 
 # shouldn't import anything
 try:
-	from mrv.batch import *
+    from mrv.batch import *
 except TypeError:
-	pass		# expected
+    pass        # expected
 else:
-	raise AssertionError("It should not be possible to import all items from batch module")
+    raise AssertionError("It should not be possible to import all items from batch module")
 # END check import all 
 
 
@@ -16,7 +16,7 @@ import mrv.batch as batch
 
 class TestBatch( unittest.TestCase ):
 
-	def test_base( self ):
-		# currently we only test import
-		pass 
+    def test_base( self ):
+        # currently we only test import
+        pass 
 

@@ -6,11 +6,11 @@ __docformat__ = "restructuredtext"
 
 # assure we only do certain things once
 if 'init_done' not in locals():
-	init_done = False
+    init_done = False
 
 # SYSTEM INITIALIZATIONs
 if not init_done:
-	pass
+    pass
 
 #} END initialization
 

@@ -74,20 +74,20 @@ __ld = """MRV is a multi-platform python development environment to ease rapid d
 of maintainable, reliable and high-performance code to be used in and around Autodesk Maya."""
 __requires = [ 'nose', 'epydoc', 'sphinx', 'gitpython' ]
 if os.name == 'posix':
-	__requires.append('ipython')
+    __requires.append('ipython')
 # END easy_install ipython on linux + osx
 
 setup_kwargs = dict(
-					# scripts in the context of the distribution are executable python 
-					# scripts that should wind up executable when installed.
-					# scripts = list('path', ...)
-					scripts=__scripts_bin + __scripts_test_bin,
-					
-					# The long description is used on pypi I presume if the commandline 
-					# based upload is used. For MRV the manual upload id preferred though
-					# As the distutils don't provide a way to safely store non-cleartext
-					# credentials for the login
-					# long_description = string
+                    # scripts in the context of the distribution are executable python 
+                    # scripts that should wind up executable when installed.
+                    # scripts = list('path', ...)
+                    scripts=__scripts_bin + __scripts_test_bin,
+                    
+                    # The long description is used on pypi I presume if the commandline 
+                    # based upload is used. For MRV the manual upload id preferred though
+                    # As the distutils don't provide a way to safely store non-cleartext
+                    # credentials for the login
+                    # long_description = string
                     long_description = __ld,
                     
                     # Winds up as egg-info which informs easy-install which other packages
@@ -101,11 +101,11 @@ setup_kwargs = dict(
                     # which are prefixed with an exclamation mark (!)
                     # package_data = dict( package_name : list('pattern', ...) )
                     package_data = {   'mrv.test' : ['fixtures/ma/*', 'fixtures/maya_user_prefs/', 'maya/performance' ] + __scripts_test_bin_s, 
-                    					'mrv' : __scripts_bin + ['!*.gitignore'],
-                    					'mrv.maya' : ['cache'],
-                    					'mrv.doc' : ['source', 'makedoc', '!*source/generated/*']
-                    				},
-                    				
+                                        'mrv' : __scripts_bin + ['!*.gitignore'],
+                                        'mrv.maya' : ['cache'],
+                                        'mrv.doc' : ['source', 'makedoc', '!*source/generated/*']
+                                    },
+                                    
                     # Classifiers are used exclusively by the python package index
                     # and wind up in the package info/egg info. This is important
                     # for command-line upload only, Here it serves more as general 
@@ -128,15 +128,15 @@ setup_kwargs = dict(
                     # to pass information directly to the specified subcommand, each 
                     # of them supporting a unique set of options
                     # options = dict( subcommand = dict( option_name : option_value ) )
-					options = dict(build_py={	'exclude_from_compile' : (	'*/maya/undo.py', 
-																			'*/maya/nt/persistence.py', 
-																			'info.py'), 
-												'exclude_items' : ('mrv.conf', 'mrv.dg', 'mrv.batch', 'mrv.mdp', 
-																	'.automation', '.qa',
-																	'mrv.test.test_conf', 'mrv.test.test_dg', 
-																	'mrv.test.test_batch', 'mrv.test.test_mdp', 
-																	'mrv.test.test_conf') }, 
-									build_scripts={ 'exclude_scripts' : ['mrv/test/bin/tmrvr']}) 
+                    options = dict(build_py={   'exclude_from_compile' : (  '*/maya/undo.py', 
+                                                                            '*/maya/nt/persistence.py', 
+                                                                            'info.py'), 
+                                                'exclude_items' : ('mrv.conf', 'mrv.dg', 'mrv.batch', 'mrv.mdp', 
+                                                                    '.automation', '.qa',
+                                                                    'mrv.test.test_conf', 'mrv.test.test_dg', 
+                                                                    'mrv.test.test_batch', 'mrv.test.test_mdp', 
+                                                                    'mrv.test.test_conf') }, 
+                                    build_scripts={ 'exclude_scripts' : ['mrv/test/bin/tmrvr']}) 
                     )
 
 
@@ -145,7 +145,7 @@ setup_kwargs = dict(
 # These values help to dynamically generate the epydoc.cfg file which will be used 
 # to configure the epydoc source documentaiton generator.
 doc_config = dict(
-				epydoc_show_source = 'yes',
-				epydoc_modules = "modules: unittest,../%s" % root_package,
-				epydoc_exclude = "mrv.test,%s.cmd.ipythonstartup" % root_package,
-				)
+                epydoc_show_source = 'yes',
+                epydoc_modules = "modules: unittest,../%s" % root_package,
+                epydoc_exclude = "mrv.test,%s.cmd.ipythonstartup" % root_package,
+                )
