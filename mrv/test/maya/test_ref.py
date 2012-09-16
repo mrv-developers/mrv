@@ -157,7 +157,7 @@ class TestReferenceRunner( unittest.TestCase ):
         # slowly import step by step
         firstsubref = subrefbases[0]
         childrefs = firstsubref.importRef( depth = 0 )
-        assert not cmds.objExists( firstsubref._refnode ) 
+        assert not cmds.objExists( firstsubref._refnodename ) 
         assert len( childrefs ) == 4 
 
         # import alltogehter

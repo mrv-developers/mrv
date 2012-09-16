@@ -432,7 +432,12 @@ class Event(object):
 
         # remove failed listeners
         for function in failed_callbacks:
-            callbackset.remove(function)
+            try:
+                callbackset.remove(function)
+            except KeyError:
+                pass
+            #end ignore all kinds of possibilities to fail here
+        #end for each failed check
 
         Event._curSender = None
         return success

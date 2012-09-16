@@ -46,7 +46,7 @@ class FileReference(iDagItem):
         parent/child iteration and query can be used as well"""
     editTypes = [   'setAttr','addAttr','deleteAttr','connectAttr','disconnectAttr','parent']
     _sep = '/'                  # iDagItem configuration
-    __slots__ = '_refnode'
+    __slots__ = '_refnodename'
 
     @classmethod
     def _splitCopyNumber(cls, path):
@@ -61,9 +61,9 @@ class FileReference(iDagItem):
     #{ Object Overrides
     def __init__(self, filepath = None, refnode = None):
         if refnode:
-            self._refnode = str(refnode)
+            self._refnodename = str(refnode)
         elif filepath:
-            self._refnode = cmds.referenceQuery(filepath, rfn=1)
+            self._refnodename = cmds.referenceQuery(filepath, rfn=1)
         else:
             raise ValueError("Specify either filepath or refnode to initialize the instance from")
         # END handle input
@@ -72,7 +72,7 @@ class FileReference(iDagItem):
         """Special treatment for other filereferences"""
         # need equal copy numbers as well as equal paths - the refnode encapsulates all this
         if isinstance(other, FileReference):
-            return self._refnode == other._refnode
+            return self._refnodename == other._refnodename
 
         return self.path() == other
 
@@ -160,7 +160,7 @@ class FileReference(iDagItem):
         :return: self"""
         filepath = (isinstance(filepath, type(self)) and filepath.path()) or filepath
         filepath = self._splitCopyNumber(filepath)[0]
-        cmds.file(filepath, lr=self._refnode)
+        cmds.file(filepath, lr=self._refnodename)
         return self
 
     @undo.notundoable
@@ -430,7 +430,7 @@ class FileReference(iDagItem):
             self.setLoaded(False)
 
         for etype in editTypes:
-            cmds.file(cr=self._refnode, editCommand=etype)
+            cmds.file(cr=self._refnodename, editCommand=etype)
 
         if not unresolvedEdits:
             self.setLoaded(wasloaded)
@@ -452,7 +452,7 @@ class FileReference(iDagItem):
         self.setLoaded(False)
 
         # set locked
-        cmds.setAttr(self._refnode+".locked", state)
+        cmds.setAttr(self._refnodename+".locked", state)
 
         # reset the loading state
         self.setLoaded(wasloaded)
@@ -470,9 +470,9 @@ class FileReference(iDagItem):
             return
 
         if state:
-            cmds.file(loadReference=self._refnode)
+            cmds.file(loadReference=self._refnodename)
         else:
-            cmds.file(unloadReference=self._refnode)
+            cmds.file(unloadReference=self._refnodename)
 
         return self
 
@@ -496,7 +496,7 @@ class FileReference(iDagItem):
 
     def parent(self):
         """:return: the parent reference of this instance or None if we are root"""
-        parentrfn = cmds.referenceQuery(self._refnode, rfn=1, p=1)
+        parentrfn = cmds.referenceQuery(self._refnodename, rfn=1, p=1)
         if not parentrfn:
             return None
         return FileReference(refnode = parentrfn)
@@ -517,11 +517,11 @@ class FileReference(iDagItem):
 
     def isLocked(self):
         """:return: True if reference is locked"""
-        return cmds.getAttr(self._refnode + ".locked")
+        return cmds.getAttr(self._refnodename + ".locked")
 
     def isLoaded(self):
         """:return: True if the reference is loaded"""
-        return cmds.file(rfn=self._refnode, q=1, dr=1) == False
+        return cmds.file(rfn=self._refnodename, q=1, dr=1) == False
 
     def copynumber(self):
         """:return: the references copy number - starting at 0 for the first reference
@@ -546,7 +546,7 @@ class FileReference(iDagItem):
         :param unresolved: see `ls`
         :note: we always query it from maya as our numbers change if some other
             reference is being removed and cannot be trusted"""
-        path_str = cmds.referenceQuery(self._refnode, f=1, un=unresolved)
+        path_str = cmds.referenceQuery(self._refnodename, f=1, un=unresolved)
         if not copynumber:
             path_str = self._splitCopyNumber(path_str)[0]
         # END handle copy number
@@ -555,7 +555,7 @@ class FileReference(iDagItem):
     def referenceNode(self):
         """:return: wrapped reference node managing this reference"""
         import mrv.maya.nt as nt
-        return nt.NodeFromStr(self._refnode)
+        return nt.NodeFromStr(self._refnodename)
 
     #}END query methods
 
