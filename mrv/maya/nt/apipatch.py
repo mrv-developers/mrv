@@ -918,6 +918,8 @@ _doublearray_getitem = api.MDoubleArray.__getitem__
 _floatarray_getitem = api.MFloatArray.__getitem__
 _floatvectorarray_getitem = api.MFloatVectorArray.__getitem__
 _vectorarray_getitem = api.MVectorArray.__getitem__
+
+
 class MPlugArray( api.MPlugArray, ArrayBase ):
     """ Wrap MPlugArray to make it compatible to pythonic contructs
     
