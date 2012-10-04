@@ -1321,7 +1321,7 @@ class GitSourceDistribution(_GitMixin, _RegressionMixin, sdist):
         _GitMixin.finalize_options(self)
         _RegressionMixin.finalize_options(self)
     
-    def make_archive(self, base_name, format, root_dir=None, base_dir=None):
+    def make_archive(self, base_name, format, root_dir=None, base_dir=None, owner=None, group=None):
         self.update_git(base_dir)
         super(_GitMixin, self).make_archive(base_name, format, root_dir, base_dir)
         
