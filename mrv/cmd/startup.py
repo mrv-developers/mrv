@@ -49,17 +49,6 @@ def ipython_setup(maya_support):
     # init logging
     logging.basicConfig(level=logging.INFO)
     
-    if maya_support:
-        # make default imports
-        ip = IPython.ipapi.get()
-        ip.ex("from mrv.maya.all import *")
-        
-        
-        # prefetch methods for convenience
-        import mrv.maya.nt.typ as typ
-        typ.prefetchMFnMethods()
-    # END handle maya
-
 # } END initialization
 
 
@@ -203,10 +192,25 @@ def imrv():
         raise ImportError("Warning: Failed to load ipython - please install it for more convenient maya python interaction: %s" % str(e))
     # END exception handling
     
-    ips = IPython.Shell.start()
+    # old-api, new api
+    if hasattr(IPython, 'Shell'):
+        ips = IPython.Shell.start()
+        if maya_support:
+            # make default imports
+            ip = IPython.ipapi.get()
+            ip.ex("from mrv.maya.all import *")
+        # END handle maya
+    else:
+        import IPython.frontend.terminal.interactiveshell
+        import mrv.maya.all
+        ips = IPython.frontend.terminal.interactiveshell.TerminalInteractiveShell(user_ns=mrv.maya.all.__dict__)
+    #end handle api differences
     ipython_setup(maya_support)
     ipython_apply_user_configuration()
     ips.mainloop()
+    
+        
+    
 
 #} END startup
 
