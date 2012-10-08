@@ -1263,7 +1263,12 @@ class DependNode(Node, iDuplicatable):      # parent just for epydoc -
     def connections(self):
         """:return: MPlugArray of connected plugs"""
         cons = api.MPlugArray()
-        mfn = DependNode._mfncls(self.object()).getConnections(cons)
+        try:
+            DependNode._mfncls(self.object()).getConnections(cons)
+        except RuntimeError:
+            # fails if there are no connections (in would just give an invalid mstatus otherwise)
+            pass
+        #end ignore connections 
         return cons
 
     def dependencyInfo(self, attribute, by=True):
