@@ -723,6 +723,16 @@ def _getUniqueName(dagpath):
         copynumber += 1
     # END while dagpath does exist
     return newpath
+    
+    
+def _removeFromActiveSelection(node):
+    """remove the node from the selection forcefully
+    Otherwise maya can crash if someone deletes that node afterwards"""
+    
+    # remove from selection list !
+    slist = api.MSelectionList()
+    slist.add(node)
+    api.MGlobal.selectCommand(slist, api.MGlobal.kRemoveFromList)
 
 ############################
 #### Classes            ####
@@ -1183,6 +1193,7 @@ class DependNode(Node, iDuplicatable):      # parent just for epydoc -
         :note: if you want to delete many nodes, its more efficient to delete them
             using the global `delete` method"""
         mod = undo.DGModifier()
+        _removeFromActiveSelection(self)
         mod.deleteNode(self.object())
         mod.doIt()
 
@@ -1690,6 +1701,7 @@ class DagNode(Entity, iDagItem):    # parent just for epydoc
         :note: if you want to delete many nodes, its more efficient to delete them
             using the global `delete` method"""
         mod = undo.DagModifier()
+        _removeFromActiveSelection(self)
         mod.deleteNode(self.object())
         mod.doIt()
 
