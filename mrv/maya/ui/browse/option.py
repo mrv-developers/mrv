@@ -43,7 +43,7 @@ class FileOpenOptions(ui.ColumnLayout, iOptions):
         self.omReference.p_select = opts.get(self.kOVRefLoadSetting, 1)
         
     def fileOptions(self):
-        """:return: dict with keyword options reflecting the settings of the
+        """@return dict with keyword options reflecting the settings of the
         interface. These should be given to the file command"""
         options = dict()
         options['ignoreVersion'] = self.cbIgnoreVersion.p_value

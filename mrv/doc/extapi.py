@@ -21,7 +21,7 @@ from docutils import nodes
 
 def api_role(role, rawtext, text, lineno, inliner, options={}, content=[]):
     """
-    Role `:api:` bridges generated API documentation by tool like EpyDoc
+    bridges generated API documentation by tool like EpyDoc
     with Sphinx Python Documentation Generator.
 
     Other tools, other than EpyDoc, can be easily supported as well.

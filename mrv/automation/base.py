@@ -18,7 +18,7 @@ def _toSimpleType( stringtype ):
     raise ValueError( "Could not convert %r to any simple type" % stringtype )
 
 def _getNodeInfo( node ):
-    """:return: ( nodename, args, kwargs ) - all arguments have been parsed"""
+    """@return ( nodename, args, kwargs ) - all arguments have been parsed"""
     args = [ node.get_name().strip('"') ]
     nodeattrs = node.get_attributes()
     tl = nodeattrs.get('toplabel', '').strip('"')
@@ -49,9 +49,9 @@ def loadWorkflowFromDotFile( dotfile, workflowcls = None ):
     The all compatible plugs will automatically be connected for all processes
     connected in the dot file
     
-    :param workflowcls: if not None, a dgengine.Graph compatible class to be used
+    @param workflowcls if not None, a dgengine.Graph compatible class to be used
         for workflow creation. Defaults to automation.workflow.Workflow.
-    :return: List of initialized workflow classes - as they can be nested, the
+    @return List of initialized workflow classes - as they can be nested, the
         creation of one workflow can actually create several of them"""
     import pydot
     import processes
@@ -172,8 +172,8 @@ def loadWorkflowFromDotFile( dotfile, workflowcls = None ):
 def addWorkflowsFromDotFiles( module, dotfiles, workflowcls = None ):
     """Create workflows from a list of dot-files and add them to the module
     
-    :param workflowcls: see `loadWorkflowFromDotFile`
-    :return: list of workflow instances created from the given files"""
+    @param workflowcls see `loadWorkflowFromDotFile`
+    @return list of workflow instances created from the given files"""
     outwfls = list()
     for dotfile in dotfiles:
         wflname = dotfile.namebase()

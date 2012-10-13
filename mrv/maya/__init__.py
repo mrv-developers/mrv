@@ -41,9 +41,9 @@ def initializeNewMayaRelease( ):
     initialize and update the database as well as possible, and give instructions 
     on what to do next.
     
-    :note: Will not run if any user setup is performed as we need a clean maya 
+    @note Will not run if any user setup is performed as we need a clean maya 
     without any plugins loaded.
-    :raise EnvironmentError: if the current maya version has already been initialized
+    @throws EnvironmentError if the current maya version has already been initialized
     or if the user setup was executed"""
     if int(os.environ.get('MRV_STANDALONE_AUTOLOAD_PLUGINS', 0)) or \
         int(os.environ.get('MRV_STANDALONE_RUN_USER_SETUP', 0)):
@@ -100,10 +100,10 @@ def initializeNewMayaRelease( ):
 
 #{ Internal Utilities
 def dag_tree_from_tuple_list( tuplelist ):
-    """:return: DagTree from list of tuples [ (level,name),...], where level specifies
+    """@return DagTree from list of tuples [ (level,name),...], where level specifies
     the level of items in the dag.
-    :note: there needs to be only one root node which should be first in the list
-    :return: `DagTree` item allowing to easily query the hierarchy """
+    @note there needs to be only one root node which should be first in the list
+    @return `DagTree` item allowing to easily query the hierarchy """
     tree = None
     lastparent = None
     lastchild = None
@@ -144,7 +144,7 @@ def dag_tree_from_tuple_list( tuplelist ):
 
 def tuple_list_from_file( filepath ):
     """Create a tuple hierarchy list from the file at the given path
-    :return: tuple list suitable for dag_tree_from_tuple_list"""
+    @return tuple list suitable for dag_tree_from_tuple_list"""
     lines = make_path( filepath ).lines( retain = False )
 
     hierarchytuples = list()
@@ -158,11 +158,11 @@ def tuple_list_from_file( filepath ):
 def initWrappers( mdict, types, metacreatorcls, force_creation = False, substitute_existing = False):
     """ Create standin classes that will create the actual class once creation is
     requested.
-    :param mdict: module dictionary object from which the latter classes will be imported from, 
+    @param mdict module dictionary object from which the latter classes will be imported from, 
     can be obtained using ``globals()`` in the module
-    :param types: iterable containing the names of classnames ( they will be capitalized
+    @param types iterable containing the names of classnames ( they will be capitalized
     as classes must begin with a capital letter )
-    :param substitute_existing: if False, an existing type in mdict will be overwritten by a Standin type.
+    @param substitute_existing if False, an existing type in mdict will be overwritten by a Standin type.
     This can be useful if a plug-in has registered dummy-types beforehand, and you wish to use your own now"""
     from mrv.maya.util import StandinClass
 

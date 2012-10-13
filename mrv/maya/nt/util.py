@@ -14,7 +14,7 @@ MScriptUtil = api.MScriptUtil
 #{ Conversion Methods
 def in_double3_out_vector(function):
     """
-    :return: MVector containing result of function with signature 
+    @return MVector containing result of function with signature 
         function(double [3])"""
     su = MScriptUtil()
     su.createFromDouble(0.0, 0.0, 0.0)
@@ -25,7 +25,7 @@ def in_double3_out_vector(function):
 
 def in_two_floats_out_tuple(function):
     """
-    :return: tuple containing result of function with signature 
+    @return tuple containing result of function with signature 
         function(float& f1, float& f2)"""
     suf1 = MScriptUtil()    # keep it, otherwise it might deinitialize its memory
     suf2 = MScriptUtil()
@@ -51,8 +51,8 @@ def undoable_in_double3_as_vector(function, vec_old_value, vec_new_value):
     from the passed in vector.
     The calling method must be enclosed in an undoable decorator.
     
-    :param vec_old_value: vector with the old value of the corresponding getX method
-    :param vec_new_value: vector with new value that is to be set"""
+    @param vec_old_value vector with the old value of the corresponding getX method
+    @param vec_new_value vector with new value that is to be set"""
     op = undo.GenericOperation()
     op.setDoitCmd( in_double3_as_vector, function, vec_new_value)
     op.setUndoitCmd( in_double3_as_vector, function, vec_old_value )

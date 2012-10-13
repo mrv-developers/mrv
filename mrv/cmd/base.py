@@ -33,15 +33,15 @@ maya_to_py_version_map = {
 #{ Maya-Intiialization
     
 def is_supported_maya_version(version):
-    """:return: True if version is a supported maya version
-    :param version: float which is either 8.5 or 2008 to 20XX"""
+    """@return True if version is a supported maya version
+    @param version float which is either 8.5 or 2008 to 20XX"""
     if version == 8.5:
         return True
         
     return str(version)[:2] == "20"
     
 def uses_mayapy():
-    """:return: True if the executable is mayapy"""
+    """@return True if the executable is mayapy"""
     try:
         mayapy_maya_version()
         return True
@@ -50,9 +50,9 @@ def uses_mayapy():
     # END handle exceptions
     
 def mayapy_maya_version():
-    """:return: float representing the maya version of the currently running 
+    """@return float representing the maya version of the currently running 
     mayapy interpreter. 
-    :raise EnvironmentError: If called from a 'normal' python interpreter"""
+    @throws EnvironmentError If called from a 'normal' python interpreter"""
     if 'maya' not in sys.executable.lower():
         raise EnvironmentError("Not running mayapy")
     # END quick first check 
@@ -71,9 +71,9 @@ def mayapy_maya_version():
     return float(version_token)
     
 def parse_maya_version(arg, default):
-    """:return: tuple(bool, version) tuple of bool indicating whether the version could 
+    """@return tuple(bool, version) tuple of bool indicating whether the version could 
     be parsed and was valid, and a float representing the parsed or default version.
-    :param default: The desired default maya version"""
+    @param default The desired default maya version"""
     parsed_arg = False
     version = default
     try:
@@ -91,8 +91,8 @@ def parse_maya_version(arg, default):
     return parsed_arg, version
     
 def python_version_of(maya_version):
-    """:return: python version matching the given maya version
-    :raise EnvironmentError: If there is no known matching python version"""
+    """@return python version matching the given maya version
+    @throws EnvironmentError If there is no known matching python version"""
     try:
         return maya_to_py_version_map[maya_version]
     except KeyError:
@@ -102,7 +102,7 @@ def update_env_path(environment, env_var, value, append=False):
     """Set the given env_var to the given value, but append the existing value
     to it using the system path separator
     
-    :param append: if True, value will be appended to existing values, otherwise it will 
+    @param append if True, value will be appended to existing values, otherwise it will 
         be prepended"""
     curval = environment.get(env_var, None)
     # rule out empty strings
@@ -116,7 +116,7 @@ def update_env_path(environment, env_var, value, append=False):
     environment[env_var] = value
 
 def available_maya_versions():
-    """:return: list of installed maya versions which are locally available - 
+    """@return list of installed maya versions which are locally available - 
     they can be used in methods that require the maya_version to be given. 
     Versions are ordered such that the latest version is given last."""
     versions = list()
@@ -131,9 +131,9 @@ def available_maya_versions():
     return versions
 
 def maya_location(maya_version):
-    """:return: string path to the existing maya installation directory for the 
+    """@return string path to the existing maya installation directory for the 
     given maya version
-    :raise EnvironmentError: if it was not found"""
+    @throws EnvironmentError if it was not found"""
     mayaroot = None
     suffix = ''
     
@@ -179,9 +179,9 @@ def maya_location(maya_version):
     
 def update_maya_environment(maya_version):
     """Configure os.environ to allow Maya to run in standalone mode
-    :param maya_version: The maya version to prepare to run, either 8.5 or 2008 to 
+    @param maya_version The maya version to prepare to run, either 8.5 or 2008 to 
     20XX. This requires the respective maya version to be installed in a default location.
-    :raise EnvironmentError: If the platform is unsupported or if the maya installation could not be found"""
+    @throws EnvironmentError If the platform is unsupported or if the maya installation could not be found"""
     py_version = python_version_of(maya_version)
     
     pylibdir = None
@@ -264,9 +264,9 @@ def update_maya_environment(maya_version):
     
 def mangle_args(args):
     """Enclose arguments in quotes if they contain spaces ... on windows only
-    :return: tuple of possibly modified arguments
+    @return tuple of possibly modified arguments
     
-    :todo: remove this function, its unused"""
+    @todo remove this function, its unused"""
     if not sys.platform.startswith('win'):
         return args
     
@@ -280,11 +280,11 @@ def mangle_args(args):
     return tuple(newargs)
     
 def mangle_executable(executable):
-    """:return: possibly adjusted path to executable in order to allow its execution
+    """@return possibly adjusted path to executable in order to allow its execution
         This currently only kicks in on windows as we can't handle spaces properly.
     
-    :note: Will change working dir
-    :todo: remove this function, its unused"""
+    @note Will change working dir
+    @todo remove this function, its unused"""
     if not sys.platform.startswith('win'):
         return executable
         
@@ -303,8 +303,8 @@ def init_environment(args):
     """Intialize MRV up to the point where we can replace this process with the 
     one we prepared
     
-    :param args: commandline arguments excluding the executable ( usually first arg )
-    :return: tuple(use_this_interpreter, maya_version, args) tuple of Bool, maya_version, and the remaining args
+    @param args commandline arguments excluding the executable ( usually first arg )
+    @return tuple(use_this_interpreter, maya_version, args) tuple of Bool, maya_version, and the remaining args
         The boolean indicates whether we have to reuse this interpreter, as it is mayapy"""
     # see if first argument is the maya version
     maya_version=None
@@ -360,8 +360,8 @@ def _execute(executable, args):
     This method does whatever is required to get it right on windows, which is 
     the only reason this method exists !
     
-    :param args: arguments, without the executable as first argument
-    :note: does not return """
+    @param args arguments, without the executable as first argument
+    @note does not return """
     # on windows we spawn, otherwise we don't get the interactive input right
     actual_args = (executable, ) + args
     if sys.platform.startswith('win'):
@@ -372,7 +372,7 @@ def _execute(executable, args):
     # END handle windows
 
 def python_executable(py_version=None):
-    """:return: name or path to python executable in this system, deals with 
+    """@return name or path to python executable in this system, deals with 
     linux and windows specials"""
     if py_version is None:
         return 'python'
@@ -391,9 +391,9 @@ def find_mrv_script(name):
     want to figure out where the mrv executable with the given name is located.
     The returned path is either relative or absolute.
 
-    :return: Path to script 
-    :raise EnvironmentError: if the executable could not be found
-    :note: Currently it only looks for executables, but handles projects
+    @return Path to script 
+    @throws EnvironmentError if the executable could not be found
+    @note Currently it only looks for executables, but handles projects
     which use mrv as a subproject"""
     import mrv
     mrvroot = os.path.dirname(mrv.__file__)
@@ -420,11 +420,11 @@ def exec_python_interpreter(args, maya_version, mayapy_only=False):
     This will either be the respective python interpreter, or mayapy.
     If it works, the function does not return
     
-    :param args: remaining arguments which should be passed to the process
-    :param maya_version: float indicating the maya version to use
-    :param mayapy_only: If True, only mayapy will be considered for startup.
+    @param args remaining arguments which should be passed to the process
+    @param maya_version float indicating the maya version to use
+    @param mayapy_only If True, only mayapy will be considered for startup.
     Use this option in case the python interpreter crashes for some reason.
-    :raise EnvironmentError: If no suitable executable could be started"""
+    @throws EnvironmentError If no suitable executable could be started"""
     py_version = python_version_of(maya_version)
     py_executable = python_executable(py_version) 
     
@@ -453,8 +453,8 @@ def exec_python_interpreter(args, maya_version, mayapy_only=False):
 def exec_maya_binary(args, maya_version):
     """Replace this process with the maya executable as specified by maya_version.
     
-    :param args: The arguments to be provided to maya
-    :param maya_version: Float identifying the maya version to be launched
+    @param args The arguments to be provided to maya
+    @param maya_version Float identifying the maya version to be launched
     :rase EnvironmentError: if the respective maya version could not be found"""
     mayalocation = maya_location(maya_version)
     mayabin = os.path.join(mayalocation, 'bin', 'maya')
@@ -613,7 +613,7 @@ class SpawnedCommand(object):
     
     def __init__(self, *args, **kwargs):
         """
-        :param _spawned: If True, default False, we assume we have our own process.
+        @param _spawned If True, default False, we assume we have our own process.
             Otherwise we will do nothing that would adjust the current process, such as:
             
             * sys.exit
@@ -640,7 +640,7 @@ class SpawnedCommand(object):
         """Spawn a new standalone process of this command type
         Additional arguments passed to the command process
         
-        :param kwargs: Additional keyword arguments to be passed to Subprocess.Popen, 
+        @param kwargs Additional keyword arguments to be passed to Subprocess.Popen, 
             use it to configure your IO
         
         Returns: Subprocess.Popen instance"""
@@ -674,10 +674,10 @@ class SpawnedCommand(object):
         Damonize the spawned command, passing *args to the instanciated command's
         execute method.
         
-        :return: None in calling process, no return in the daemon
+        @return None in calling process, no return in the daemon
             as sys.exit will be called.
-        :note: see configuration variables prefixed with _daemon_
-        :note: based on Chad J. Schroeder createDaemon method, 
+        @note see configuration variables prefixed with _daemon_
+        @note based on Chad J. Schroeder createDaemon method, 
             see http://code.activestate.com/recipes/278731-creating-a-daemon-the-python-way
         """
         if sys.platform.startswith("win"):
@@ -840,7 +840,7 @@ class SpawnedCommand(object):
         return cmdinstance._execute(*args)
     
     def _preprocess_args(self, options, args):
-        """:return: tuple(options, args) tuple of parsed options and remaining args
+        """@return tuple(options, args) tuple of parsed options and remaining args
             The arguments can be preprocessed"""
         return options, args
     
@@ -870,14 +870,14 @@ class SpawnedCommand(object):
     @log_exception
     def execute(self, options, args):
         """Method implementing the actual functionality of the command
-        :param options: Values instance of the optparse module
-        :param args: remaining positional arguments passed to the process on the commandline
-        :note: if you like to terminate, raise an exception"""
+        @param options Values instance of the optparse module
+        @param args remaining positional arguments passed to the process on the commandline
+        @note if you like to terminate, raise an exception"""
         pass
     
     def option_parser(self):
-        """:return: OptionParser Instance containing all supported options
-        :note: Should be overridden by subclass to add additional options and 
+        """@return OptionParser Instance containing all supported options
+        @note Should be overridden by subclass to add additional options and 
             option groups themselves after calling the base class implementation"""
         return self.parser
     #} END needing subclass

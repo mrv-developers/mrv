@@ -52,7 +52,7 @@ class FinderLayout(ui.FormLayout):
     
     def __init__(self, *args, **kwargs):
         """Initialize all ui elements
-        :param kwargs: The following keywords are defined
+        @param kwargs The following keywords are defined
          * **defaultRoots**: default False, if True, show all roots available
           on the system."""
         num_splits = 1 + (self.t_options is not None)
@@ -251,7 +251,7 @@ class FinderLayout(ui.FormLayout):
     def _create_button_layout(self):
         """Create a layout with two main buttons, one to confirm, the other 
         to cancel the operation
-        :return: parent layout containing the buttons"""
+        @return parent layout containing the buttons"""
         bform = ui.FormLayout()
         
         if bform:
@@ -310,7 +310,7 @@ class FinderLayout(ui.FormLayout):
     def _cancel_button_pressed(self, *args):
         """Called when the cancel button was pressed, terminating the operation without
         any changes.
-        :note: if our parent is a window, we will close it through deletion"""
+        @note if our parent is a window, we will close it through deletion"""
         self._close_parent_window()
 
     def _build_bookmark_popup(self, popup, *args):

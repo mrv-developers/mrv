@@ -12,7 +12,7 @@ Optionally: Attribute access is as easy as using properties like:
 
     >>> node.translateX
 
-:note: it is important not to cache these as the underlying obejcts my change over time.
+@note it is important not to cache these as the underlying obejcts my change over time.
     For long-term storage, use handles instead.
 
 Default maya commands will require them to be used as strings instead.
@@ -48,17 +48,17 @@ pluginDB = None
 def addCustomType( newcls, parentClsName=None, **kwargs ):
     """ Add a custom class to this module - it will be handled like a native type
     
-    :param newcls: new class object if metaclass is None, otherwise string name of the
+    @param newcls new class object if metaclass is None, otherwise string name of the
         type name to be created by your metaclass
-    :param parentClsName: if metaclass is set, the parentclass name ( of a class existing
+    @param parentClsName if metaclass is set, the parentclass name ( of a class existing
         in the nodeTypeTree ( see /maya/cache/nodeHierarchy.html )
         Otherwise, if unset, the parentclassname will be extracted from the newcls object
-    :param kwargs:
+    @param kwargs
          * force_creation: 
                 if True, default False, the class type will be created immediately. This
                 can be useful if you wish to use the type for comparison, possibly before it is first being
                 queried by the system. The latter case would bind the StandinClass instead of the actual type.
-    :raise KeyError: if the parentClsName does not exist"""
+    @throws KeyError if the parentClsName does not exist"""
     newclsname = newcls
     newclsobj = None
     parentname = parentClsName
@@ -79,8 +79,8 @@ def removeCustomType( customType ):
     """Removes the given type from this module as well as from the type hierarchy.
     This makes it unavailble to MRV
     
-    :param customType: either string identifying the type's name or the type itself
-    :note: does nothing if the type does not exist"""
+    @param customType either string identifying the type's name or the type itself
+    @note does nothing if the type does not exist"""
     if not isinstance(customType, basestring):
         customType = customType.__name__
     typ._removeCustomType(globals(), customType)
@@ -91,14 +91,14 @@ def addCustomTypeFromFile( hierarchyfile, **kwargs ):
     This will be required to assure your own base classes will be used instead of auto-generated
     stand-in classes
     
-    :param hierarchyfile: Filepath to file modeling the class hierarchy using tab-indentation.
+    @param hierarchyfile Filepath to file modeling the class hierarchy using tab-indentation.
         The root node has no indentation, whereas each child node adds one indentation level using 
         tabs.
-    :param kwargs:
+    @param kwargs
          * force_creation: see `addCustomType`
-    :note: all attributes of `addCustomType` are supported
-    :note: there must be exactly one root type
-    :return: iterator providing all class names that have been added"""
+    @note all attributes of `addCustomType` are supported
+    @note there must be exactly one root type
+    @return iterator providing all class names that have been added"""
     dagtree = mrvmaya.dag_tree_from_tuple_list( mrvmaya.tuple_list_from_file( hierarchyfile ) )
     typ._addCustomTypeFromDagtree( globals(), dagtree, **kwargs )
     return ( capitalize( nodetype ) for nodetype in dagtree.nodes_iter() )
@@ -106,11 +106,11 @@ def addCustomTypeFromFile( hierarchyfile, **kwargs ):
 def addCustomClasses( clsobjlist ):
     """Add the given classes to the nodes module, making them available to the sytem
     
-    :note: first the class hierarchy need to be updated using addCustomTypeFromFile.
+    @note first the class hierarchy need to be updated using addCustomTypeFromFile.
         This must appen before your additional classes are parsed to assure our metaclass creator will not
         be called before it knows the class hierarchy ( and where to actually put your type ).
     
-    :param clsobjlist: list of class objects whose names are mentioned in the dagtree"""
+    @param clsobjlist list of class objects whose names are mentioned in the dagtree"""
     # add the classes
     for cls in clsobjlist:
         setattr( _thismodule, cls.__name__, cls )
@@ -120,7 +120,7 @@ def forceClassCreation( typeNameList ):
     """Create the types from standin classes from the given typeName iterable.
     The typenames must be upper case
     
-    :return: List of type instances ( the classes ) that have been created"""
+    @return List of type instances ( the classes ) that have been created"""
     outclslist = list()
     standincls = mrvmayautil.StandinClass
     for typename in typeNameList:

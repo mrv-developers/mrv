@@ -40,14 +40,14 @@ codegen = None      # python code generator, to be set during initialization
 #{ Metaclasses
 class MetaClassCreatorNodes( MetaClassCreator ):
     """Builds the base hierarchy for the given classname based on our typetree
-    :todo: build classes with slots only as members are pretermined"""
+    @todo build classes with slots only as members are pretermined"""
     
     @classmethod
     def _fetchMfnDB( cls, newcls, mfncls, **kwargs ):
         """Return the mfndb for the given mfncls as existing on newcls. 
         If it does not yet exist, it will be created and attached first
         
-        :param kwargs: passed to MMemberMap initializer"""
+        @param kwargs passed to MMemberMap initializer"""
         try:
             return newcls.__dict__[ mfndbattr ]
         except KeyError:
@@ -69,12 +69,12 @@ class MetaClassCreatorNodes( MetaClassCreator ):
         wrapped methods. 
         Additionally check for enumerations, and generate the respective enumeration
         instances
-        :note: As all types are initialized on startup, the staticmethods check 
+        @note As all types are initialized on startup, the staticmethods check 
             will load in quite a few function sets databases as many will have static 
             methods. There is no real way around it, but one could introduce 'packs'
             to bundle these together and load them only once. Probably the performance
             hit is not noticeable, but lets just say that I am aware of it
-        :note: Currently method aliases are not implemented for statics !"""
+        @note Currently method aliases are not implemented for statics !"""
         fstatic, finst = mdb.extractMFnFunctions(mfncls)
         hasEnum = mdb.hasMEnumeration(mfncls)
         if not fstatic and not hasEnum:
@@ -112,17 +112,17 @@ class MetaClassCreatorNodes( MetaClassCreator ):
 
         The method mutation database allows to adjust the way a method is being wrapped
         
-        :param mfncls: Maya function set class from which to take the functions
-        :param funcname: name of the function set function to be wrapped.
-        :param mfndb: `mdb.MMemberMap` 
-        :param addFlags: If set, these flags define how the method will be generated.
-        :raise KeyError: if the given function does not exist in mfncls
-        :note: if the called function starts with _api_*, a special accellerated method
+        @param mfncls Maya function set class from which to take the functions
+        @param funcname name of the function set function to be wrapped.
+        @param mfndb `mdb.MMemberMap` 
+        @param addFlags If set, these flags define how the method will be generated.
+        @throws KeyError if the given function does not exist in mfncls
+        @note if the called function starts with _api_*, a special accellerated method
             will be returned and created allowing direct access to the mfn instance method.
             This is unsafe if the same api object is being renamed. Also it will only be faster if
             the same method is actually called multiple times. It can be great for speed sensitive code
             where where the same method(s) are called repeatedly on the same set of objects
-        :return:  wrapped function or None if it was deleted"""
+        @return  wrapped function or None if it was deleted"""
         flags = mfndb.flags|addFlags
         funcname_orig = funcname    # store the original for later use
 
@@ -345,8 +345,8 @@ def prefetchMFnMethods():
     This should only be done to help interactive mode, but makes absolutely no 
     sense in the default mode of operation when everything is produced on demand.
     
-    :note: Attaches docstrings as well
-    :return: integer representing the number of generated methods"""
+    @note Attaches docstrings as well
+    @return integer representing the number of generated methods"""
     log.info("Prefetching all MFnMethods")
     
     num_fetched = 0
@@ -410,15 +410,15 @@ def _addCustomType( targetmoduledict, parentclsname, newclsname,
     """Add a custom type to the system such that a node with the given type will
     automatically be wrapped with the corresponding class name
     
-    :param targetmoduledict: the module's dict to which standin classes are supposed to be added
-    :param parentclsname: the name of the parent node type - if your new class
+    @param targetmoduledict the module's dict to which standin classes are supposed to be added
+    @param parentclsname the name of the parent node type - if your new class
         has several parents, you have to add the new types beginning at the first exsiting parent
         as written in the maya/cache/nodeHierarchy.html file
-    :param newclsname: the new name of your class - it must exist targetmodule
-    :param metaclass: meta class object to be called to modify your type upon creation
+    @param newclsname the new name of your class - it must exist targetmodule
+    @param metaclass meta class object to be called to modify your type upon creation
         It will not be called if the class already exist in targetModule. Its recommended to derive it
         from the metaclass given as default value.
-    :raise KeyError: if the parentclsname does not exist"""
+    @throws KeyError if the parentclsname does not exist"""
     # add new type into the type hierarchy #
     parentclsname = uncapitalize( parentclsname )
     newclsname = uncapitalize( newclsname )
@@ -432,9 +432,9 @@ def _removeCustomType( targetmoduledict, customTypeName ):
     """Remove the given typename from the given target module's dictionary as 
     well as from internal caches
     
-    :note: does nothing if the type does not exist
-    :param targetmoduledict: dict of your module to remove the type from
-    :param customTypeName: name of the type to be removed, its expected
+    @note does nothing if the type does not exist
+    @param targetmoduledict dict of your module to remove the type from
+    @param customTypeName name of the type to be removed, its expected
         to be capitalized"""
     try:
         del(targetmoduledict[customTypeName])
@@ -452,10 +452,10 @@ def _addCustomTypeFromDagtree( targetmoduledict, dagtree, metaclass=MetaClassCre
     """As `_addCustomType`, but allows to enter the type relations using a
     `mrv.util.DAGTree` instead of individual names. Thus multiple edges can be added at once
     
-    :note: special care is being taken to make force_creation work - first all the standind classes
+    @note special care is being taken to make force_creation work - first all the standind classes
         are needed, then we can create them - just iterating the nodes in undefined order will not work
         as a parent node might not be created yet
-    :note: node names in dagtree must be uncapitalized"""
+    @note node names in dagtree must be uncapitalized"""
     # add edges - have to start at root
     rootnode = dagtree.get_root()
     def recurseOutEdges( node ):        # postorder
@@ -483,7 +483,7 @@ def initWrappers( targetmoduledict ):
     """Create Standin Classes that will delay the creation of the actual class till
     the first instance is requested
     
-    :param targetmoduledict: the module's dictionary (globals()) to which to put the wrappers"""
+    @param targetmoduledict the module's dictionary (globals()) to which to put the wrappers"""
     global nodeTypeTree
     mrvmaya.initWrappers( targetmoduledict, nodeTypeTree.nodes_iter(), MetaClassCreatorNodes )
 

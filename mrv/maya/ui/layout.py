@@ -25,7 +25,7 @@ class Layout( uibase.SizedControl, uiutil.UIContainerBase ):
         return uiutil.UIContainerBase.__getitem__( self, key )
 
     def children( self ):
-        """ :return: children of this layout """
+        """ @return children of this layout """
         childnames = mutil.noneToList( cmds.layout( self, q=1, ca=1 ) )
         # assure we have long names to ensure uniqueness
         return uibase.wrapUI( [ "%s|%s" % ( self, c ) for c in childnames ] )
@@ -34,8 +34,8 @@ class Layout( uibase.SizedControl, uiutil.UIContainerBase ):
         """Set the parent ( layout ) of this layout active - newly created items
         will be children of the parent layout
         
-        :return: self
-        :note: can safely be called several times """
+        @return self
+        @note can safely be called several times """
         cmds.setParent(self._parentString())
         return self
 
@@ -55,12 +55,12 @@ class FormLayout( Layout ):
     class FormConstraint( object ):
         """ defines the way a child is constrained, possibly to other children
         
-        :todo: proper constraint system, but could be complicated to make it really easy to use"""
+        @todo proper constraint system, but could be complicated to make it really easy to use"""
 
     def setup( self, **kwargs ):
         """Apply the given setup to the form layout, specified using kwargs
         
-        :param kwargs: arguments you would set use to setup the form layout"""
+        @param kwargs arguments you would set use to setup the form layout"""
         self.__melcmd__( self, e=1, **kwargs )
 
 

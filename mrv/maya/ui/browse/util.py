@@ -14,7 +14,7 @@ def handleUnsavedModifications():
     """Ask the user whether he wants to handle his unsaved modifications.
     This may cause the current file to be saved, or the modifications to be 
     discarded.
-    :return: True if the changes have been handled properly, or False if the 
+    @return True if the changes have been handled properly, or False if the 
         caller should not proceed"""
     if not mrv.maya.Scene.isModified():
         return True

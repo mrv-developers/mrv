@@ -49,7 +49,7 @@ class RadioButtonBase( BooleanBase ):
 class GroupBase( uibase.SizedControl ):
     """Base allowing access to all grouped controls
     
-    :note: using short property names to ... keep it sane """
+    @note using short property names to ... keep it sane """
 
     _properties_ = [    "cw", "columnWidth",
                         "cat", "columnAttach",
@@ -198,7 +198,7 @@ class CheckBoxGrp( BooleanGroupBase, CheckBoxBase ):
 class Button( LabelBase ):
     """ Simple button interface
     
-    :note: you can only use either the onpress or the onrelease event, both
+    @note you can only use either the onpress or the onrelease event, both
         together apparently do not work"""
     _properties_ = ( "actionIsSubstitute" )
     _events_ = ( "c", "command" )
@@ -231,7 +231,7 @@ class RadioCollection( RadioCollectionBase, uibase.NamedUI ):
 
 class IconTextRadioCollection( RadioCollectionBase, uibase.NamedUI ):
     """Required for multiple inhertance
-    :note: it inherits exists() and a few others which are actually not supported for 
+    @note it inherits exists() and a few others which are actually not supported for 
     some reason"""
     pass
 
@@ -262,7 +262,7 @@ class TextField( FieldBase, TextFieldBase ):
     pass
 
 class ScrollField( uibase.SizedControl ):
-    """:note: although the class shares some properties of the textfield, it does not share all of them"""
+    """@note although the class shares some properties of the textfield, it does not share all of them"""
     _properties_ = (    "wordWrap", "ww",
                         "font",     "fn",
                         "text", "tx",
@@ -306,20 +306,20 @@ class TextScrollList( uibase.SizedControl ):
     #{ Interface
     
     def items(self):
-        """:return: list of currently available items"""
+        """@return list of currently available items"""
         return noneToList(self.p_allItems)
     
     def selectedIndex(self):
-        """:return: First selected index - the index is 1-based, or -1 if there 
+        """@return First selected index - the index is 1-based, or -1 if there 
         is nothing selected
-        :note: even if multiple selections are possible"""
+        @note even if multiple selections are possible"""
         sel = self.selectedIndices()
         if not sel:
             return -1
         return sel[0]
         
     def selectedIndices(self):
-        """:return: tuple of all selected 1-based indices, or an empty tuple if there
+        """@return tuple of all selected 1-based indices, or an empty tuple if there
             is nothing selected"""
         try:
             return tuple(noneToList(self.p_selectIndexedItem))
@@ -328,12 +328,12 @@ class TextScrollList( uibase.SizedControl ):
         # END handle exceptions
     
     def selectedItem(self):
-        """:return: the first selected item, or None if nothing is selected"""
+        """@return the first selected item, or None if nothing is selected"""
         items = self.selectedItems()
         return (items and items[0]) or None
     
     def selectedItems(self):
-        """:return: list of all selected items as strings, or an empty list if nothing
+        """@return list of all selected items as strings, or an empty list if nothing
             is selected"""
         try:
             return noneToList(self.p_selectItem)
@@ -343,9 +343,9 @@ class TextScrollList( uibase.SizedControl ):
     
     def setItems(self, items):
         """Set the given items to be shown.
-        :param items: iterable of items 
+        @param items iterable of items 
             if empty, the control will be empty after this call.
-        :return: self"""
+        @return self"""
         self.p_removeAll = True
         for item in items:
             self.p_append = str(item)
@@ -354,13 +354,13 @@ class TextScrollList( uibase.SizedControl ):
         
     def addItem(self, item):
         """Add the given item to the end of the list
-        :return: self"""
+        @return self"""
         self.p_append = str(item)
         return self
         
     def addItems(self, items):
         """Add multiple items to the end of the list
-        :return: self"""
+        @return self"""
         for item in items:
             self.addItem(item)
         # END for each item
@@ -368,10 +368,10 @@ class TextScrollList( uibase.SizedControl ):
         
     def setSelectedItem(self, item):
         """Set the given item selected, or clear the selection
-        :param item: item to select, or clear the selection if None is given
-        :note: it is not considered an error if the item doesnt exist - following 
+        @param item item to select, or clear the selection if None is given
+        @note it is not considered an error if the item doesnt exist - following 
             maya's behaviour
-        :return: self"""
+        @return self"""
         if item is None:
             self.p_deselectAll = True
             return
@@ -383,7 +383,7 @@ class TextScrollList( uibase.SizedControl ):
     def removeItem(self, item):
         """Remove the given item from the list. It is not an error if it doesn't 
         exist in the first place
-        :return: self"""
+        @return self"""
         items = self.items()
         try:
             index = items.index(item)
@@ -418,7 +418,7 @@ class OptionMenu( OptionMenuBase, uibase.SizedControl ):
     """Class just for multiple inheritance - this cannot be expressed in the hierarchy
     file
     
-    :note: Order of inheritance matters due to method resolution order !"""
+    @note Order of inheritance matters due to method resolution order !"""
     #( Configuration
     _is_menu = True
     #) END configuration
@@ -428,7 +428,7 @@ class OptionMenuGrp( OptionMenuBase, GroupBase ):
     """Class just for multiple inheritance - this cannot be expressed in the hierarchy
     file
     
-    :note: Order of inheritance matters due to method resolution order !"""
+    @note Order of inheritance matters due to method resolution order !"""
     #( Configuration
     _is_menu = True
     #) END configuration

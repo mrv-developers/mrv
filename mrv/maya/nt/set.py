@@ -27,7 +27,7 @@ class ObjectSet:
     #{ Partition Handling 
     
     def partitions( self ):
-        """:return: list of Nodes of partitions the entity is set is part of"""
+        """@return list of Nodes of partitions the entity is set is part of"""
         return [ p.mwrappedNode() for p in self.partition.moutputs() ]
          
     
@@ -35,13 +35,13 @@ class ObjectSet:
     def setPartition( self, partition, mode = 0 ):
         """Add, add exclusive or remove the given partition from our partition list
         
-        :param partition: Node, representing the partition, or a list of such
-        :param mode:
+        @param partition Node, representing the partition, or a list of such
+        @param mode
              * 0 = replace
              * 1 = add 
              * 2 = remove 
-        :return: self for chained operations
-        :note: use the supplied enumeration to specify the mode"""
+        @return self for chained operations
+        @note use the supplied enumeration to specify the mode"""
         # convert to list
         prts = partition
         if isinstance( partition, Partition ):
@@ -90,8 +90,8 @@ class ObjectSet:
         for intersecting members and remove them.
         Finally dd the members in question to us again
         
-        :param member: can be selection list or MObject, MDagPath, MPlug
-        :return: self if everything is fine"""
+        @param member can be selection list or MObject, MDagPath, MPlug
+        @return self if everything is fine"""
         for partition in self.partitions():
             for otherset in partition.sets():
                 if is_single_member:
@@ -114,7 +114,7 @@ class ObjectSet:
         """Check whether the given member has truly been added to our set
         and either force membership or raise and exception
         
-        :param is_single_member: if True, member can safely be assumed to be a single member, 
+        @param is_single_member if True, member can safely be assumed to be a single member, 
             this speeds up operations as we do not have to use multi-member tests"""
         if mode in ( self.kAdd, self.kAddForce ):
             # do we have to check the result ?
@@ -148,7 +148,7 @@ class ObjectSet:
     def _addRemoveMember( self, member, component, mode, ignore_failure ):
         """Add or remove the member with undo support
         
-        :param mode: kRemove or kAdd"""
+        @param mode kRemove or kAdd"""
         memberobj = self._toMemberObj( member )
             
         op = undo.GenericOperation()
@@ -178,7 +178,7 @@ class ObjectSet:
     def _addRemoveMembers( self, members, mode, ignore_failure ):
         """Add or remove the members to the set
         
-        :param mode: kRemove or kAdd or kAddForce"""
+        @param mode kRemove or kAdd or kAddForce"""
         sellist = nt.toSelectionList( members ) # handles 'member is SelectionList' case !
             
         lsellist = sellist.length()
@@ -219,7 +219,7 @@ class ObjectSet:
     def clear( self ):
         """Clear the set so that it will be empty afterwards
         
-        :return: self"""
+        @return self"""
         self.removeMembers( self.getMembers() )
         return self
     
@@ -227,15 +227,15 @@ class ObjectSet:
     def addMember( self, member, component = api.MObject(), force = False, ignore_failure = False ):
         """Add the item to the set
         
-        :param member: Node, MObject, MDagPath or plug
-        :param force: if True, member ship will be forced by removing the member in question 
+        @param member Node, MObject, MDagPath or plug
+        @param force if True, member ship will be forced by removing the member in question 
             from the other set connected to our partitions
-        :param ignore_failure: if True, a failed add due to partion constraints will result in an 
+        @param ignore_failure if True, a failed add due to partion constraints will result in an 
             exception, otherwise it will be silently ignored. Ignored if if force is True
-        :param component: if member is a dagnode, you can specify a component instance 
+        @param component if member is a dagnode, you can specify a component instance 
             of type component instance ( Single|Double|TripleIndexComponent )
-        :todo: handle components - currently its only possible when using selection lists
-        :return: self """
+        @todo handle components - currently its only possible when using selection lists
+        @return self """
         mode = self.kAdd
         if force:
             mode = self.kAddForce
@@ -245,10 +245,10 @@ class ObjectSet:
     def add( self, member_or_members, *args, **kwargs ):
         """Combined method which takes single or multiple members which are to be added
         
-        :param member_or_members: one of the input types supported by `addMember` and
+        @param member_or_members one of the input types supported by `addMember` and
             `addMembers`
-        :param kwargs: see `addMember`
-        :note: this method is for convenience only and should not be used to 
+        @param kwargs see `addMember`
+        @note this method is for convenience only and should not be used to 
             add massive amounts of items"""
         addfun = None
         if isinstance(member_or_members, (tuple, list, api.MSelectionList)):
@@ -262,16 +262,16 @@ class ObjectSet:
     def removeMember( self, member, component = api.MObject()  ):
         """Remove the member from the set
         
-        :param member: member of the list, for types see `addMember`"""
+        @param member member of the list, for types see `addMember`"""
         return self._addRemoveMember( member, component, ObjectSet.kRemove, True )
     
     @undoable
     def discard( self, member_or_members, *args, **kwargs ):
         """Removes a single member or multiple members from the set
         
-        :param member_or_members: any of the types supported by `removeMember`
+        @param member_or_members any of the types supported by `removeMember`
             or `removeMembers`
-        :param kwargs: see `removeMember`"""
+        @param kwargs see `removeMember`"""
         rmfun = None
         if isinstance(member_or_members, (tuple, list, api.MSelectionList)):
             rmfun = self.removeMembers
@@ -284,10 +284,10 @@ class ObjectSet:
     def addMembers( self, nodes, force = False, ignore_failure = False ):
         """Add items from iterable or selection list as members to this set
         
-        :param nodes: MSelectionList or list of Nodes and Plugs
-        :param force: see `addMember`
-        :param ignore_failure: see `addMember`
-        :return: self """
+        @param nodes MSelectionList or list of Nodes and Plugs
+        @param force see `addMember`
+        @param ignore_failure see `addMember`
+        @return self """
         mode = self.kAdd
         if force:
             mode = self.kAddForce
@@ -297,16 +297,16 @@ class ObjectSet:
     def removeMembers( self, nodes ):
         """Remove items from iterable or selection list from this set
         
-        :param nodes: see `addMembers`
-        :return: self """
+        @param nodes see `addMembers`
+        @return self """
         return self._addRemoveMembers( nodes, ObjectSet.kRemove, True )
             
     @undoable
     def setMembers( self, nodes, mode, **kwargs ):
         """Adjust set membership for nodes
         
-        :param nodes: items to handle, supports everything that `addMembers` does
-        :param kwargs: arguments passed to `addMembers` or `removeMembers`"""
+        @param nodes items to handle, supports everything that `addMembers` does
+        @param kwargs arguments passed to `addMembers` or `removeMembers`"""
         if mode == self.kReplace:
             self.clear()
             mode = self.kAdd
@@ -324,11 +324,11 @@ class ObjectSet:
     #{ Member Query 
     
     def getMembers( self, flatten = False ):
-        """:return: MSelectionList with members of this set
-        :param flatten: if True, members that are objectSets themselves will be resolved to their 
+        """@return MSelectionList with members of this set
+        @param flatten if True, members that are objectSets themselves will be resolved to their 
             respective members
-        :note: the members are ordinary api objects that still need to be wrapped
-        :note: use iterMembers to iterate the members as wrapped Nodes"""
+        @note the members are ordinary api objects that still need to be wrapped
+        @note use iterMembers to iterate the members as wrapped Nodes"""
         sellist = api.MSelectionList()
         self._mfncls( self._apiobj ).getMembers( sellist, flatten )
         return sellist
@@ -336,17 +336,17 @@ class ObjectSet:
     def iterMembers( self, *args, **kwargs ):
         """Iterate members of this set
         
-        :note: All keywords of iterMembers are supported
-        :note: if 'handlePlugs' is False, the iteration using a filter type will be faster
-        :note: handleComponents will allow component iteration - see the iterator documentation"""
+        @note All keywords of iterMembers are supported
+        @note if 'handlePlugs' is False, the iteration using a filter type will be faster
+        @note handleComponents will allow component iteration - see the iterator documentation"""
         return it.iterSelectionList( self.getMembers( ), *args, **kwargs ) 
     
     def isMember( self, obj, component = api.MObject() ):
-        """:return: True if obj is a member of this set
-        :param component: is given, the component must be fully part of the set 
+        """@return True if obj is a member of this set
+        @param component is given, the component must be fully part of the set 
             for the object ( dagNode ) to be considered part of the set
-        :note: all keywords of `it.iterSelectionList` are supported
-        :note: ismember does not appear to be working properly with component assignments.
+        @note all keywords of `it.iterSelectionList` are supported
+        @note ismember does not appear to be working properly with component assignments.
             It returns true for components that are not actually in the givne shading group"""
         if not component.isNull():
             return self._mfncls( self._apiobj ).isMember( self._toMemberObj( obj ), component )
@@ -387,10 +387,10 @@ class ObjectSet:
     def _toValidSetOpInput( cls, objects, sets_are_members = False ):
         """Method creating valid input for the union/intersection or difference methods
         
-        :note: it may return a temporary set that will delete itself once the wrapper object
+        @note it may return a temporary set that will delete itself once the wrapper object
             is being destroyed
-        :param sets_are_members: see `union`
-        :note: set """
+        @param sets_are_members see `union`
+        @note set """
         if isinstance( objects, (tuple, list) ):
             # MOBJECTARRAY OF SETS
             if not objects:     # emty list, return empty mobject array
@@ -453,12 +453,12 @@ class ObjectSet:
     @classmethod
     def tmpSet( cls, objects, sets_are_members = False ):
         """
-        :return: temporary set that will delete itself once it's reference count
+        @return temporary set that will delete itself once it's reference count
             reaches 0. Use rval.setobj to access the actual set, as the returned object is 
             just a hanlde to it. The handle is a valid input to the set functions as well
-        :param objects: see `union`
-        :param sets_are_members: see `union`
-        :note: useful if you want to use the set member union, intersection or substraction 
+        @param objects see `union`
+        @param sets_are_members see `union`
+        @note useful if you want to use the set member union, intersection or substraction 
             methods efficiently on many sets in a row - these internally operate on a set, thus 
             it is faster to use them with another set from the beginning to prevent creation of intermediate 
             sets"""
@@ -467,31 +467,31 @@ class ObjectSet:
     def getUnion( self, objects, sets_are_members = False  ):
         """Create a union of the given items with the members of this set
         
-        :param objects: an ObjectSet, an MObject of an object set, a list of ObjectSets 
+        @param objects an ObjectSet, an MObject of an object set, a list of ObjectSets 
             or a list of wrapped Objects or an MSelectionList or a single wrapped object . 
             If you have objects in a list as well as sets
             themselves, objects must come first as the operation will fail otherwise.
-        :param sets_are_members: if True, objects can contain sets, but they should not be treated 
+        @param sets_are_members if True, objects can contain sets, but they should not be treated 
             as sets to apply the set operation with, they should simply be members of this set, and 
             thus need to be wrapped into a tmp set as well
-        :return: MSelectionList of all objects of self and objects """
+        @return MSelectionList of all objects of self and objects """
         return self._applySetOp( objects, "union", sets_are_members = sets_are_members )
         
     def getIntersection( self, objects, sets_are_members = False  ):
         """As `union`, but returns the intersection ( items in common ) of this 
         set with objects
         
-        :param objects: see `union`
-        :param sets_are_members: see `union`
-        :return: MSelectionList of objects being in self and in objects"""
+        @param objects see `union`
+        @param sets_are_members see `union`
+        @return MSelectionList of objects being in self and in objects"""
         return self._applySetOp( objects, "intersection", sets_are_members = sets_are_members )
         
     def getDifference( self, objects, sets_are_members = False  ):
         """return the result of ``self minus objects``, thus objects will be substracted from our obejcts
         
-        :param objects: see `union`
-        :param sets_are_members: see `union`
-        :return: MSelectionList containing objects of self not being in objects list"""
+        @param objects see `union`
+        @param sets_are_members see `union`
+        @return MSelectionList containing objects of self not being in objects list"""
         # have to do the intersections individually and keep them 
         intersections = list()
         obj = fobj = self._toValidSetOpInput( objects, sets_are_members = sets_are_members )
@@ -522,19 +522,19 @@ class ObjectSet:
     def iterUnion( self, setOrSetsOrObjects, **kwargs ):
         """As union, but returns an iterator
         
-        :param kwargs: passed to it.iterSelectionList"""
+        @param kwargs passed to it.iterSelectionList"""
         return it.iterSelectionList( self.union( setOrSetsOrObjects ), **kwargs )
         
     def iterIntersection( self, setOrSetsOrObjects, **kwargs ):
         """As intersection, but returns an iterator
         
-        :param kwargs: passed to it.iterSelectionList"""
+        @param kwargs passed to it.iterSelectionList"""
         return it.iterSelectionList( self.intersection( setOrSetsOrObjects ), **kwargs )
         
     def iterDifference( self, setOrSetsOrObjects, **kwargs ):
         """As difference, but returns an iterator
         
-        :param kwargs: passed to it.iterSelectionList"""
+        @param kwargs passed to it.iterSelectionList"""
         return it.iterSelectionList( self.difference( setOrSetsOrObjects ), **kwargs )
         
     #} END set operations
@@ -554,7 +554,7 @@ class ObjectSet:
     #{ Protocols 
     def __len__(self):
         """
-        :warn: This method is possibly slow as it will retrieve all members 
+        @warning This method is possibly slow as it will retrieve all members 
             just to get the size of the set. Don't use it directly if you like performance""" 
         return len(self.getMembers())
     
@@ -562,7 +562,7 @@ class ObjectSet:
         return self.getMembers().mtoIter()
     
     def __contains__( self, obj ):
-        """:return: True if the given obj is member of this set"""
+        """@return True if the given obj is member of this set"""
         return self.isMember( obj )
     #} END protocols 
     
@@ -572,7 +572,7 @@ class ShadingEngine:
     """Provides specialized methods able to deal better with shaders
     than the default implementation.
     
-    :todo: Force exclusivity must be a little more elaborate - this could be overwritten
+    @todo Force exclusivity must be a little more elaborate - this could be overwritten
         and reimplemented to take care of the details"""
     
     __metaclass__ = typ.MetaClassCreatorNodes
@@ -601,8 +601,8 @@ class Partition:
     def addMember( self, objectset ):
         """Add the given objectset or list of sets to the partition
         
-        :param objectset: one or multiple object sets 
-        :return: self allowing chained calls"""
+        @param objectset one or multiple object sets 
+        @return self allowing chained calls"""
         return self._addRemoveMember( objectset, ObjectSet.kAdd )
         
     add = addMember
@@ -610,8 +610,8 @@ class Partition:
     def removeMember( self, objectset ):
         """Remove the given objectset from the partition
         
-        :param objectset: one or multiple object sets 
-        :return: self allowing chained calls"""
+        @param objectset one or multiple object sets 
+        @return self allowing chained calls"""
         return self._addRemoveMember( objectset, ObjectSet.kRemove )
         
     discard = removeMember
@@ -619,23 +619,23 @@ class Partition:
     def replaceMember( self, objectset ):
         """Replace existing objectsets with the given one(s)
         
-        :param objectset: one or multiple object sets 
-        :return: self allowing chained calls)"""
+        @param objectset one or multiple object sets 
+        @return self allowing chained calls)"""
         return self._addRemoveMember( objectset, ObjectSet.kReplace )
         
     @undoable
     def clear( self ):
         """remove all members from this partition
         
-        :return: self"""
+        @return self"""
         for m in self.getMembers():                           
             self.removeMember( m )
             
         return self
             
     def getMembers( self ):
-        """:return: sets being member of this partition
-        :note: have to filter the members as there might be non-set connections 
+        """@return sets being member of this partition
+        @note have to filter the members as there might be non-set connections 
             in referenced environments"""
         out = list()
         for plug in self.st.minputs():

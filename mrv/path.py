@@ -166,23 +166,23 @@ class Path( _base, iDagItem ):
 
     @classmethod
     def getcwd(cls):
-        """:return: the current working directory as a path object. """
+        """@return the current working directory as a path object. """
         return cls(_getcwd())
 
     #{ iDagItem Implementation
 
     def parent( self ):
-        """:return: the parent directory of this Path or None if this is the root"""
+        """@return the parent directory of this Path or None if this is the root"""
         parent = self.dirname()
         if parent == self:
             return None
         return parent
 
     def children( self, predicate = lambda p: True, pattern = None ):
-        """:return: child paths as retrieved by queryiing the file system.
-        :note: files cannot have children, and willl return an empty array accordingly
-        :param predicate: return p if predicate( p ) returns True
-        :param pattern: list only elements that match the given simple  pattern
+        """@return child paths as retrieved by queryiing the file system.
+        @note files cannot have children, and willl return an empty array accordingly
+        @param predicate return p if predicate( p ) returns True
+        @param pattern list only elements that match the given simple  pattern
             i.e. *.*"""
         try:
             children = self.listdir( pattern )
@@ -200,7 +200,7 @@ class Path( _base, iDagItem ):
         """Internal version returning a string only representing the non-recursively
         expanded variable
         
-        :note: It is a slightly changed copy of the version in posixfile
+        @note It is a slightly changed copy of the version in posixfile
             as the windows version was implemented differently ( it expands
             variables to an empty space which is undesireable )"""
         if '$' not in path:
@@ -270,14 +270,14 @@ class Path( _base, iDagItem ):
         return self.expandvars().expanduser()
 
     def containsvars( self ):
-        """:return: True if this path contains environment variables"""
+        """@return True if this path contains environment variables"""
         return self.find( '$' ) != -1
         
     def expand_or_raise(self):
-        """:return: Copy of self with all variables expanded ( using `expand` )
+        """@return Copy of self with all variables expanded ( using `expand` )
         non-recursively !
         
-        :raise ValueError: If we could not expand all environment variables as
+        @throws ValueError If we could not expand all environment variables as
             their values where missing in the environment"""
         rval = self.expand()
         if str(rval) == str(self) and rval.containsvars():
@@ -419,19 +419,19 @@ class Path( _base, iDagItem ):
         return self.__class__(dest).relpathto(self)
 
     def convert_separators(self):
-        """:return: Version of self with all separators set to be 'sep'. The difference
+        """@return Version of self with all separators set to be 'sep'. The difference
         to normpath is that it does not cut trailing separators"""
         return self.__class__(self.replace(self.osep, self.sep))
 
     def tolinuxpath(self):
-        """:return: A path using only slashes as path separator"""
+        """@return A path using only slashes as path separator"""
         return self.__class__(self.replace("\\", "/"))
 
     def tonative( self ):
         r"""Convert the path separator to the type required by the current operating
         system - on windows / becomes \ and on linux \ becomes /
         
-        :return: native version of self"""
+        @return native version of self"""
         s = "\\"
         d = "/"
         if sys.platform.startswith( "win" ):
@@ -494,12 +494,12 @@ class Path( _base, iDagItem ):
         It performs a depth-first traversal of the directory tree.
         Each directory is returned just before all its children.
 
-        :param pattern: fnmatch compatible pattern or None
-        :param errors: controls behavior when an
+        @param pattern fnmatch compatible pattern or None
+        @param errors controls behavior when an
             error occurs.  The default is 'strict', which causes an
             exception.  The other allowed values are 'warn', which
             reports the error via log.warn(), and 'ignore'.
-        :param predicate: returns True for each Path p to be yielded by iterator
+        @param predicate returns True for each Path p to be yielded by iterator
         """
         if errors not in ('strict', 'warn', 'ignore'):
             raise ValueError("invalid errors parameter")
@@ -601,7 +601,7 @@ class Path( _base, iDagItem ):
 
         Default behavior is to overwrite any existing file.
         Call p.write_bytes(bytes, append=True) to append instead.
-        :return: self
+        @return self
         """
         if append:
             mode = 'ab'
@@ -704,7 +704,7 @@ class Path( _base, iDagItem ):
             isn't specified).  The 'errors' argument applies only to this
             conversion.
         
-        :return: self
+        @return self
         """
         bytes = ""
         if isinstance(text, unicode):
@@ -766,7 +766,7 @@ class Path( _base, iDagItem ):
         mixed-encoding data, which can really confuse someone trying
         to read the file later.
         
-        :return: self
+        @return self
         """
         if append:
             mode = 'ab'
@@ -833,7 +833,7 @@ class Path( _base, iDagItem ):
         """ Calculate the  hash for this file using the given hashobject. It must 
         support the 'update' and 'digest' methods.
 
-        :note: This reads through the entire file.
+        @note This reads through the entire file.
         """
 
         f = self.open('rb')
@@ -919,7 +919,7 @@ class Path( _base, iDagItem ):
             return os.pathconf(self._expandvars(self), name)
 
     def isWritable( self ):
-        """:return: true if the file can be written to"""
+        """@return true if the file can be written to"""
         if not self.exists():
             return False        # assure we do not create anything not already there
 
@@ -940,14 +940,14 @@ class Path( _base, iDagItem ):
     def setutime(self, times):
         """ Set the access and modified times of this file.
         
-        :return: self"""
+        @return self"""
         os.utime(self._expandvars(self), times)
         return self
 
     def chmod(self, mode):
         """Change file mode
         
-        :return: self"""
+        @return self"""
         os.chmod(self._expandvars(self), mode)
         return self
 
@@ -955,21 +955,21 @@ class Path( _base, iDagItem ):
         def chown(self, uid, gid):
             """Change file ownership
             
-            :return: self"""
+            @return self"""
             os.chown(self._expandvars(self), uid, gid)
             return self
 
     def rename(self, new):
         """os.rename
         
-        :return: Path to new file"""
+        @return Path to new file"""
         os.rename(self._expandvars(self), new)
         return type(self)(new)
 
     def renames(self, new):
         """os.renames, super rename
         
-        :return: Path to new file"""
+        @return Path to new file"""
         os.renames(self._expandvars(self), new)
         return type(self)(new)
 
@@ -980,28 +980,28 @@ class Path( _base, iDagItem ):
     def mkdir(self, mode=0777):
         """Make this directory, fail if it already exists
         
-        :return: self"""
+        @return self"""
         os.mkdir(self._expandvars(self), mode)
         return self
 
     def makedirs(self, mode=0777):
         """Smarter makedir, see os.makedirs
         
-        :return: self"""
+        @return self"""
         os.makedirs(self._expandvars(self), mode)
         return self
 
     def rmdir(self):
         """Remove this empty directory
         
-        :return: self"""
+        @return self"""
         os.rmdir(self._expandvars(self))
         return self
 
     def removedirs(self):
         """see os.removedirs
         
-        :return: self"""
+        @return self"""
         os.removedirs(self._expandvars(self))
         return self
 
@@ -1013,7 +1013,7 @@ class Path( _base, iDagItem ):
         """ Set the access/modified times of this file to the current time.
         Create the file if it does not exist.
         
-        :return: self
+        @return self
         """
         fd = os.open(self._expandvars(self), flags, mode)
         os.close(fd)
@@ -1023,14 +1023,14 @@ class Path( _base, iDagItem ):
     def remove(self):
         """Remove this file
         
-        :return: self"""
+        @return self"""
         os.remove(self._expandvars(self))
         return self
 
     def unlink(self):
         """unlink this file
         
-        :return: self"""
+        @return self"""
         os.unlink(self._expandvars(self))
         return self
 
@@ -1042,7 +1042,7 @@ class Path( _base, iDagItem ):
         def link(self, newpath):
             """ Create a hard link at 'newpath', pointing to this file. 
             
-            :return: Path to newpath"""
+            @return Path to newpath"""
             os.link(self._expandvars(self), newpath)
             return type(self)(newpath)
             
@@ -1051,7 +1051,7 @@ class Path( _base, iDagItem ):
         def symlink(self, newlink):
             """ Create a symbolic link at 'newlink', pointing here. 
             
-            :return: Path to newlink"""
+            @return Path to newlink"""
             os.symlink(self._expandvars(self), newlink)
             return type(self)(newlink)
 
@@ -1081,43 +1081,43 @@ class Path( _base, iDagItem ):
     def copyfile(self, dest):
         """Copy self to dest
         
-        :return: Path to dest"""
+        @return Path to dest"""
         shutil.copyfile( self._expandvars(self), dest )
         return type(self)(dest)
     
     def copymode(self, dest):
         """Copy our mode to dest
         
-        :return: Path to dest"""
+        @return Path to dest"""
         shutil.copymode( self._expandvars(self), dest )
         return type(self)(dest)
         
     def copystat(self, dest):
         """Copy our stats to dest
         
-        :return: Path to dest"""
+        @return Path to dest"""
         shutil.copystat( self._expandvars(self), dest )
         return type(self)(dest)
         
     def copy(self, dest):
         """Copy data and source bits to dest
         
-        :return: Path to dest"""
+        @return Path to dest"""
         shutil.copy( self._expandvars(self), dest )
         return type(self)(dest)
     
     def copy2(self, dest):
         """Shutil.copy2 self to dest
         
-        :return: Path to dest"""
+        @return Path to dest"""
         shutil.copy2( self._expandvars(self), dest )
         return type(self)(dest)
         
     def copytree(self, dest, **kwargs):
         """Deep copy this file or directory to destination
         
-        :param kwargs: passed to shutil.copytree
-        :return: Path to dest"""
+        @param kwargs passed to shutil.copytree
+        @return Path to dest"""
         shutil.copytree( self._expandvars(self), dest, **kwargs )
         return type(self)(dest)
         
@@ -1125,15 +1125,15 @@ class Path( _base, iDagItem ):
         def move(self, dest):
             """Move self to dest
             
-            :return: Path to dest"""
+            @return Path to dest"""
             shutil.move( self._expandvars(self), dest )
             return type(self)(dest)
             
     def rmtree(self, **kwargs):
         """Remove self recursively
         
-        :param kwargs: passed to shutil.rmtree
-        :return: self"""
+        @param kwargs passed to shutil.rmtree
+        @return self"""
         shutil.rmtree( self._expandvars(self),  **kwargs )
         return self
             
@@ -1145,7 +1145,7 @@ class Path( _base, iDagItem ):
         def chroot(self):
             """Change the root directory path
             
-            :return: self"""
+            @return self"""
             os.chroot(self._expandvars(self))
             return self
 
@@ -1153,7 +1153,7 @@ class Path( _base, iDagItem ):
         def startfile(self):
             """see os.startfile
             
-            :return: self"""
+            @return self"""
             os.startfile(self._expandvars(self))
             return self
     #} END Special stuff from os
@@ -1163,7 +1163,7 @@ _ossep = os.path.sep
 _oossep = (_ossep == "/" and "\\") or "/"
 
 def _to_os_path(path):
-    """:return: string being an os compatible path"""
+    """@return string being an os compatible path"""
     return path.replace(_oossep, _ossep)
     
 #} END utilities
@@ -1185,7 +1185,7 @@ class ConversionPath(BasePath):
         return super(ConversionPath, cls)._expandvars(path).replace(cls.osep, cls.sep)
         
     def _from_os_path(self, path):
-        """:return: path with separators matching to our configuration"""
+        """@return path with separators matching to our configuration"""
         return path.replace(self.osep, self.sep)
         
     def abspath(self):
@@ -1225,8 +1225,8 @@ class ConversionPath(BasePath):
 
 #{ Utilities 
 def make_path(path):
-    """:return: A path instance of the correct type
-    :note: use this constructor if you use the Path.set_separator method at runtime
+    """@return A path instance of the correct type
+    @note use this constructor if you use the Path.set_separator method at runtime
         to assure you will always create instances of the actual type, and not only
         of the type you imported last"""
     return Path(path)

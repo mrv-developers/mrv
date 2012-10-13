@@ -25,7 +25,7 @@ class TestMDB( unittest.TestCase ):
         print >>sys.stderr, "Pre-fetched %i methods in %f s ( %f methods / s)" % ( nm, elapsed, nm / elapsed )
         
     def _run_compilation_test(self, dry_run=True):
-        """:return: number of fetched methods"""
+        """@return number of fetched methods"""
         num_fetched = 0
         rvalwrapper = lambda x: x
         

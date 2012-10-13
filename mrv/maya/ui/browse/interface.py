@@ -31,10 +31,10 @@ class iFinderProvider(Interface):
     
     def urlItems(self, url):
         """
-        :return: list of string-like items which can be found at the given url.
+        @return list of string-like items which can be found at the given url.
         If this url is combined with one of the returned items separated by a slash, 
         a valid url is formed, i.e. url/item
-        :param url: A given slash-separated url like base/subitem or '', which 
+        @param url A given slash-separated url like base/subitem or '', which 
             requests items at the root of all urls"""
         raise NotImplementedError("To be implemented by subclass")
         
@@ -42,32 +42,32 @@ class iFinderProvider(Interface):
         """Given the url_item, as well as additional information such as its base
         and its index inside of the url, this method encodes the item for presentation
         in the user interface.
-        :param url_base: relative url at which the url_item resides. Is "" if url_index 
+        @param url_base relative url at which the url_item resides. Is "" if url_index 
             is 0
-        :param url_index: index representing the position of the url_item within the
+        @param url_index index representing the position of the url_item within the
             url
-        :param url_item: item which is to be formatted.
-        :return: string representing the formatted url."""
+        @param url_item item which is to be formatted.
+        @return string representing the formatted url."""
         return url_item
             
     def storeUrlItem(self, url_index, url_item):
         """Stores and associates a given url_index with a url_item. Makes the stored
         item queryable by the ``storedUrlItemByIndex`` method
-        :param url_index: index from 0 to n, where 0 corresponds to the first item
+        @param url_index index from 0 to n, where 0 corresponds to the first item
             in the url
-        :param url_item: the string item to store at the given index"""
+        @param url_item the string item to store at the given index"""
         if not self.memorize_urlItems:
             return
         # END ignore store call
         self._mem_items[url_index] = url_item
         
     def storedUrlItemByIndex(self, url_index):
-        """:return: string item previously stored at the given index, or None 
+        """@return string item previously stored at the given index, or None 
         if there is no information available"""
         return self._mem_items.get(url_index, None)
         
     def root(self):
-        """:return: string representing the file root"""
+        """@return string representing the file root"""
         return self._root
         
     #} END interface
@@ -78,11 +78,11 @@ class iFinderFilter(Interface):
     #{ Interface
     
     def filtered(self, finder, element_index, base_url, items):
-        """:return: list of items which may be shown in the element at element_index
-        :param finder: finder instance issueing the call
-        :param element_index: index of the element which is to be filled with items
-        :param base_url: url at which the given items exist
-        :param items: list of relative item ids which are to be shown in the finder element"""
+        """@return list of items which may be shown in the element at element_index
+        @param finder finder instance issueing the call
+        @param element_index index of the element which is to be filled with items
+        @param base_url url at which the given items exist
+        @param items list of relative item ids which are to be shown in the finder element"""
         return items
         
     #} END interface

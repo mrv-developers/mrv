@@ -22,7 +22,7 @@ def ipython_apply_user_configuration():
 
 def ipython_setup_mrv():
     """Initialize MRV
-    :return: True if it initializes maya, otherwise return False"""
+    @return True if it initializes maya, otherwise return False"""
     # configure MRV
     # as IPython is some sort of interactive mode, we load the user preferences
     for var in (    'MRV_STANDALONE_AUTOLOAD_PLUGINS', 
@@ -58,8 +58,8 @@ def ipython_setup(maya_support):
 
 def mrv(args, info, args_modifier=None):
     """Prepare the environment to allow the operation of maya
-    :param info: info module instance
-    :param args_modifier: Function returning a possibly modified argument list. The passed 
+    @param info info module instance
+    @param args_modifier Function returning a possibly modified argument list. The passed 
         in argument list was parsed already to find and extract the maya version. 
         Signature: ``arglist func(arglist, maya_version, start_maya, info)
         If start_maya is True, the process to be started will be maya.bin, not the 

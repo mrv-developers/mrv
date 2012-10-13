@@ -5,7 +5,7 @@ import sys
 
 def main(args):
     """Run the spawned command
-    :param args: arguments excluding the executable path"""
+    @param args arguments excluding the executable path"""
     if len(args) < 1:
         raise Exception("Invalid Arguments, call command as follows:\nspcmd package.module.ServerClassName [additional options for execute method]")
 

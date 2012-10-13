@@ -23,16 +23,16 @@ def init_modules( filepath, moduleprefix, recurse=False, self_module = None):
     the submodules that the super module is being requested. They return a True value if
     the initialization was performed, or a False one if they weren't for some reason.
     Throw to indicate error.
-    :param filepath: your module module.__file__ value
-    :param moduleprefix: prefix like "super.yourmodule." leading to the submodules from
+    @param filepath your module module.__file__ value
+    @param moduleprefix prefix like "super.yourmodule." leading to the submodules from
     an available system include path
-    :param recurse: if True, method will recursively initialize submodules
-    :param self_module: if not None, it must be the module that called this function.
+    @param recurse if True, method will recursively initialize submodules
+    @param self_module if not None, it must be the module that called this function.
     It will be given to the __initialize functions as first arguments allowing 
     them to operate on functions of their own module - importing their own 
     module is not yet possible as it is in the course of being intialized itself.
     The module will be given only to intermediate submodules in case recurse is True.
-    :note: in this moment, all submodules will be 'pulled' in"""
+    @note in this moment, all submodules will be 'pulled' in"""
     moduledir = Path( filepath  ).parent()
     moduleitems = moduledir.listdir( )
     moduleitems.sort()                  # assure we have the same order on every system
@@ -100,7 +100,7 @@ def _remove_empty_syspath_entries():
     we will be in trouble as we try to import our own 'maya' module which 
     will not provide the original maya packages of course
     
-    :note: only for internal use - code was moved into a method as it needs 
+    @note only for internal use - code was moved into a method as it needs 
         to be called again from maya.__init__"""
     while '' in sys.path:
         sys.path.remove('')
@@ -174,9 +174,9 @@ def _init_logging( ):
     The logging interface unifies the way messages for the end user are handled
     and assure a flexible message handling.
     
-    :note: will not raise even if the logging module could not be setup
+    @note will not raise even if the logging module could not be setup
     
-    :note: in the current implementation, it is based on the default python logging
+    @note in the current implementation, it is based on the default python logging
         package"""
     logcfgfile = os.environ.get('MRV_LOGGING_INI', None)
     if logcfgfile is None:

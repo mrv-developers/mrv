@@ -2,9 +2,9 @@
 """
 Provides classes and functions operating on the MayaAPI class database
 
-:note: This module must not be auto-initialized as it assumes its parent package to 
+@note This module must not be auto-initialized as it assumes its parent package to 
     be present already
-:note: The implementation is considered internal and may change any time unless stated
+@note The implementation is considered internal and may change any time unless stated
     otherwise.
 """
 __docformat__ = "restructuredtext"
@@ -36,12 +36,12 @@ __all__ = ("createDagNodeHierarchy", "createTypeNameToMfnClsMap", "apiModules",
 #{ Initialization 
 
 def nodeHierarchyFile():
-    """:return: Path to the node hierarchy file of the currently active maya version"""
+    """@return Path to the node hierarchy file of the currently active maya version"""
     return cacheFilePath( "nodeHierarchy", "hf", use_version = 1 )
 
 def createDagNodeHierarchy( ):
     """ Parse the nodes hierarchy file and return a `DAGTree` with its data
-    :return: `DAGTree`"""
+    @return `DAGTree`"""
     mfile = nodeHierarchyFile()
     return mrvmaya.dag_tree_from_tuple_list( mrvmaya.tuple_list_from_file( mfile ) )
 
@@ -49,7 +49,7 @@ def createTypeNameToMfnClsMap( ):
     """Parse a file associating node type names with the best compatible MFn function 
     set and return a dictionary with the data
     
-    :return: dict(((nodeTypeNameStr : api.MFnCls), ...)) dictionary with nodetypeName
+    @return dict(((nodeTypeNameStr : api.MFnCls), ...)) dictionary with nodetypeName
         MFn class mapping"""
     typenameToClsMap = dict()
     
@@ -81,8 +81,8 @@ def createTypeNameToMfnClsMap( ):
 #{ Utilities 
 
 def apiModules():
-    """:return: tuple of api modules containing MayaAPI classes
-    :note: This takes a moment to load as it will import many api modules. Delay 
+    """@return tuple of api modules containing MayaAPI classes
+    @note This takes a moment to load as it will import many api modules. Delay 
         the call as much as possible"""
     import maya.OpenMaya as api
     import maya.OpenMayaAnim as apianim
@@ -98,10 +98,10 @@ def mfnDBPath( mfnclsname ):
     
 def headerPath( apiname ):
     """
-    :return: Path to file containing the c++ header of the given apiclass' name.
+    @return Path to file containing the c++ header of the given apiclass' name.
         The file will not be verified, hence it may be inaccessible
-    :param apiname: string name, like 'MFnBase'
-    :raise ValueError: if MAYA_LOCATION is not set"""
+    @param apiname string name, like 'MFnBase'
+    @throws ValueError if MAYA_LOCATION is not set"""
     p = make_path("$MAYA_LOCATION").expand_or_raise().realpath()
     if sys.platform == 'darwin':
         p = p.parent().parent() / "devkit"
@@ -111,7 +111,7 @@ def headerPath( apiname ):
 def cacheFilePath( filename, ext, use_version = False ):
     """Return path to cache file from which you would initialize data structures
     
-    :param use_version: if true, the maya version will be appended to the filename  """
+    @param use_version if true, the maya version will be appended to the filename  """
     mfile = make_path( __file__ ).parent()
     version = ""
     if use_version:
@@ -121,7 +121,7 @@ def cacheFilePath( filename, ext, use_version = False ):
 
 def extractMFnFunctions(mfncls):
     """Extract callables from mfncls, sorted into static methods and instance methods
-    :return: tuple(list(callable_staticmethod, ...), list(callable_instancemethod, ...))"""
+    @return tuple(list(callable_staticmethod, ...), list(callable_instancemethod, ...))"""
     mfnfuncs = list()
     staticmfnfuncs = list()
     mfnname = mfncls.__name__
@@ -141,7 +141,7 @@ def extractMFnFunctions(mfncls):
     return (staticmfnfuncs, mfnfuncs)
 
 def hasMEnumeration(mfncls):
-    """:return: True if the given mfncls has at least one enumeration"""
+    """@return True if the given mfncls has at least one enumeration"""
     for n in mfncls.__dict__.keys():
         if n.startswith('k') and n[1] in string.ascii_uppercase:    # a single k would kill us ... 
             return True
@@ -153,7 +153,7 @@ def writeMfnDBCacheFiles(  ):
     to allow a simple human-editable way of adjusting which methods will be added
     to the Nodes.
     
-    :note: currently writes information about all known api modules"""
+    @note currently writes information about all known api modules"""
     for apimod in apiModules():
         mfnclsnames = [ clsname for clsname in dir( apimod ) if clsname.startswith( "MFn" ) ]
         for mfnname in mfnclsnames:
@@ -218,7 +218,7 @@ def _iterAllNodeTypes( ):
     of nodeTypes, with an MObjects instance of it, created with the given modifier, 
     one for each node type available to maya.
     
-    :note: skips manipulators as they tend to crash maya on creation ( perhaps its only
+    @note skips manipulators as they tend to crash maya on creation ( perhaps its only
         one which does that, but its not that important )"""
     for nodetype in sorted(cmds.ls(nodeTypes=1)):
         # evil crashers
@@ -237,12 +237,12 @@ def generateNodeHierarchy( ):
     """Generate the node-hierarchy for the current version based on all node types 
     which can be created in maya.
     
-    :return: tuple(DAGTree, typeToMFnClsNameList)
+    @return tuple(DAGTree, typeToMFnClsNameList)
     
         * DAGTree representing the type hierarchy
         * list represents typeName to MFnClassName associations
          
-    :note: should only be run as part of the upgrade process to prepare MRV for  a
+    @note should only be run as part of the upgrade process to prepare MRV for  a
         new maya release. Otherwise the nodetype tree will be read from a cache"""
     from mrv.util import DAGTree
     from mrv.util import uncapitalize, capitalize
@@ -590,7 +590,7 @@ class MFnCodeGeneratorBase(object):
     
     #{ Utilities
     def _toRvalFunc( self, funcname ):
-        """:return: None or a function which receives the return value of our actual mfn function"""
+        """@return None or a function which receives the return value of our actual mfn function"""
         if not isinstance( funcname, basestring ):
             return funcname
         if funcname == 'None': return None
@@ -605,14 +605,14 @@ class MFnCodeGeneratorBase(object):
     #{ Interface 
     def generateMFnClsMethodWrapper(self, source_method_name, target_method_name, mfn_fun_name, method_descriptor, flags=0):
         """
-        :return: string containing the code for the wrapper method as configured by the 
+        @return string containing the code for the wrapper method as configured by the 
             method descriptor
-        :param source_method_name: Original name of the method - this is the name under which 
+        @param source_method_name Original name of the method - this is the name under which 
             it was requested.
-        :param target_method_name: Name of the method in the returned code string
-        :param mfn_fun_name: original name of the MFn function
-        :param method_descriptor: instance of `MMethodDescriptor`
-        :param flags: bit flags providing additional information, depending on the actual 
+        @param target_method_name Name of the method in the returned code string
+        @param mfn_fun_name original name of the MFn function
+        @param method_descriptor instance of `MMethodDescriptor`
+        @param flags bit flags providing additional information, depending on the actual 
             implementation. Unsupported flags are ignored."""
         raise NotImplementedError("To be implemented in SubClass")
     #} END interfacec
@@ -663,7 +663,7 @@ class PythonMFnCodeGenerator(MFnCodeGeneratorBase):
          * method_descriptor.rvalfunc
          
         as well as all flags except kIsStatic.
-        :raise ValueError: if flags are incompatible with each other
+        @throws ValueError if flags are incompatible with each other
         """
         if flags & self.kIsMObject and flags & self.kIsDagNode:
             raise ValueError("kIsMObject and kIsDagNode are mutually exclusive")
@@ -708,10 +708,10 @@ class PythonMFnCodeGenerator(MFnCodeGeneratorBase):
     #{ Interface
     
     def generateMFnClsMethodWrapperMethod(self, source_method_name, target_method_name, mfncls, mfn_fun, method_descriptor, flags=0):
-        """:return: python function suitable to be installed on a class
-        :param mfncls: MFnFunction set class from which the method was retrieved.
-        :param mfn_fun: function as retrieved from the function set's dict. Its a bare function.
-        :note: For all other args, see `MFnCodeGeneratorBase.generateMFnClsMethodWrapper`"""
+        """@return python function suitable to be installed on a class
+        @param mfncls MFnFunction set class from which the method was retrieved.
+        @param mfn_fun function as retrieved from the function set's dict. Its a bare function.
+        @note For all other args, see `MFnCodeGeneratorBase.generateMFnClsMethodWrapper`"""
         rvalfunc = self._toRvalFunc(method_descriptor.rvalfunc)
         mfnfuncname = mfn_fun.__name__
         
@@ -774,12 +774,12 @@ class CppHeaderParser(object):
     def parseAndExtract(cls, header_filepath, parse_enums=True):
         """Parse the given header file and return the parsed information
         
-        :param header_filepath: Path pointing to the given header file. Its currently
+        @param header_filepath Path pointing to the given header file. Its currently
             assumed to be 7 bit ascii
-        :param parse_enums: If True, enumerations will be parsed from the file. If 
+        @param parse_enums If True, enumerations will be parsed from the file. If 
             False, the enumeration tuple in the return value will be empty.
-        :note: Currently we can only parse non-anonymous enumerations !
-        :return: tuple(tuple(MEnumDescriptor, ...), )"""
+        @note Currently we can only parse non-anonymous enumerations !
+        @return tuple(tuple(MEnumDescriptor, ...), )"""
         enum_list = list()
         
         # ENUMERATIONS
@@ -852,7 +852,7 @@ class MMemberMap( UserDict.UserDict ):
     def __init__( self, filepath = None, parse_enums=False ):
         """intiialize self from a file if not None
         
-        :param parse_enums: if True, enumerations will be parsed. Save time by specifying
+        @param parse_enums if True, enumerations will be parsed. Save time by specifying
             False in case you know that there are no enumerations"""
         UserDict.UserDict.__init__( self )
 
@@ -881,7 +881,7 @@ class MMemberMap( UserDict.UserDict ):
     def _initFromFile( self, filepath ):
         """Initialize the database with values from the given file
         
-        :note: the file must have been written using the `writeToFile` method"""
+        @note the file must have been written using the `writeToFile` method"""
         self.clear()
         fobj = open( filepath, 'r' )
 
@@ -912,10 +912,10 @@ class MMemberMap( UserDict.UserDict ):
 
     def methodByName( self, funcname ):
         """
-        :return: Tuple( mfnfuncname, entry )
+        @return Tuple( mfnfuncname, entry )
             original mfnclass function name paired with the
             db entry containing more information
-        :raise KeyError: if no such function exists"""
+        @throws KeyError if no such function exists"""
         try:
             return ( funcname, self[ funcname ] )
         except KeyError:
@@ -929,11 +929,11 @@ class MMemberMap( UserDict.UserDict ):
     def createEntry( self, funcname ):
         """ Create an entry for the given function, or return the existing one
         
-        :return: Entry object for funcname"""
+        @return Entry object for funcname"""
         return self.setdefault( funcname, MMethodDescriptor() )
 
     def mfnFunc( self, funcname ):
-        """:return: mfn functionname corresponding to the ( possibly renamed ) funcname """
+        """@return mfn functionname corresponding to the ( possibly renamed ) funcname """
         return self.methodByName( funcname )[0]
         
 #} END database

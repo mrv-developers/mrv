@@ -18,7 +18,7 @@ def save_temp_file(filename):
 
 def save_for_debugging(scene_name):
     """Save the currently actve scene as MayaAscii for debugging purposes
-    :return: absolute path string at which the file was saved"""
+    @return absolute path string at which the file was saved"""
     scene_path = save_temp_file(scene_name)
     print "Saved scene for debugging at: %r" % scene_path
     return scene_path

@@ -53,13 +53,13 @@ def createStorageAttribute(dataType, name_prefix=''):
     """ This method creates an Attribute in a configuration suitable to be used
     with the ``StorageBase`` interface. 
     
-    :note: this allows your own plugin node to receive storage compatibility
-    :param dataType: the type of the typed attribute - either MTypeID or MFnData enumeration
+    @note this allows your own plugin node to receive storage compatibility
+    @param dataType the type of the typed attribute - either MTypeID or MFnData enumeration
         An MTypeID must point to a valid and already registered plugin data.
         In order for the ``StorageBase`` interface to work, it must by ``PyPickleData.kPluginDataId``.
-    :param name_prefix: string to be used as prefix for all short and long attribute names. 
+    @param name_prefix string to be used as prefix for all short and long attribute names. 
         Useful if you want to have more than one storage attributes.
-    :return: attribute api object of its master compound attribute"""
+    @return attribute api object of its master compound attribute"""
     tAttr = api.MFnTypedAttribute()
     mAttr = api.MFnMessageAttribute()
     cAttr = api.MFnCompoundAttribute()
@@ -118,10 +118,10 @@ class PyPickleData(mpx.MPxData):
     To get the respective dict-references back, we use a tracking dict as proposed
     by the API Docs
 
-    :note: This datatype is copies the data by reference which is why maya always calls
+    @note This datatype is copies the data by reference which is why maya always calls
         the copy constructor, even if you retrieve a const data reference, where this would not be
         required actually. This is fine for most uses
-    :note: as the datatype is reference based, undo is currently not supported (or does not
+    @note as the datatype is reference based, undo is currently not supported (or does not
         work as it is expected to do"""
 
     # The ID used here has been assigned by the autodesk support and is globally unique !
@@ -136,7 +136,7 @@ class PyPickleData(mpx.MPxData):
     def __del__(self):
         """Remove ourselves from the dictionary to prevent flooding
         
-        :note: we can be called even if maya is already unloaded or shutting down"""
+        @note we can be called even if maya is already unloaded or shutting down"""
         if mpx.asHashable is not None:
             del(sys._maya_pyPickleData_trackingDict[mpx.asHashable(self)])
         # call super just to be on the safe side in future, currently it appears
@@ -181,9 +181,9 @@ class PyPickleData(mpx.MPxData):
     def readBinary(self, inStream, numBytesToRead):
         """Read in 4 byte packs to cStringIO, unpickle from there
         
-        :note: this method is more complicated than it needs be since asCharPtr does not work !
+        @note this method is more complicated than it needs be since asCharPtr does not work !
             It returns a string of a single char ... which is not the same :) !
-        :note: YES, this is a CUMBERSOME way to deal with bytes ... terrible, thanks maya :), thanks python"""
+        @note YES, this is a CUMBERSOME way to deal with bytes ... terrible, thanks maya :), thanks python"""
         sio = cStringIO.StringIO()
         scriptutil = api.MScriptUtil()
         scriptutil.createFromInt(0)

@@ -71,11 +71,11 @@ class NotificatorWindow(ui.Window):
         As you can record multiple tests, which will be shown in order, it is recommended
         to keep a global instance of the NotificationWindow as a shared resource for 
         all participating Unittests.
-        :param test_name: string id for the test to run
-        :param initialize: if not None, a function to call before running any test in this
+        @param test_name string id for the test to run
+        @param initialize if not None, a function to call before running any test in this
             test case,  signature is fun(data), where data is a dictionary for your own data
             that could be initialized here. It wil be passed to all subsequent test sections
-        :param shutdown: if not None, functino to call after all tests were run"""
+        @param shutdown if not None, functino to call after all tests were run"""
         if self._is_recording:
             raise AssertionError("Call stop_test_recording before starting a new one")
         # END assertion
@@ -85,17 +85,17 @@ class NotificatorWindow(ui.Window):
         
     def add_test_section(self, prepare_fun=None, check_fun=None, prepare_text=None, check_text=None):
         """Add a new test section
-        :param prepare_fun: function to prepare the section, fun()
+        @param prepare_fun function to prepare the section, fun()
             It may give instructions through the window's ``notify`` method.
             May be None in case no preparation is required
             signature is fun(data)
-        :param check_fun: Check function to check the result, fun()
+        @param check_fun Check function to check the result, fun()
             It is a failure if it raises, success otherwise.
             Signature is fun(data)
             May be None in case no check is required
-        :param prepare_text: if not None, text with instructions for the preparation, telling 
+        @param prepare_text if not None, text with instructions for the preparation, telling 
             the user what to do next.
-        :param check_text: Text shown before runnning the check function"""
+        @param check_text Text shown before runnning the check function"""
         if not self._is_recording:
             raise AssertionError("Call start_test_recording before adding sections")
         # END assertion
@@ -128,7 +128,7 @@ class NotificatorWindow(ui.Window):
     
     #{ Internal
     def _active_record(self):
-        """:return: active record instance or None"""
+        """@return active record instance or None"""
         return self._cur_record
     
     def _set_active_record_title(self):

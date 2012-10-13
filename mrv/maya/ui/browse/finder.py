@@ -51,17 +51,17 @@ class Finder(ui.EventSenderUI):
     # { Query
     
     def layout(self):
-        """:return: the finder's main layout which contains all controls"""
+        """@return the finder's main layout which contains all controls"""
         return self._form
     
     def provider(self):
-        """:return: current url provider"""
+        """@return current url provider"""
         return self._provider
     
     def selectedUrl(self, absolute=False):
-        """:return: string representing the currently selected, / separated URL, or
+        """@return string representing the currently selected, / separated URL, or
             None if there is no url selected
-        :param absolute: if True, an absolute URL will be provided using the provider's
+        @param absolute if True, an absolute URL will be provided using the provider's
             root"""
         items = list()
         for elm in self._form.listChildren():
@@ -81,21 +81,21 @@ class Finder(ui.EventSenderUI):
         return url
         
     def numUrlElements(self):
-        """:return: number of url elements that are currently shown. A url of 1/2 would
+        """@return number of url elements that are currently shown. A url of 1/2 would
         have two url elements"""
         return len(tuple(c for c in self._form.listChildren() if c.p_manage))
         
     def selectedUrlItemByIndex(self, index):
-        """:return: The selected url item at the given element index or None if nothing 
+        """@return The selected url item at the given element index or None if nothing 
             is selected
-        :param index: 0 to numUrlElements()-1
+        @param index 0 to numUrlElements()-1
         :raies IndexError:"""
         return self._form.listChildren()[index].selectedUnformattedItem()
         
     def urlItemsByIndex(self, index):
-        """:return: list of item ids which are currently being shown
-        :param index: 0 based element index to numUrlElements()-1
-        :raise IndexError:"""
+        """@return list of item ids which are currently being shown
+        @param index 0 based element index to numUrlElements()-1
+        @throws IndexError"""
         return list(self._form.listChildren()[index].base_items) 
         
     
@@ -106,14 +106,14 @@ class Finder(ui.EventSenderUI):
     def setFilter(self, filter=None):
         """Set or unset a filter. All items will be sent through the filter, and will
         be shown only if they pass.
-        :param filter: Functor called f(url,t) and returns True for each item which may
+        @param filter Functor called f(url,t) and returns True for each item which may
             be shown in the Finder. The url is the full relative url leading to, but 
             excluding the item t, whose visibility is being decided upon"""
         self._filter = filter
         
     def setProvider(self, provider=None):
         """Set the provider to use
-        :param provider: ``iFinderProvider`` compatible instance, or None
+        @param provider ``iFinderProvider`` compatible instance, or None
             If no provider is set, the instance will be blank"""
         if self._provider is provider:
             return
@@ -135,8 +135,8 @@ class Finder(ui.EventSenderUI):
     
     def setItemByIndex(self, item, index):
         """Set the given string item, which sits at the given index of a url
-        :raise ValueError: if item does not exist at given index
-        :raise IndexError: if index is not currently shown"""
+        @throws ValueError if item does not exist at given index
+        @throws IndexError if index is not currently shown"""
         assert self.provider() is not None, "Provider is not set"
         elm = self._form.listChildren()[index]
         if elm.selectedUnformattedItem() == item:
@@ -149,11 +149,11 @@ class Finder(ui.EventSenderUI):
         
     def setUrl(self, url, require_all_items=True, allow_memory=False):
         """Set the given url to be selected
-        :param url: / separated relative url. The individual items must be available
+        @param url / separated relative url. The individual items must be available
             in the provider.
         :parm require_all_items: if False, the control will display as many items as possible.
             Otherwise it must display all given items, or raise ValueError
-        :param allow_memory: if true, provider memory may be used to show the longest chosen url, 
+        @param allow_memory if true, provider memory may be used to show the longest chosen url, 
             being possibly more than you specify. Currently not implemented"""
         assert self.provider() is not None, "Provider is not set"
         cur_url = self.selectedUrl()
@@ -203,7 +203,7 @@ class Finder(ui.EventSenderUI):
     #{ Utilities
     
     def _index_by_item_element(self, element):
-        """:return: index matching the given item element, which must be one of our children"""
+        """@return index matching the given item element, which must be one of our children"""
         assert '|' in element
         for cid, c in enumerate(self._form.listChildren()):
             if c == element:
@@ -214,7 +214,7 @@ class Finder(ui.EventSenderUI):
     def _set_element_items(self, start_elm_id, elements ):
         """Fill the items from the start_elm_id throughout to all elements, until
         one url does not yield any items, or the item cannot be selected 
-        :param elements: a full list of all available child elements."""
+        @param elements a full list of all available child elements."""
         
         # obtain the root url
         root_url = "/".join(c.selectedUnformattedItem() for c in elements[:start_elm_id])

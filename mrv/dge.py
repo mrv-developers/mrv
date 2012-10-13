@@ -66,17 +66,17 @@ def iterShells( rootPlugShell, stopAt = lambda x: False, prune = lambda x: False
     """Iterator starting at rootPlugShell going "up"stream ( input ) or "down"stream ( output )
     breadth first over plugs, applying filter functions as defined.
     
-    :param rootPlugShell: shell at which to start the traversal. The root plug will be returned as well
-    :param stopAt: if function returns true for given PlugShell, iteration will not proceed
+    @param rootPlugShell shell at which to start the traversal. The root plug will be returned as well
+    @param stopAt if function returns true for given PlugShell, iteration will not proceed
         at that point ( possibly continuing at other spots ). Function will always be called, even
         if the shell would be pruned as well. The shell serving as stop marker will not be returned
-    :param prune: if function returns true for given PlugShell, the shell will not be returned
+    @param prune if function returns true for given PlugShell, the shell will not be returned
         but iteration continues.
-    :param direction: traversal direction
+    @param direction traversal direction
             "up" upstream, in direction of inputs of plugs
             "down" downstream, in direction of outputs of plugs
-    :param visit_once: if True, plugs will only be returned once, even though they are
-    :param branch_first: if True, individual branches will be travelled first ( thuse the node will be left quickly following the datastream ).
+    @param visit_once if True, plugs will only be returned once, even though they are
+    @param branch_first if True, individual branches will be travelled first ( thuse the node will be left quickly following the datastream ).
             If False, the plugs on the ndoe will be returned first before proceeding to the next node
             encountered several times as several noodes are connected to them in some way. """
     visited = set()
@@ -203,7 +203,7 @@ class Attribute( object ):
     def _getClassRating( self, cls, exact_type ):
         """ compute class rating
         
-        :return: rating based on value being a class and compare.
+        @return rating based on value being a class and compare.
                 0 means there is no type compatability, 255 matches comparecls, or linearly 
                 less if is just part of the mro of value
         """
@@ -236,12 +236,12 @@ class Attribute( object ):
     def affinity( self, otherattr ):
         """Compute affinity for otherattr.
         
-        :return: 
+        @return 
             rating from 0 to 255 defining how good the attribtues match each
             other in general - how good can we store values of otherattr ? 
             Thus this comparison is directed.
 
-        :note: for checking connections, use `connectionAffinity`"""
+        @note for checking connections, use `connectionAffinity`"""
         # see whether our class flags match
         if self.flags & self.cls != otherattr.flags & self.cls:
             return 0
@@ -263,7 +263,7 @@ class Attribute( object ):
     def connectionAffinity( self, destinationattr ):
         """Compute connection affinity for given destination attribute
         
-        :return: 
+        @return 
             rating from 0 to 255 defining the quality of the connection to
             otherplug. an affinity of 0 mean connection is not possible, 255 mean the connection
             is perfectly suited.
@@ -277,7 +277,7 @@ class Attribute( object ):
     def compatabilityRate( self, value ):
         """Compute value's compatability rate
         
-        :return: value between 0 and 255, 0 means no compatability, 255 a perfect match. 
+        @return value between 0 and 255, 0 means no compatability, 255 a perfect match. 
             if larger than 0, the plug can hold the value ( assumed the flags are set correctly ). """
         if isinstance( value, type ):
             # do we need a class ?
@@ -295,10 +295,10 @@ class Attribute( object ):
         return 0
 
     def default( self ):
-        """:return: default value stored for this attribute, or raise
-        :note: handles dynamic defaults, so you should not directly access the default member variable
-        :raise MissingDefaultValueError: if attribute does not have a default value
-        :raise TypeError: if value returned by dynamic attribute has incorrect type"""
+        """@return default value stored for this attribute, or raise
+        @note handles dynamic defaults, so you should not directly access the default member variable
+        @throws MissingDefaultValueError if attribute does not have a default value
+        @throws TypeError if value returned by dynamic attribute has incorrect type"""
         if self._default is None:
             raise MissingDefaultValueError( "Attribute %r has no default value" % self )
 
@@ -330,7 +330,7 @@ class iPlug( object ):
     need to be re-retrieved on freshly duplicated nodes to allow graph duplication to
     be done properly
 
-    :note: if your plug class supports the ``setName`` method, a metaclass will
+    @note if your plug class supports the ``setName`` method, a metaclass will
         adjust the name of your plug to match the name it has in the parent class
     """
     kNo,kGood,kPerfect = ( 0, 127, 255 )
@@ -344,7 +344,7 @@ class iPlug( object ):
 
     #{ Interface
     def name( self ):
-        """:return: name of the plug ( the name that identifies it on the node"""
+        """@return name of the plug ( the name that identifies it on the node"""
         raise NotImplementedError( "Implement this in subclass" )
 
     def affects( self, otherplug ):
@@ -353,19 +353,19 @@ class iPlug( object ):
         raise NotImplementedError( "Implement this in subclass" )
 
     def affected( self ):
-        """:return: tuple containing affected plugs ( plugs that are affected by our value )"""
+        """@return tuple containing affected plugs ( plugs that are affected by our value )"""
         raise NotImplementedError( "Implement this in subclass" )
 
     def affectedBy( self ):
-        """:return: tuple containing plugs that affect us ( plugs affecting our value )"""
+        """@return tuple containing plugs that affect us ( plugs affecting our value )"""
         raise NotImplementedError( "Implement this in subclass" )
 
     def providesOutput( self ):
-        """:return: True if this is an output plug that can trigger computations"""
+        """@return True if this is an output plug that can trigger computations"""
         raise NotImplementedError( "Implement this in subclass" )
                                                                                                   
     def providesInput( self ):
-        """:return: True if this is an input plug that will never cause computations"""
+        """@return True if this is an input plug that will never cause computations"""
         raise NotImplementedError( "Implement this in subclass" )
 
     #} END interface
@@ -387,7 +387,7 @@ class plug( iPlug ):
     Plugs can either be input plugs or output plugs - output plugs affect no other
     plug on a node, but are affected by 0 or more plugs
 
-    :note: class is lowercase as it is used as descriptor ( acting more like a function )
+    @note class is lowercase as it is used as descriptor ( acting more like a function )
     """
     kNo,kGood,kPerfect = ( 0, 127, 255 )
 
@@ -424,7 +424,7 @@ class plug( iPlug ):
 
 
     def name( self ):
-        """:return: name of plug"""
+        """@return name of plug"""
         return self._name
 
     def setName( self, name ):
@@ -444,19 +444,19 @@ class plug( iPlug ):
             otherplug._affectedBy.append( self )
 
     def affected( self ):
-        """:return: tuple containing affected plugs ( plugs that are affected by our value )"""
+        """@return tuple containing affected plugs ( plugs that are affected by our value )"""
         return tuple( self._affects )
 
     def affectedBy( self ):
-        """:return: tuple containing plugs that affect us ( plugs affecting our value )"""
+        """@return tuple containing plugs that affect us ( plugs affecting our value )"""
         return tuple( self._affectedBy )
 
     def providesOutput( self ):
-        """:return: True if this is an output plug that can trigger computations"""
+        """@return True if this is an output plug that can trigger computations"""
         return bool( len( self.affectedBy() ) != 0 or self.attr.flags & Attribute.computable )
 
     def providesInput( self ):
-        """:return: True if this is an input plug that will never cause computations"""
+        """@return True if this is an input plug that will never cause computations"""
         #return len( self._affects ) != 0 and not self.providesOutput( )
         return not self.providesOutput() # previous version did not recognize storage plugs as input
 
@@ -475,7 +475,7 @@ class _PlugShell( tuple ):
     This allows plugs to be connected, and information to flow through the dependency graph.
     Plugs never act alone since they always belong to a parent node that will be asked for
     value computations if the value is not yet cached.
-    :note: Do not instantiate this class youself, it must be created by the node as different
+    @note Do not instantiate this class youself, it must be created by the node as different
     node types can use different versions of this shell"""
 
     #{ Object Overrides
@@ -505,8 +505,8 @@ class _PlugShell( tuple ):
     #{ Values
 
     def get( self, mode = None ):
-        """:return: value of the plug
-        :param mode: optional arbitary value specifying the mode of the get attempt"""
+        """@return value of the plug
+        @param mode optional arbitary value specifying the mode of the get attempt"""
         if self.hasCache( ):
             return self.cache( )
 
@@ -554,11 +554,11 @@ class _PlugShell( tuple ):
 
     def set( self, value, ignore_connection = False ):
         """Set the given value to be used in our plug
-        :param ignore_connection: if True, the plug can be destination of a connection and
+        @param ignore_connection if True, the plug can be destination of a connection and
         will still get its value set - usually it would be overwritten by the value form the
         connection. The set value will be cleared if something upstream in it's connection chain
         changes.
-        :raise AssertionError: the respective attribute must be cached, otherwise
+        @throws AssertionError the respective attribute must be cached, otherwise
         the value will be lost"""
         flags = self.plug.attr.flags
         if flags & Attribute.readonly:
@@ -580,7 +580,7 @@ class _PlugShell( tuple ):
     def compatabilityRate( self, value ):
         """Compute compatability rate for teh given value
         
-        :return: value between 0 and 255, 0 means no compatability, 255 a perfect match
+        @return value between 0 and 255, 0 means no compatability, 255 a perfect match
             if larger than 0, the plug can hold the value ( assumed the flags are set correctly )
         """
         return self.plug.attr.compatabilityRate( value )
@@ -593,10 +593,10 @@ class _PlugShell( tuple ):
     def connect( self, otherplugshell, **kwargs ):
         """Connect this plug to otherplugshell such that otherplugshell is an input plug for our output
         
-        :param kwargs: everything supported by `Graph.connect`
-        :return: self on success, allows chained connections
-        :raise PlugAlreadyConnected: if otherplugshell is connected and force is False
-        :raise PlugIncompatible: if otherplugshell does not appear to be compatible to this one"""
+        @param kwargs everything supported by `Graph.connect`
+        @return self on success, allows chained connections
+        @throws PlugAlreadyConnected if otherplugshell is connected and force is False
+        @throws PlugIncompatible if otherplugshell does not appear to be compatible to this one"""
         if not isinstance( otherplugshell, _PlugShell ):
             raise AssertionError( "Invalid Type given to connect: %r" % repr( otherplugshell ) )
 
@@ -605,16 +605,16 @@ class _PlugShell( tuple ):
 
     def disconnect( self, otherplugshell ):
         """Remove the connection to otherplugshell if we are connected to it.
-        :note: does not raise if no connection is present"""
+        @note does not raise if no connection is present"""
         if not isinstance( otherplugshell, _PlugShell ):
             raise AssertionError( "Invalid Type given to connect: %r" % repr( otherplugshell ) )
 
         return self.node.graph.disconnect( self, otherplugshell )
 
     def input( self, predicate = lambda shell: True ):
-        """:return: the connected input plug or None if there is no such connection
-        :param predicate: plug will only be returned if predicate is true for it
-        :note: input plugs have on plug at most, output plugs can have more than one
+        """@return the connected input plug or None if there is no such connection
+        @param predicate plug will only be returned if predicate is true for it
+        @note input plugs have on plug at most, output plugs can have more than one
             connected plug"""
         sourceshell = self.node.graph.input( self )
         if sourceshell and predicate( sourceshell ):
@@ -622,16 +622,16 @@ class _PlugShell( tuple ):
         return None
 
     def outputs( self, predicate = lambda shell: True ):
-        """:return: a list of plugs being the destination of the connection
-        :param predicate: plug will only be returned if predicate is true for it - shells will be passed in """
+        """@return a list of plugs being the destination of the connection
+        @param predicate plug will only be returned if predicate is true for it - shells will be passed in """
         return self.node.graph.outputs( self, predicate = predicate )
 
     def connections( self, inpt, output, predicate = lambda shell: True ):
-        """:return: get all input and or output connections from this shell
+        """@return get all input and or output connections from this shell
             or to this shell as edges ( sourceshell, destinationshell )
-        :param predicate: return true for each destination shell that you can except in the
+        @param predicate return true for each destination shell that you can except in the
             returned edge or the sourceshell where your shell is the destination.
-        :note: Use this method to get edges read for connection/disconnection"""
+        @note Use this method to get edges read for connection/disconnection"""
         outcons = list()
         if inpt:
             sourceshell = self.input( predicate = predicate )
@@ -645,13 +645,13 @@ class _PlugShell( tuple ):
         return outcons
 
     def isConnected( self ):
-        """:return: True, if the shell is connected as source or as destination of a connection"""
+        """@return True, if the shell is connected as source or as destination of a connection"""
         return self.input() or self.outputs()
 
     def iterShells( self, **kwargs ):
         """Iterate plugs and their connections starting at this plug
-        :return: generator for plug shells
-        :note: supports all options of `iterShells`, this method allows syntax like:
+        @return generator for plug shells
+        @note supports all options of `iterShells`, this method allows syntax like:
         node.outAttribute.iterShells( )"""
         return iterShells( self, **kwargs )
 
@@ -663,12 +663,12 @@ class _PlugShell( tuple ):
         return self.plug.name() + "_c"
 
     def hasCache( self ):
-        """:return: True if currently store a cached value"""
+        """@return True if currently store a cached value"""
         return hasattr( self.node, self._cachename() )
 
     def setCache( self, value ):
         """Set the given value to be stored in our cache
-        :raise: TypeError if the value is not compatible to our defined type"""
+        @throws TypeError if the value is not compatible to our defined type"""
         # attr compatability - always run this as we want to be warned if the compute
         # method returns a value that does not match
         if self.plug.attr.compatabilityRate( value ) == 0:
@@ -683,8 +683,8 @@ class _PlugShell( tuple ):
         setattr( self.node, self._cachename(), value )
 
     def cache( self ):
-        """:return: the cached value or raise
-        :raise ValueError:"""
+        """@return the cached value or raise
+        @throws ValueError"""
         if self.hasCache():
             return getattr( self.node, self._cachename() )
 
@@ -692,11 +692,11 @@ class _PlugShell( tuple ):
 
     def clearCache( self, clear_affected = False, cleared_shells_set = None ):
         """Empty the cache of our plug
-        :param clear_affected: if True, the caches of our affected plugs ( connections
+        @param clear_affected if True, the caches of our affected plugs ( connections
         or affects relations ) will also be cleared
         This operation is recursive, and needs to be as different shells on different nodes
         might do things differently.
-        :param cleared_shells_set: if set, it can be used to track which plugs have already been dirtied to
+        @param cleared_shells_set if set, it can be used to track which plugs have already been dirtied to
         prevent recursive loops
         Propagation will happen even if we do not have a cache to clear ourselves """
         if self.hasCache():
@@ -761,7 +761,7 @@ class Graph( nx.DiGraph, iDuplicatable ):
     #{ Debugging
     def writeDot( self , fileOrPath  ):
         """Write the connections in self to the given file object or path
-        :todo: remove if no longer needed"""
+        @todo remove if no longer needed"""
         # associate every plugshell with its node create a more native look
         writegraph = nx.DiGraph()
         # but we do not use it as the edge attrs cannot be assigned anymore - dict has no unique keys
@@ -836,9 +836,9 @@ class Graph( nx.DiGraph, iDuplicatable ):
     #{ Node Handling
     def addNode( self, node ):
         """Add a new node instance to the graph
-        :note: node membership is exclusive, thus node instances
+        @note node membership is exclusive, thus node instances
         can only be in one graph at a time
-        :return: self, for chained calls"""
+        @return self, for chained calls"""
         if not isinstance( node, NodeBase ):
             raise TypeError( "Node %r must be of type NodeBase" % node )
 
@@ -880,24 +880,24 @@ class Graph( nx.DiGraph, iDuplicatable ):
     #{ Query
 
     def hasNode( self , node ):
-        """:return: True if the node is in this graph, false otherwise"""
+        """@return True if the node is in this graph, false otherwise"""
         return node in self._nodes
 
     def iterNodes( self, predicate = lambda node: True ):
-        """:return: generator returning all nodes in this graph
-        :param predicate: if True for node, it will be returned
-        :note: there is no particular order"""
+        """@return generator returning all nodes in this graph
+        @param predicate if True for node, it will be returned
+        @note there is no particular order"""
         for node in self._nodes:
             if predicate( node ):
                 yield node
         # END for each node
 
     def iterConnectedNodes( self, predicate = lambda node: True ):
-        """:return: generator returning all nodes that are connected in this graph,
+        """@return generator returning all nodes that are connected in this graph,
             in no particular order.
             For an ordered itereration, use `iterShells`.
             
-        :param predicate: if True for node, it will be returned"""
+        @param predicate if True for node, it will be returned"""
         # iterate digraph keeping the plugs only ( and thus connected nodes )
         nodes_seen = set()
         for node,plug in self.nodes_iter():
@@ -909,16 +909,16 @@ class Graph( nx.DiGraph, iDuplicatable ):
         # END for each node
 
     def nodes( self ):
-        """:return: immutable copy of the nodes used in the graph"""
+        """@return immutable copy of the nodes used in the graph"""
         return tuple( self._nodes )
 
     def numNodes( self ):
-        """:return: number of nodes in the graph"""
+        """@return number of nodes in the graph"""
         return len( self._nodes )
 
     def nodeByID( self, nodeID ):
-        """:return: instance of a node according to the given node id
-        :raise NameError: if no such node exists in graph"""
+        """@return instance of a node according to the given node id
+        @throws NameError if no such node exists in graph"""
         for node in self.iterNodes():
             if node.id() == nodeID:
                 return node
@@ -932,13 +932,13 @@ class Graph( nx.DiGraph, iDuplicatable ):
     def connect( self, sourceshell, destinationshell, force = False ):
         """Connect this plug to destinationshell such that destinationshell is an input plug for our output
         
-        :param sourceshell: PlugShell being source of the connection
-        :param destinationshell: PlugShell being destination of the connection
-        :param force: if False, existing connections to destinationshell will not be broken, but an exception is raised
+        @param sourceshell PlugShell being source of the connection
+        @param destinationshell PlugShell being destination of the connection
+        @param force if False, existing connections to destinationshell will not be broken, but an exception is raised
             if True, existing connection may be broken
-        :return: self on success, allows chained connections
-        :raise PlugAlreadyConnected: if destinationshell is connected and force is False
-        :raise PlugIncompatible: if destinationshell does not appear to be compatible to this one"""
+        @return self on success, allows chained connections
+        @throws PlugAlreadyConnected if destinationshell is connected and force is False
+        @throws PlugIncompatible if destinationshell does not appear to be compatible to this one"""
         # assure both nodes are known to the graph
         if not sourceshell.node.graph is destinationshell.node.graph:
             raise AssertionError( "You cannot connect nodes from different graphs" )
@@ -969,7 +969,7 @@ class Graph( nx.DiGraph, iDuplicatable ):
 
     def disconnect( self, sourceshell, destinationshell ):
         """Remove the connection between sourceshell to destinationshell if they are connected
-        :note: does not raise if no connection is present"""
+        @note does not raise if no connection is present"""
         self.remove_edge( sourceshell, v = destinationshell )
 
         # also, delete the plugshells if they are not connnected elsewhere
@@ -978,8 +978,8 @@ class Graph( nx.DiGraph, iDuplicatable ):
                 self.remove_node( shell )
 
     def input( self, plugshell ):
-        """:return: the connected input plug of plugshell or None if there is no such connection
-        :note: input plugs have on plug at most, output plugs can have more than one connected plug"""
+        """@return the connected input plug of plugshell or None if there is no such connection
+        @note input plugs have on plug at most, output plugs can have more than one connected plug"""
         try:
             pred = self.predecessors( plugshell )
             if pred:
@@ -990,8 +990,8 @@ class Graph( nx.DiGraph, iDuplicatable ):
         return None
 
     def outputs( self, plugshell, predicate = lambda x : True ):
-        """:return: a list of plugs being the destination of the connection to plugshell
-        :param predicate: plug will only be returned if predicate is true for it - shells will be passed in """
+        """@return a list of plugs being the destination of the connection to plugshell
+        @param predicate plug will only be returned if predicate is true for it - shells will be passed in """
         try:
             return [ s for s in self.successors( plugshell ) if predicate( s ) ]
         except nx.NetworkXError:
@@ -1058,8 +1058,8 @@ class NodeBase( iDuplicatable ):
         It must be supplied by the super class and should be as global as required to
         connecte the NodeBases together properly.
         
-        :param kwargs: 'id' = id of the instance, defaults to None if it is not required
-        :note: we are super() compatible, and assure our base is initialized correctly"""
+        @param kwargs 'id' = id of the instance, defaults to None if it is not required
+        @note we are super() compatible, and assure our base is initialized correctly"""
         self.graph = None
         self._id = None
 
@@ -1090,14 +1090,14 @@ class NodeBase( iDuplicatable ):
     def createInstance( self, *args, **kwargs ):
         """Create a copy of self and return it
         
-        :note: override by subclass  - the __init__ methods shuld do the rest"""
+        @note override by subclass  - the __init__ methods shuld do the rest"""
         return self.__class__( id = self.id() )
 
     def copyFrom( self, other, add_to_graph = True ):
         """Just take the graph from other, but do not ( never ) duplicate it
         
-        :param add_to_graph: if true, the new node instance will be added to the graph of
-        :note: default implementation does not copy plug caches ( which are stored in
+        @param add_to_graph if true, the new node instance will be added to the graph of
+        @note default implementation does not copy plug caches ( which are stored in
             the node dict - this is because a reevaluate is usually required on the
             duplicated node"""
         self.setID( other.id() )                # id copying would create equally named clones for now
@@ -1111,11 +1111,11 @@ class NodeBase( iDuplicatable ):
         """Called whenever a plug needs computation as the value its value is not
         cached or marked dirty ( as one of the inputs changed )
         
-        :param plug: the static plug instance that requested which requested the computation.
+        @param plug the static plug instance that requested which requested the computation.
             It is the instance you defined on the class
-        :param mode: the mode of operation. Its completely up to the superclasses how that
+        @param mode the mode of operation. Its completely up to the superclasses how that
             attribute is going to be used
-        :note: to be implemented by superclass """
+        @note to be implemented by superclass """
         raise NotImplementedError( "To be implemented by subclass" )
 
     #} END base interface
@@ -1123,20 +1123,20 @@ class NodeBase( iDuplicatable ):
     #{ ID Handling
     def setID( self, newID ):
         """Set id of this node to newiD
-        :return: previously assigned id"""
+        @return previously assigned id"""
         curid = self.id()
         self._id = newID
         return curid
 
     def id( self ):
-        """:return: ID of this instance"""
+        """@return ID of this instance"""
         return self._id
 
     #} END id handling
 
     #{ Base
     def toShells( self, plugs ):
-        """:return: list of shells made from plugs and our node"""
+        """@return list of shells made from plugs and our node"""
         # may not use it as generator as it binds variables ( of course ! )
         outlist = list()
         for plug in plugs:
@@ -1144,7 +1144,7 @@ class NodeBase( iDuplicatable ):
         return outlist
 
     def toShell( self, plug ):
-        """:return: a plugshell as suitable to for this class"""
+        """@return a plugshell as suitable to for this class"""
         return getattr( self, 'shellcls' )( self, plug )        # prevent cls variable to be bound !
 
     def clearCache( self ):
@@ -1155,9 +1155,9 @@ class NodeBase( iDuplicatable ):
 
     @classmethod
     def plugsStatic( cls, predicate = lambda x: True ):
-        """:return: list of static plugs as defined on this node - they are class members
-        :param predicate: return static plug only if predicate is true
-        :note: Use this method only if you do not have an instance - there are nodes
+        """@return list of static plugs as defined on this node - they are class members
+        @param predicate return static plug only if predicate is true
+        @note Use this method only if you do not have an instance - there are nodes
             that actually have no static plug information, but will dynamically generate them.
             For this to work, they need an instance - thus the plugs method is an instance
             method and is meant to be the most commonly used one."""
@@ -1168,9 +1168,9 @@ class NodeBase( iDuplicatable ):
         return list( pluggen )
 
     def plugs( self, predicate = lambda x: True ):
-        """:return: list of dynamic plugs as defined on this node - they are usually retrieved
+        """@return list of dynamic plugs as defined on this node - they are usually retrieved
             on class level, but may be overridden on instance level
-        :param predicate: return static plug only if predicate is true"""
+        @param predicate return static plug only if predicate is true"""
         # the getmembers function appears to be ... buggy with my classes
         # use special handling to assure he gets all the instance members AND the class members
         # In ipython tests this worked as expected - get the dicts individually
@@ -1182,32 +1182,32 @@ class NodeBase( iDuplicatable ):
 
     @classmethod
     def inputPlugsStatic( cls, **kwargs ):
-        """:return: list of static plugs suitable as input
-        :note: convenience method"""
+        """@return list of static plugs suitable as input
+        @note convenience method"""
         return cls.plugsStatic( predicate = lambda p: p.providesInput(), **kwargs )
 
     def inputPlugs( self, **kwargs ):
-        """:return: list of plugs suitable as input
-        :note: convenience method"""
+        """@return list of plugs suitable as input
+        @note convenience method"""
         return self.plugs( predicate = lambda p: p.providesInput(), **kwargs )
 
     @classmethod
     def outputPlugsStatic( cls, **kwargs ):
-        """:return: list of static plugs suitable to deliver output
-        :note: convenience method"""
+        """@return list of static plugs suitable to deliver output
+        @note convenience method"""
         return cls.plugsStatic( predicate = lambda p: p.providesOutput(), **kwargs )
 
     def outputPlugs( self, **kwargs ):
-        """:return: list of plugs suitable to deliver output
-        :note: convenience method"""
+        """@return list of plugs suitable to deliver output
+        @note convenience method"""
         return self.plugs( predicate = lambda p: p.providesOutput(), **kwargs )
 
     def connections( self, inpt, output ):
-        """:return: Tuples of input shells defining a connection of the given type from
+        """@return Tuples of input shells defining a connection of the given type from
             tuple( InputNodeOuptutShell, OurNodeInputShell ) for input connections and
             tuple( OurNodeOuptutShell, OutputNodeInputShell )
-        :param inpt: include input connections to this node
-        :param output: include output connections ( from this node to others )"""
+        @param inpt include input connections to this node
+        @param output include output connections ( from this node to others )"""
         outConnections = list()
         plugs = self.plugs()
         # HANDLE INPUT
@@ -1232,24 +1232,24 @@ class NodeBase( iDuplicatable ):
     @classmethod
     def filterCompatiblePlugs( cls, plugs, attrOrValue, raise_on_ambiguity = False, attr_affinity = False,
                                 attr_as_source=True ):
-        """:return: sorted list of (rate,plug) tuples suitable to deal with the given attribute.
+        """@return sorted list of (rate,plug) tuples suitable to deal with the given attribute.
             Thus they could connect to it as well as get their value set.
             Most suitable plug comes first.
             Incompatible plugs will be pruned.
-        :param attrOrValue: either an attribute or the value you would like to set to the
+        @param attrOrValue either an attribute or the value you would like to set to the
             attr at the plug in question.
-        :param raise_on_ambiguity: if True, the method raises if a plug has the same
+        @param raise_on_ambiguity if True, the method raises if a plug has the same
             rating as another plug already on the output list, thus it's not clear anymore
             which plug should handle a request
-        :param attr_affinity: if True, it will not check connection affinity, but attribute
+        @param attr_affinity if True, it will not check connection affinity, but attribute
             affinity only. It checks how compatible the attributes of the plugs are, disregarding
             whether they can be connected or not
             Only valid if attrOrValue is an attribute
-        :param attr_as_source: if True, attrOrValue will be treated as the source of a connection or
+        @param attr_as_source if True, attrOrValue will be treated as the source of a connection or
             each plug would need to take its values.
             if False, attrOrValue is the destination of a connection and it needs to take values of the given plugs
             or they would connect to it. Only used if attrOrValue is an attribute.
-        :raise TypeError: if ambiguous input was found"""
+        @throws TypeError if ambiguous input was found"""
 
         attribute = None
         value = attrOrValue

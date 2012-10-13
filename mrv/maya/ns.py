@@ -17,12 +17,12 @@ __all__ = ("Namespace", "createNamespace", "currentNamespace", "findUniqueNamesp
 
 #{ internal utilties
 def _isRootOf( root, other ):
-    """:return: True if other which may be a string, is rooted at 'root
-    :param other: '' = root namespace'
+    """@return True if other which may be a string, is rooted at 'root
+    @param other '' = root namespace'
         hello:world => :hello:world
-    :param root: may be namespace or string. It must not have a ':' in front, 
+    @param root may be namespace or string. It must not have a ':' in front, 
         hence it must be a relative naespace, and must end with a ':'.
-    :note: the arguments are very specific, but this allows the method 
+    @note the arguments are very specific, but this allows the method 
         to be faster than usual"""
     return (other+':').startswith(root)
 #} END internal utilities
@@ -51,13 +51,13 @@ class Namespace( unicode, iDagItem ):
     def __new__( cls, namespacepath=rootpath, absolute = True ):
         """Initialize the namespace with the given namespace path
         
-        :param namespacepath: the namespace to wrap - it should be absolut to assure
+        @param namespacepath the namespace to wrap - it should be absolut to assure
             relative namespaces will not be interpreted in an unforseen manner ( as they
             are relative to the currently set namespace
             
             Set it ":" ( or "" ) to describe the root namespace
-        :param absolute: if True, incoming namespace names will be made absolute if not yet the case
-        :note: the namespace does not need to exist, but many methods will not work if so.
+        @param absolute if True, incoming namespace names will be made absolute if not yet the case
+        @note the namespace does not need to exist, but many methods will not work if so.
             NamespaceObjects returned by methods of this class are garantueed to exist"""
 
         if namespacepath != cls.rootpath:
@@ -74,7 +74,7 @@ class Namespace( unicode, iDagItem ):
         """Properly catenate namespace objects - other must be relative namespace or
         object name ( with or without namespace )
         
-        :return: new string object """
+        @return new string object """
         inbetween = self._sep
         if self.endswith( self._sep ) or other.startswith( self._sep ):
             inbetween = ''
@@ -91,11 +91,11 @@ class Namespace( unicode, iDagItem ):
     def create( cls, namespaceName ):
         """Create a new namespace
         
-        :param namespaceName: the name of the namespace, absolute or relative -
+        @param namespaceName the name of the namespace, absolute or relative -
             it may contain subspaces too, i.e. :foo:bar.
             fred:subfred is a relative namespace, created in the currently active namespace
-        :note: if the target namespace already exists, it will be returned
-        :return: the create Namespace object"""
+        @note if the target namespace already exists, it will be returned
+        @return the create Namespace object"""
         newns = cls( namespaceName )
 
         if newns.exists():       # skip work
@@ -128,11 +128,11 @@ class Namespace( unicode, iDagItem ):
     def rename( self, newName ):
         """Rename this namespace to newName - the original namespace will cease to exist
         
-        :note: if the namespace already exists, the existing one will be returned with
+        @note if the namespace already exists, the existing one will be returned with
             all objects from this one added accordingly
-        :param newName: the absolute name of the new namespace
-        :return: Namespace with the new name
-        :todo: Implement undo !"""
+        @param newName the absolute name of the new namespace
+        @return Namespace with the new name
+        @todo Implement undo !"""
         newnamespace = self.__class__( newName )
 
 
@@ -149,10 +149,10 @@ class Namespace( unicode, iDagItem ):
     def moveNodes( self, targetNamespace, force = True, autocreate=True ):
         """Move objects from this to the targetNamespace
         
-        :param force: if True, namespace clashes will be resolved by renaming, if false
+        @param force if True, namespace clashes will be resolved by renaming, if false
             possible clashes would result in an error
-        :param autocreate: if True, targetNamespace will be created if it does not exist yet
-        :todo: Implement undo !"""
+        @param autocreate if True, targetNamespace will be created if it does not exist yet
+        @todo Implement undo !"""
         targetNamespace = self.__class__( targetNamespace )
         if autocreate and not targetNamespace.exists( ):
             targetNamespace = Namespace.create( targetNamespace )
@@ -162,13 +162,13 @@ class Namespace( unicode, iDagItem ):
     def delete( self, move_to_namespace = rootpath, autocreate=True ):
         """Delete this namespace and move it's obejcts to the given move_to_namespace
         
-        :param move_to_namespace: if None, the namespace to be deleted must be empty
+        @param move_to_namespace if None, the namespace to be deleted must be empty
             If Namespace, objects in this namespace will be moved there prior to namespace deletion
             move_to_namespace must exist
-        :param autocreate: if True, move_to_namespace will be created if it does not exist yet
-        :note: can handle sub-namespaces properly
-        :raise RuntimeError:
-        :todo: Implement undo !"""
+        @param autocreate if True, move_to_namespace will be created if it does not exist yet
+        @note can handle sub-namespaces properly
+        @throws RuntimeError
+        @todo Implement undo !"""
         if self == self.rootpath:
             raise ValueError( "Cannot delete root namespace" )
 
@@ -205,7 +205,7 @@ class Namespace( unicode, iDagItem ):
         """Set this namespace to be the current one - new objects will be put in it
         by default
         
-        :return: self"""
+        @return self"""
         # THIS IS FASTER !
         melop = undo.GenericOperation( )
         melop.setDoitCmd( cmds.namespace, set = self )
@@ -217,7 +217,7 @@ class Namespace( unicode, iDagItem ):
     #} END edit methods
 
     def parent( self ):
-        """:return: parent namespace of this instance"""
+        """@return parent namespace of this instance"""
         if self == self.rootpath:
             return None
 
@@ -227,8 +227,8 @@ class Namespace( unicode, iDagItem ):
         return self.__class__( parent )
 
     def children( self, predicate = lambda x: True ):
-        """:return: list of child namespaces
-        :param predicate: return True to include x in result"""
+        """@return list of child namespaces
+        @param predicate return True to include x in result"""
         lastcurrent = self.current()
         self.setCurrent( )
         out = []
@@ -245,7 +245,7 @@ class Namespace( unicode, iDagItem ):
 
     @classmethod
     def current( cls ):
-        """:return: the currently set absolute namespace """
+        """@return the currently set absolute namespace """
         # will return namespace relative to the root - thus is absolute in some sense
         nsname = cmds.namespaceInfo( cur = 1 )
         if not nsname.startswith( ':' ):        # assure we return an absoslute namespace
@@ -257,10 +257,10 @@ class Namespace( unicode, iDagItem ):
         """Find a unique namespace based on basename which does not yet exist
         in the scene and can be created.
         
-        :param basename: basename of the namespace, like ":mynamespace" or "mynamespace:subspace"
-        :param incrementFunc: func( basename, index ), returns a unique name generated
+        @param basename basename of the namespace, like ":mynamespace" or "mynamespace:subspace"
+        @param incrementFunc func( basename, index ), returns a unique name generated
             from the basename and the index representing the current iteration
-        :return: unique namespace that is guaranteed not to exist below the current
+        @return unique namespace that is guaranteed not to exist below the current
             namespace"""
         i = 0
         while True:
@@ -273,18 +273,18 @@ class Namespace( unicode, iDagItem ):
         raise AssertionError("Should never get here")
 
     def exists( self ):
-        """:return: True if this namespace exists"""
+        """@return True if this namespace exists"""
         return cmds.namespace( ex=self )
 
     def isAbsolute( self ):
         """
-        :return: True if this namespace is an absolut one, defining a namespace
+        @return True if this namespace is an absolut one, defining a namespace
             from the root namespace like ":foo:bar"""
         return self.startswith( self._sep )
 
     def toRelative( self ):
-        """:return: a relative version of self, thus it does not start with a colon
-        :note: the root namespace cannot be relative - if this is of interest for you,
+        """@return a relative version of self, thus it does not start with a colon
+        @note the root namespace cannot be relative - if this is of interest for you,
             you have to check for it. This method gracefully ignores that fact to make
             it more convenient to use as one does not have to be afraid of exceptions"""
         if not self.startswith( ":" ):
@@ -295,11 +295,11 @@ class Namespace( unicode, iDagItem ):
     def relativeTo( self, basenamespace ):
         """returns this namespace relative to the given basenamespace
         
-        :param basenamespace: the namespace to which the returned one should be
+        @param basenamespace the namespace to which the returned one should be
             relative too
-        :raise ValueError: If this or basenamespace is not absolute or if no relative
+        @throws ValueError If this or basenamespace is not absolute or if no relative
             namespace exists
-        :return: relative namespace"""
+        @return relative namespace"""
         if not self.isAbsolute() or not basenamespace.isAbsolute( ):
             raise ValueError( "All involved namespaces need to be absolute: " + self + " , " + basenamespace )
 
@@ -316,7 +316,7 @@ class Namespace( unicode, iDagItem ):
     def splitNamespace( cls, objectname ):
         """Cut the namespace from the given  name and return a tuple( namespacename, objectname )
         
-        :note: method assumes that the namespace starts at the beginning of the object"""
+        @note method assumes that the namespace starts at the beginning of the object"""
         if objectname.find( '|' ) > -1:
             raise AssertionError( "Dagpath given where object name is required" )
 
@@ -328,20 +328,20 @@ class Namespace( unicode, iDagItem ):
 
 
     def _removeDuplicateSep( self, name ):
-        """:return: name with duplicated : removed"""
+        """@return name with duplicated : removed"""
         return self.re_find_duplicate_sep.sub( self._sep, name )
 
     def substitute( self, find_in, replacement ):
         """
-        :return: string with our namespace properly substituted with replacement such
+        @return string with our namespace properly substituted with replacement such
             that the result is a properly formatted object name ( with or without namespace
             depending of the value of replacement )
             As this method is based on string replacement, self might as well match sub-namespaces
             if it is relative
-        :note: if replacement is an empty string, it will effectively cut the matched namespace
+        @note if replacement is an empty string, it will effectively cut the matched namespace
             off the object name
-        :note: handles replacement of subnamespaces correctly as well
-        :note: as it operates on strings, the actual namespaces do not need to exist"""
+        @note handles replacement of subnamespaces correctly as well
+        @note as it operates on strings, the actual namespaces do not need to exist"""
         # special case : we are root
         if self == Namespace.rootpath:
             return self._removeDuplicateSep( self.__class__( replacement, absolute=False ) + find_in )
@@ -362,9 +362,9 @@ class Namespace( unicode, iDagItem ):
     def iterNodes( self, *args, **kwargs ):
         """Return an iterator on all objects in the namespace
         
-        :param args: MFn.kType filter types to be used to pre-filter the nodes 
+        @param args MFn.kType filter types to be used to pre-filter the nodes 
             in the namespace. This can greatly improve performance !
-        :param kwargs: given to `iterDagNodes` or `iterDgNodes`, which includes the 
+        @param kwargs given to `iterDagNodes` or `iterDgNodes`, which includes the 
             option to provide a predicate function. Additionally, the following ones 
             may be defined:
             
@@ -383,7 +383,7 @@ class Namespace( unicode, iDagItem ):
                 if -1, all subnamespaces will be included as well, the depth is unlimited
                 
                 if 0<depth<x include all objects up to the 'depth' subnamespace
-        :note: this method is quite similar to `FileReference.iterNodes`, but 
+        @note this method is quite similar to `FileReference.iterNodes`, but 
             has a different feature set and needs this code here for maximum performance"""
         import nt
         dag = kwargs.pop('dag', False)
@@ -478,7 +478,7 @@ def findUniqueNamespace( *args, **kwargs ):
     return Namespace.findUnique( *args, **kwargs )
 
 def existsNamespace( namespace ):
-    """:return : True if given namespace ( name ) exists"""
+    """@return True if given namespace ( name ) exists"""
     return Namespace( namespace ).exists()
 
 

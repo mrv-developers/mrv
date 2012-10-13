@@ -16,11 +16,11 @@ class AnimCurve( base.DependNode ):
     @classmethod
     def findAnimation( cls, iter_nodes, asNode=True ):
         """
-        :return: list-compatible object containing animation curves attached to
+        @return list-compatible object containing animation curves attached to
             the nodes in the given object.
-        :param iter_nodes: MSelection list or list of MObjects or Nodes containing
+        @param iter_nodes MSelection list or list of MObjects or Nodes containing
             whose animation you would like to retrieve.
-        :param asNode: If True, the animation curves will be wrapped, or 
+        @param asNode If True, the animation curves will be wrapped, or 
             MObjects otherwise ( to gain performance )"""
         selection_list = base.toSelectionList(iter_nodes)
         anim_plugs = api.MPlugArray()
@@ -40,21 +40,21 @@ class AnimCurve( base.DependNode ):
 
     def getTangent( self, index, isInTangent ):
         """
-        :return: tuple(x,y) tuple containing the x and y positions of the 
+        @return tuple(x,y) tuple containing the x and y positions of the 
             tangent at index:
             
              * x is the x value of the slope of the tangent in seconds
              * y is the absolute y value of the slope of the tangent
              
-        :param index: Index of the key for which the tangent x,y value is required
-        :param isInTangent: If true, the in-tangent is returned, else, the out-tangent is returned"""
+        @param index Index of the key for which the tangent x,y value is required
+        @param isInTangent If true, the in-tangent is returned, else, the out-tangent is returned"""
         return util.in_two_floats_out_tuple(lambda x, y: self._api_getTangent(index, x, y, isInTangent))
         
     def getTangentAsAngle(self, index, isInTangent):
         """
-        :return: tuple(MAngle, weight) tuple containing the angle and weight of
+        @return tuple(MAngle, weight) tuple containing the angle and weight of
             the tangent. 
-        :note: See `getTangent` for all other parameters"""
+        @note See `getTangent` for all other parameters"""
         sud = api.MScriptUtil()
         pd = sud.asDoublePtr()
         a = api.MAngle()

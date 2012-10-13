@@ -67,9 +67,9 @@ output: html"""
     def __init__(self, sphinx=True, sphinx_autogen=True, coverage=True, epydoc=True, base_dir='.', *args):
         """Initialize the instance
         
-        :param sphinx: If True, sphinx documentation will be produced
-        :param coverage: If True, the coverage report will be generated
-        :param epydoc: If True, epydoc documentation will be generated"""
+        @param sphinx If True, sphinx documentation will be produced
+        @param coverage If True, the coverage report will be generated
+        @param epydoc If True, epydoc documentation will be generated"""
         if self.pinfo is None:
             self._retrieve_project_info(base_dir)
         # END asssure project info is set
@@ -119,7 +119,7 @@ output: html"""
     
     @classmethod
     def version_file_name(cls, idstring, basedir='.'):
-        """:return: filename at which to write the version file with the given id"""
+        """@return filename at which to write the version file with the given id"""
         return make_path(os.path.join(basedir, "%s.version_info" % idstring)) 
 
     @classmethod
@@ -151,7 +151,7 @@ output: html"""
     
     @classmethod
     def parser(cls):
-        """:return: OptionParser instance suitable to parse commandline arguments
+        """@return OptionParser instance suitable to parse commandline arguments
         with which to initialize our instance"""
         usage = """%prog [options]
         
@@ -183,9 +183,9 @@ output: html"""
     @classmethod
     def root_dir(cls, basedir='.'):
         """
-        :return: path which includes our package - if it would be in the sys.path, 
+        @return path which includes our package - if it would be in the sys.path, 
             we should be able to import it
-        :param basedir: we expect to be in the root/doc path of the project - if this is not 
+        @param basedir we expect to be in the root/doc path of the project - if this is not 
             the case, the basedir can be adjusted accordingly to 'virtually' chdir into the 
             doc directory"""
         return ospd(os.path.realpath(os.path.abspath(basedir)))
@@ -227,7 +227,7 @@ output: html"""
     def generate(self):
         """Geneate the documentation according to our configuration
         
-        :note: respects the options given during construction"""
+        @note respects the options given during construction"""
         if self._coverage:
             self._make_coverage()
         
@@ -244,7 +244,7 @@ output: html"""
     
     def clean(self):
         """Clean the generated files by removing them
-        :note: Must respect the options the same way as done by the ``generate``
+        @note Must respect the options the same way as done by the ``generate``
         method"""
         if self._coverage:
             self.remove_version_info('coverage')
@@ -303,54 +303,54 @@ output: html"""
     #{ Paths
     
     def base_dir(self):
-        """:return: Path containing all documentation sources and output files"""
+        """@return Path containing all documentation sources and output files"""
         return self._base_dir
         
     def set_base_dir(self, base_dir):
         """Set the base directory to the given value
-        :return: self"""
+        @return self"""
         self._base_dir = Path(base_dir)
         return self
         
     def index_rst_path(self):
-        """:return: Path to index rst file"""
+        """@return Path to index rst file"""
         return self._base_dir / self.source_dir / "index.rst"
         
     def build_downloads_dir(self):
-        """:return: Path to the build downloads directory"""
+        """@return Path to the build downloads directory"""
         return self._base_dir / self.downloads_dir
         
     def source_downloads_dir(self):
-        """:return: Path to the source downloads directory"""
+        """@return Path to the source downloads directory"""
         return self._base_dir / self.source_dl_dir
         
     def source_downloads_coverage_dir(self):
-        """:return: Path to coverage related downloads"""
+        """@return Path to coverage related downloads"""
         return self.source_downloads_dir() / 'coverage'
         
     def epydoc_target_dir(self):
-        """:return: Path to directory to which epydoc will write its output"""
+        """@return Path to directory to which epydoc will write its output"""
         return self.html_output_dir() / 'generated' / 'api'
         
     def html_output_dir(self):
-        """:return: html directory to receive all output"""
+        """@return html directory to receive all output"""
         return self._base_dir / self.html_dir
         
     def autogen_output_dir(self):
-        """:return: directory to which sphinx-autogen will write its output to"""
+        """@return directory to which sphinx-autogen will write its output to"""
         return self._base_dir / self.source_dir / 'generated'
         
     def doctrees_dir(self):
-        """:return: Path to doctrees directory to which sphinx writes some files"""
+        """@return Path to doctrees directory to which sphinx writes some files"""
         return self._base_dir / self.build_dir / 'doctrees'
     
     def mrv_bin_path(self):
-        """:return: Path to mrv binary"""
+        """@return Path to mrv binary"""
         import mrv.cmd.base
         return mrv.cmd.base.find_mrv_script('mrv')
         
     def tmrv_bin_path(self):
-        """:return: Path to tmrv binary"""
+        """@return Path to tmrv binary"""
         import mrv.cmd.base
         return mrv.cmd.base.find_mrv_script('tmrv')
         
@@ -358,7 +358,7 @@ output: html"""
     
     #{ Utilities
     def _mrv_maya_version(self):
-        """:return: maya version with which mrv subcommands should be started with"""
+        """@return maya version with which mrv subcommands should be started with"""
         import mrv.cmd.base
         try:
             return mrv.cmd.base.available_maya_versions()[-1]
@@ -371,7 +371,7 @@ output: html"""
     def _call_python_script(self, *args, **kwargs):
         """Wrapper of subprocess.call which assumes that we call a python script.
         On windows, the python interpreter needs to be called directly
-        :raise EnvironmentError: if the called had a non-0 return value"""
+        @throws EnvironmentError if the called had a non-0 return value"""
         if sys.platform.startswith('win'):
             args[0].insert(0, "python")
         # END handle windows
@@ -390,7 +390,7 @@ output: html"""
     def _retrieve_project_info(cls, base_dir='.'):
         """Store the project information of the actual project in our class members
         for later use
-        :note: must be called exactly once"""
+        @note must be called exactly once"""
         if cls.pinfo is not None:
             return cls.pinfo
         #END handle cached pinfo
@@ -571,8 +571,8 @@ output: html"""
         # END for each rst to process
         
     def _sphinx_args(self):
-        """:return: list of arguments to be used when calling sphinx from the commandline
-        :note: directories of all kinds will be handled by the caller"""
+        """@return list of arguments to be used when calling sphinx from the commandline
+        @note directories of all kinds will be handled by the caller"""
         # we don't need "" around the values as we don't use a shell
         return ['-c', 'import sys, mrv, sphinx.cmdline; sphinx.cmdline.main(sys.argv)',
                 '-b', 'html',

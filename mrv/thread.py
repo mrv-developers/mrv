@@ -9,7 +9,7 @@ import Queue
 
 def do_terminate_threads(whitelist=list()):
     """Simple function which terminates all of our threads
-    :param whitelist: If whitelist is given, only the given threads will be terminated"""
+    @param whitelist If whitelist is given, only the given threads will be terminated"""
     for t in threading.enumerate():
         if not isinstance(t, TerminatableThread):
             continue
@@ -63,13 +63,13 @@ class TerminatableThread(threading.Thread):
         
     #{ Subclass Interface
     def _should_terminate(self):
-        """:return: True if this thread should terminate its operation immediately"""
+        """@return True if this thread should terminate its operation immediately"""
         return self._terminate
         
     def _terminated(self):
         """Called once the thread terminated. Its called in the main thread
         and may perform cleanup operations
-        :note: in the current implementation, this method will only be called if 
+        @note in the current implementation, this method will only be called if 
             the thread was stopped by ``stop_and_join``. If you have very important
             cleanup to do, you should do it before you exit your run method"""
         pass
@@ -85,12 +85,12 @@ class TerminatableThread(threading.Thread):
     
     def schedule_termination(self):
         """Schedule this thread to be terminated as soon as possible.
-        :note: this method does not block."""
+        @note this method does not block."""
         self._terminate = True
     
     def stop_and_join(self):
         """Ask the thread to stop its operation and wait for it to terminate
-        :note: Depending on the implenetation, this might block a moment"""
+        @note Depending on the implenetation, this might block a moment"""
         self._terminate = True
         self.join()
         self._terminated()
@@ -142,10 +142,10 @@ class WorkerThread(TerminatableThread):
         """Method that makes the call to the worker using the input queue, 
         returning our output queue
         
-        :param funciton: can be a standalone function unrelated to this class, 
+        @param funciton can be a standalone function unrelated to this class, 
             a class method of this class or any instance method.
             If it is a string, it will be considered a function residing on this instance
-        :param args: arguments to pass to function
+        @param args arguments to pass to function
         :parma **kwargs: kwargs to pass to function"""
         self.inq.put((function, args, kwargs))
         return self.outq

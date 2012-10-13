@@ -56,7 +56,7 @@ class StackControlBase(ui.TextScrollList):
     """stack base implementation. A stack keeps multiple items which can be added 
     and removed. Additionally, it allows to remap the items, effectively showing 
     a formatted item, which is kept in sync with an unformatted item.
-    :note: for now, only adding items, format will be applied. All other methods
+    @note for now, only adding items, format will be applied. All other methods
         operate on the formatted items."""
     
     
@@ -68,11 +68,11 @@ class StackControlBase(ui.TextScrollList):
     #{ Interface
     
     def formatItem(self, item):
-        """:return: formatted version of item"""
+        """@return formatted version of item"""
         return item
         
     def selectedUnformattedItem(self):
-        """:return: unformatted selected item or None"""
+        """@return unformatted selected item or None"""
         index = self.selectedIndex()
         if index < 0:
             return None
@@ -80,9 +80,9 @@ class StackControlBase(ui.TextScrollList):
         
     def selectUnformattedItem(self, index_or_item):
         """Select the unformatted item as identified by either the index or item
-        :param index_or_item: integer representing the 0-based index of the item to 
+        @param index_or_item integer representing the 0-based index of the item to 
             select, or the item's id
-        :raise ValueError: if the item does not exist"""
+        @throws ValueError if the item does not exist"""
         index = index_or_item
         if not isinstance(index_or_item, int):
             index = self.base_items.index(index_or_item)
@@ -136,7 +136,7 @@ class FilePathControl(ui.TextField):
     
     #{ Interface
     def path(self):
-        """:return: string representing the currently active path"""
+        """@return string representing the currently active path"""
         return self.p_text
         
     def setPath(self, path):
@@ -149,7 +149,7 @@ class FilePathControl(ui.TextField):
         self.p_editable = state
         
     def editable(self):
-        """:return: True if the control can be edited by the user"""
+        """@return True if the control can be edited by the user"""
         return self.p_editable
     #} END interface
     
@@ -196,7 +196,7 @@ class BookmarkControl(StackControlBase):
         self.e_selectCommand = self._selection_changed
     
     def _parse_bookmark(self, bookmark):
-        """:return: root,path tuple or raise"""
+        """@return root,path tuple or raise"""
         root, path = None, None
         if isinstance(bookmark, tuple) and len(bookmark) == 2:
             root, path = bookmark
@@ -210,7 +210,7 @@ class BookmarkControl(StackControlBase):
         return root, path
     
     def _unpack_stored_bookmarks(self):
-        """:return: list of tuples of root,path pairs"""
+        """@return list of tuples of root,path pairs"""
         miter = iter(opts.get(self.k_bookmark_store, list()))
         return [item for item in zip(miter, miter)]
     
@@ -224,7 +224,7 @@ class BookmarkControl(StackControlBase):
     
     def _store_bookmark(self, root, path, add=True):
         """Store the given path under the given root
-        :param add: if True, the path will be added to the bookmarks of the given 
+        @param add if True, the path will be added to the bookmarks of the given 
             root, otherwise it will be removed"""
         items = self._unpack_stored_bookmarks()
         index_to_remove = None
@@ -271,7 +271,7 @@ class BookmarkControl(StackControlBase):
         
     def addItem(self, bookmark):
         """Add a new bookmark
-        :param bookmark: tuple of root,relative_path or a single absolute path. In the 
+        @param bookmark tuple of root,relative_path or a single absolute path. In the 
             latter case, the root will be the natural root of the absolute path"""
         root, path = self._parse_bookmark(bookmark)
         bm_formatted = self.formatItem((root, path))
@@ -285,7 +285,7 @@ class BookmarkControl(StackControlBase):
         
     def setItems(self, bookmarks):
         """Set this control to a list of bookmarks
-        :param bookmarks: list of either tuples of (root, path) pairs or absolute paths
+        @param bookmarks list of either tuples of (root, path) pairs or absolute paths
             whose root will be chosen automatically"""
         bms = list()
         self.base_items = list()
@@ -301,7 +301,7 @@ class BookmarkControl(StackControlBase):
         
     def removeItem(self, bookmark):
         """Remove the given bookmark from the list of bookmarks
-        :param bookmark: full path to the bookmark to remove. Its not an error
+        @param bookmark full path to the bookmark to remove. Its not an error
             if it doesn't exist in the first place"""
         items = self.items()
         try:
@@ -328,7 +328,7 @@ class FileRootSelectorControl(ui.TextScrollList):
         self.e_selectCommand = self._selection_changed
     
     def _provider_by_root(self, root):
-        """:return: provider instance having the given root, or None"""
+        """@return provider instance having the given root, or None"""
         for p in self._providers:
             if p.root() == root:
                 return p
@@ -338,7 +338,7 @@ class FileRootSelectorControl(ui.TextScrollList):
     
     def setItems(self, providers):
         """Set the given providers to be used by this instance
-        :param providers: list of FileProvider instances"""
+        @param providers list of FileProvider instances"""
         for provider in providers:
             if not isinstance(provider, FileProvider):
                 raise ValueError("Require %s instances" % FileProvider)
@@ -354,7 +354,7 @@ class FileRootSelectorControl(ui.TextScrollList):
         
     def removeItem(self, provider):
         """Remove the given provider from the list
-        :param provider: FileProvider instance or root from which the provider
+        @param provider FileProvider instance or root from which the provider
             can be determined"""
         if isinstance(provider, basestring):
             provider = self._provider_by_root(provider)
@@ -384,7 +384,7 @@ class FileRootSelectorControl(ui.TextScrollList):
     #{ Interface
     
     def providers(self):
-        """:return: list of currently used providers"""
+        """@return list of currently used providers"""
         return list(self._providers)
         
     #} END interface

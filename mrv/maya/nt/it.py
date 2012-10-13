@@ -35,18 +35,18 @@ def _argsToFilter( args ):
 
 def dgIterator( *args, **kwargs ):
     """
-    :return: MItDependencyNodes configured according to args - see docs at
+    @return MItDependencyNodes configured according to args - see docs at
         `iterDgNodes`.
-    :note: use this method if you want to use more advanced features of the iterator"""
+    @note use this method if you want to use more advanced features of the iterator"""
     typeFilter = _argsToFilter( args )
     iterObj = api.MItDependencyNodes( typeFilter )
     return iterObj
 
 def dagIterator( *args, **kwargs ):
     """
-    :return: MItDagIterator configured according to args - see docs at
+    @return MItDagIterator configured according to args - see docs at
         `iterDagNodes`.
-    :note: use this method if you want to use more advanced features of the iterator"""
+    @note use this method if you want to use more advanced features of the iterator"""
     depth = kwargs.get('depth', True)
     underworld = kwargs.get('underworld', False)
     root = kwargs.get('root', None )
@@ -93,10 +93,10 @@ def dagIterator( *args, **kwargs ):
 
 def graphIterator( nodeOrPlug, *args, **kwargs ):
     """
-    :return: MItDependencyGraph configured according to args - see docs at
+    @return MItDependencyGraph configured according to args - see docs at
         `iterGraph`.
-    :note: use this method if you want to use more advanced features of the iterator
-    :raise RuntimeError: if the filter types does not allow any nodes to be returned.
+    @note use this method if you want to use more advanced features of the iterator
+    @throws RuntimeError if the filter types does not allow any nodes to be returned.
         This is a bug in that sense as it should just return nothing. It also shows that
         maya pre-parses the result and then just iterates over a list with the iterator in
         question"""
@@ -148,7 +148,7 @@ def graphIterator( nodeOrPlug, *args, **kwargs ):
 
 def selectionListIterator( sellist, **kwargs ):
     """
-    :return: iterator suitable to iterate given selection list - for more info see
+    @return iterator suitable to iterate given selection list - for more info see
         `iterSelectionList`"""
     filtertype = kwargs.get( "filterType", api.MFn.kInvalid )
     iterator = api.MItSelectionList( sellist, filtertype )
@@ -160,10 +160,10 @@ def selectionListIterator( sellist, **kwargs ):
 def iterDgNodes( *args, **kwargs ):
     """ Iterator on MObjects or Nodes of the specified api.MFn types
     
-    :param args: type as found in MFn.k... to optionally restrict the set of nodes the iterator operates upon.
+    @param args type as found in MFn.k... to optionally restrict the set of nodes the iterator operates upon.
         All nodes of a type included in the args will be iterated on.
         args is empty, all nodes of the scene will be iterated on which may include DAG nodes as well.
-    :param kwargs:
+    @param kwargs
          * asNode: 
             if True, default True, the returned value will be wrapped as node
          * predicate: 
@@ -194,7 +194,7 @@ def iterDagNodes( *args, **kwargs ):
     Types are specified as Maya API types being a member of api.MFn
     The following keywords will affect order and behavior of traversal:
 
-    :param kwargs:
+    @param kwargs
          * dagpath:
             if True, default True, MDagPaths will be returned
             If False, MObjects will be returned - it will return each object only once in case they
@@ -271,11 +271,11 @@ def iterGraph( nodeOrPlug, *args, **kwargs ):
     The iteration _includes_ the root node or plug.
     The following keywords will affect order and behavior of traversal:
     
-    :param nodeOrPlug: Node, MObject or MPlug to start the iteration at
-    :param args: list of MFn node types
+    @param nodeOrPlug Node, MObject or MPlug to start the iteration at
+    @param args list of MFn node types
         If a list of types is provided, only nodes of these types will be returned,
         if no type is provided all connected nodes will be iterated on.
-    :param kwargs:
+    @param kwargs
          * input: 
             if True connections will be followed from destination to source,
             if False from source to destination
@@ -299,7 +299,7 @@ def iterGraph( nodeOrPlug, *args, **kwargs ):
          * predicate: 
             method returning True if passed in iteration element can be yielded
             default: lambda x: True
-    :return: Iterator yielding MObject, Node or Plug depending on the configuration flags, first yielded item is 
+    @return Iterator yielding MObject, Node or Plug depending on the configuration flags, first yielded item is 
         always the root node or plug."""
     try:
         iterator = graphIterator( nodeOrPlug, *args, **kwargs )
@@ -347,21 +347,21 @@ def iterSelectionList( sellist, filterType = api.MFn.kInvalid, predicate = lambd
                         asNode = True, handlePlugs = True, handleComponents = False ):
     """Iterate the given selection list
     
-    :param sellist: MSelectionList to iterate
-    :param filterType: MFnType id acting as simple type filter to ignore all objects which do not
+    @param sellist MSelectionList to iterate
+    @param filterType MFnType id acting as simple type filter to ignore all objects which do not
         have the given object type
-    :param asNode: if True, returned MObjects or DagPaths will be wrapped as Node, compoents will be
+    @param asNode if True, returned MObjects or DagPaths will be wrapped as Node, compoents will be
         wrapped as Component. 
         Otherwise they will be returned as MObjects and MDagPaths respectively.
-    :param handlePlugs: if True, plugs can be part of the selection list and will be returned. This
+    @param handlePlugs if True, plugs can be part of the selection list and will be returned. This
         implicitly means that the selection list will be iterated without an iterator, and MFnType filters
         will be slower as it is implemented in python. If components are enabled, the tuple returned will be
         ( Plug, MObject() )
-    :param predicate: method returninng True if passed in iteration element can be yielded
+    @param predicate method returninng True if passed in iteration element can be yielded
         default: lambda x: True
-    :param handleComponents: if True, possibly selected components of dagNodes will be returned
+    @param handleComponents if True, possibly selected components of dagNodes will be returned
         as well. This forces the return value into tuple(Node, Component)
-    :return: Node or Plug on each iteration step
+    @return Node or Plug on each iteration step
         If handleComponents is True, for each Object, a tuple will be returned as tuple( Node, Component ) where
         component is NullObject ( MObject ) if the whole object is on the list.
         If the original object was a plug, it will be in the tuples first slot, whereas the component 

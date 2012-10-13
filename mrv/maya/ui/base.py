@@ -19,7 +19,7 @@ _uidict = None          # set during initialization
 
 def getUIType( uiname ):
     """
-    :return: uitype string having a corresponding mel command - some types returned do not correspond
+    @return uitype string having a corresponding mel command - some types returned do not correspond
         to the actual name of the command used to manipulate the type """
     uitype = cmds.objectTypeUI( uiname )
     return typ._typemap.get( uitype, uitype )
@@ -27,12 +27,12 @@ def getUIType( uiname ):
 
 def wrapUI( uinameOrList, ignore_errors = False ):
     """
-    :return: a new instance ( or list of instances ) of a suitable python UI wrapper class for the
+    @return a new instance ( or list of instances ) of a suitable python UI wrapper class for the
         UI with the given uiname(s)
-    :param uinameOrList: if single name, a single instance will be returned, if a list of names is given,
+    @param uinameOrList if single name, a single instance will be returned, if a list of names is given,
         a list of respective instances. None will be interpreted as empty list
-    :param ignore_errors: ignore ui items that cannot be wrapped as the type is unknown.
-    :raise RuntimeError: if uiname does not exist or is not wrapped in python """
+    @param ignore_errors ignore ui items that cannot be wrapped as the type is unknown.
+    @throws RuntimeError if uiname does not exist or is not wrapped in python """
     uinames = uinameOrList
     islisttype = isinstance( uinameOrList, ( tuple, list, set ) )
     if not islisttype:
@@ -70,7 +70,7 @@ def wrapUI( uinameOrList, ignore_errors = False ):
 UI = wrapUI
 
 def uiExists(uiname):
-    """:return: True if the user interface element with the given name exists"""
+    """@return True if the user interface element with the given name exists"""
     try:
         wrapUI(uiname)
         return True
@@ -81,9 +81,9 @@ def uiExists(uiname):
 def lsUI( **kwargs ):
     """ List UI elements as python wrapped types
     
-    :param kwargs: flags from the respective maya command are valid
+    @param kwargs flags from the respective maya command are valid
         If no special type keyword is specified, all item types will be returned
-    :return: list of NamedUI instances of respective UI elements """
+    @return list of NamedUI instances of respective UI elements """
     long = kwargs.pop( 'long', kwargs.pop( 'l', True ) )
     head = kwargs.pop( 'head', kwargs.pop( 'hd', None ) )
     tail = kwargs.pop( 'tail', kwargs.pop( 'tl', None) )
@@ -139,7 +139,7 @@ class NamedUI( unicode, BaseUI , iDagItem, EventSenderUI ):
         >>> uiinstance.e_eventlongname = yourFunction( sender, *args, **kwargs )
         >>> *args and **kwargs are determined by maya
 
-    :note: although many access methods look quite 'repeated' as they are quite
+    @note although many access methods look quite 'repeated' as they are quite
         similar except for a changing flag, they are hand-written to provide proper docs for them"""
     __metaclass__ = typ.MetaClassCreatorUI
 
@@ -152,7 +152,7 @@ class NamedUI( unicode, BaseUI , iDagItem, EventSenderUI ):
     @classmethod
     def _exists( cls, uiname ):
         """
-        :return: 1 if the given UI element exists, 0 if it does not exist
+        @return 1 if the given UI element exists, 0 if it does not exist
             and 2 it exists but the passed in name does not guarantee there are not more
             objects with the same name"""
         try:
@@ -172,7 +172,7 @@ class NamedUI( unicode, BaseUI , iDagItem, EventSenderUI ):
         """If name is given, the newly created UI will wrap the UI with the given name.
         Otherwise the UIelement will be created
 
-        :param kwargs:
+        @param kwargs
         
              * name: 
                 name of the user interface to wrap or the target name of a new elf element.
@@ -192,8 +192,8 @@ class NamedUI( unicode, BaseUI , iDagItem, EventSenderUI ):
                 with that name might already exist below another parent. This is required if
                 you have a short name only
                 
-        :note: you can use args safely for your own purposes
-        :note: if name is set but does not name a valid user interface, a new one
+        @note you can use args safely for your own purposes
+        @note if name is set but does not name a valid user interface, a new one
             will be created, and passed to the constructor"""
         name = kwargs.pop( "name", None )
         exists = (( name is not None) and NamedUI._exists(str(name))) or False
@@ -275,34 +275,34 @@ class NamedUI( unicode, BaseUI , iDagItem, EventSenderUI ):
     #} END overridden methods
 
     def children( self, **kwargs ):
-        """:return: all intermediate child instances
-        :note: the order of children is lexically ordered at this time
-        :note: this implementation is slow and should be overridden by more specialized subclasses"""
+        """@return all intermediate child instances
+        @note the order of children is lexically ordered at this time
+        @note this implementation is slow and should be overridden by more specialized subclasses"""
         return filter( lambda x: len( x.replace( self , '' ).split('|') ) - 1 ==len( self.split( '|' ) ), self.childrenDeep() )
 
     def childrenDeep( self, **kwargs ):
-        """:return: all child instances recursively
-        :note: the order of children is lexically ordered at this time
-        :note: this implementation is slow and should be overridden by more specialized subclasses"""
+        """@return all child instances recursively
+        @note the order of children is lexically ordered at this time
+        @note this implementation is slow and should be overridden by more specialized subclasses"""
         kwargs['long'] = True
         return filter( lambda x: x.startswith(self) and not x == self, lsUI(**kwargs))
 
     def _parentString(self):
-        """:return: string of the parent, without a wrap
-        :note: this helps mainly as a workaround for a maya 2011 issues, causing 
+        """@return string of the parent, without a wrap
+        @note this helps mainly as a workaround for a maya 2011 issues, causing 
             objectTypeUI not to work on many items"""
         return '|'.join(self.split('|')[:-1])
 
     def parent( self ):
-        """:return: parent instance of this ui element"""
+        """@return parent instance of this ui element"""
         return wrapUI(self._parentString())
 
     #{ Hierachy Handling
 
     @classmethod
     def activeParent( cls ):
-        """:return: NameUI of the currently set parent
-        :raise RuntimeError: if no active parent was set"""
+        """@return NameUI of the currently set parent
+        @throws RuntimeError if no active parent was set"""
         # MENU
         wrapuiname = None
         if cls._is_menu:
@@ -327,20 +327,20 @@ class NamedUI( unicode, BaseUI , iDagItem, EventSenderUI ):
         Use this callback to register yourself from all your event senders, then call 
         the base class method.
         
-        :note: This is not related to the __del__ method of your object. Its worth
+        @note This is not related to the __del__ method of your object. Its worth
             noting that your instance will be strongly bound to a maya event, hence 
             your instance will exist as long as your user interface element exists 
             within maya."""
         self.clearAllEvents()
     
     def type( self ):
-        """:return: the python class able to create this class
-        :note: The return value is NOT the type string, but a class """
+        """@return the python class able to create this class
+        @note The return value is NOT the type string, but a class """
         uitype = getUIType( self )
         return getattr( ui, capitalize( uitype ) )
 
     def shortName( self ):
-        """:return: shortname of the ui ( name without pipes )"""
+        """@return shortname of the ui ( name without pipes )"""
         return self.split('|')[-1]
 
     def delete( self ):
@@ -348,7 +348,7 @@ class NamedUI( unicode, BaseUI , iDagItem, EventSenderUI ):
         cmds.deleteUI( self )
 
     def exists( self ):
-        """:return: True if this instance still exists in maya"""
+        """@return True if this instance still exists in maya"""
         try:
             return self.__melcmd__( self, ex=1 )
         except RuntimeError:
@@ -389,18 +389,18 @@ class SizedControl( NamedUI ):
     #{ Query Methods
 
     def annotation( self ):
-        """:return : the annotation string """
+        """@return the annotation string """
         try:
             return self.__melcmd__( self, q=1, ann=1 )
         except TypeError:
             return ""
 
     def dimension( self ):
-        """:return: (x,y) tuple of x and y dimensions of the UI element"""
+        """@return (x,y) tuple of x and y dimensions of the UI element"""
         return ( self.__melcmd__( self, q=1, w=1 ), self.__melcmd__( self, q=1, h=1 ) )
 
     def popupMenuArray( self ):
-        """:return: popup menus attached to this control"""
+        """@return popup menus attached to this control"""
         return wrapUI( self.__melcmd__( self, q=1, pma=1 ) )
 
     #}END query methods
@@ -409,12 +409,12 @@ class SizedControl( NamedUI ):
 
     def setAnnotation( self, ann ):
         """Set the UI element's annotation
-        :note: not all named UI elements can have their annotation set"""
+        @note not all named UI elements can have their annotation set"""
         self.__melcmd__( self, e=1, ann=ann )
 
     def setDimension( self, dimension ):
         """Set the UI elements dimension
-        :param dimension: (x,y) : tuple holding desired x and y dimension"""
+        @param dimension (x,y) : tuple holding desired x and y dimension"""
         self.__melcmd__( self, e=1, w=dimension[0] )
         self.__melcmd__( self, e=1, h=dimension[1] )
         
@@ -435,7 +435,7 @@ class SizedControl( NamedUI ):
 class Window( SizedControl, uiutil.UIContainerBase ):
     """Simple Window Wrapper
     
-    :note: Window does not support some of the properties provided by sizedControl"""
+    @note Window does not support some of the properties provided by sizedControl"""
     __metaclass__ = typ.MetaClassCreatorUI
     _properties_ = (    "t", "title",
                         "i", "iconify",
@@ -462,27 +462,27 @@ class Window( SizedControl, uiutil.UIContainerBase ):
 
     def show( self ):
         """ Show Window
-        :return: self"""
+        @return self"""
         cmds.showWindow( self )
         return self
 
     def numberOfMenus( self ):
-        """:return: number of menus in the menu array"""
+        """@return number of menus in the menu array"""
         return int( self.__melcmd__( self, q=1, numberOfMenus=1 ) )
 
     def menuArray( self ):
-        """:return: Menu instances attached to this window"""
+        """@return Menu instances attached to this window"""
         return wrapUI( self.__melcmd__( self, q=1, menuArray=1 ) )
 
     def isFrontWindow( self ):
-        """:return: True if we are the front window """
+        """@return True if we are the front window """
         return bool( self.__melcmd__( self, q=1, frontWindow=1 ) )
 
     def setMenuIndex( self, menu, index ):
         """Set the menu index of the specified menu
         
-        :param menu: name of child menu to set
-        :param index: new index at which the menu should appear"""
+        @param menu name of child menu to set
+        @param index new index at which the menu should appear"""
         return self.__melcmd__( self, e=1, menuIndex=( menu, index ) )
 
     #} END window speciic
@@ -518,15 +518,15 @@ class ContainerMenuBase( uiutil.UIContainerBase ):
     def setActive( self ):
         """Make ourselves the active menu
         
-        :return: self"""
+        @return self"""
         cmds.setParent( self, m=1 )
         return self
 
     def setParentActive( self ):
         """Make our parent the active menu layout
         
-        :return: self
-        :note: only useful self is a submenu"""
+        @return self
+        @note only useful self is a submenu"""
         cmds.setParent( ".." , m=1 )
         return self
 
@@ -541,8 +541,8 @@ class Menu( MenuBase, ContainerMenuBase ):
                     )
     
     def itemArray(self):
-        """:return: An array of our menuItems
-        :note: This method worksaround a maya 2011 problem that makes it impossible
+        """@return An array of our menuItems
+        @note This method worksaround a maya 2011 problem that makes it impossible
             to properly wrap menuItems with short names as returned by p_itemArray"""
         return [MenuItem(name="%s|%s" % (self, i)) for i in noneToList(self.p_itemArray)]
 
@@ -599,8 +599,8 @@ class MenuItem( MenuBase ):
                 )
 
     def toMenu(self):
-        """:return: Menu representing self if it is a submenu
-        :raise TypeError: if self i no submenu"""
+        """@return Menu representing self if it is a submenu
+        @throws TypeError if self i no submenu"""
         if not self.p_sm:
             raise TypeError( "%s is not a submenu and cannot be used as menu" )
 

@@ -23,7 +23,7 @@ class PromptDialog( Dialog ):
 
     def __init__( self, title, message, okText, cancelText, **kwargs ):
         """ Create a prompt dialog and allow to query the result
-        :note: return default text in batch mode, given with 'text' key"""
+        @note return default text in batch mode, given with 'text' key"""
         if cmds.about( batch=1 ):
             return kwargs.get( 'text', kwargs.get( 't', '' ) )
 
@@ -34,7 +34,7 @@ class PromptDialog( Dialog ):
             self._text = cmds.promptDialog( q=1, text = 1 )
 
     def text( self ):
-        """:return: the entered text or None if the box has been aborted"""
+        """@return the entered text or None if the box has been aborted"""
         return self._text
 
 
@@ -44,10 +44,10 @@ class Prompt( iPrompt ):
     def prompt( self ):
         """Aquire the information using a prompt dialog
         
-        :return: prompted value if input was confirmed using confirmToken, or the cancelValue
+        @return prompted value if input was confirmed using confirmToken, or the cancelValue
             if cancelToken was pressed
-        :note: tokens correspond to buttons
-        :note: handles batch mode correctly"""
+        @note tokens correspond to buttons
+        @note handles batch mode correctly"""
         if cmds.about( batch = 1 ):
             return super( Prompt, self ).prompt( )
 
@@ -139,11 +139,11 @@ class ProgressWindow( iProgressIndicator ):
         mutils.executeDeferred( cmds.progressWindow, ep=1 )
 
     def isCancelRequested( self ):
-        """:return: True if the action should be cancelled, False otherwise"""
+        """@return True if the action should be cancelled, False otherwise"""
         return cmds.progressWindow( q=1, ic=1 )
 
     def isAbortable( self ):
-        """:return : true if the process can be aborted"""
+        """@return true if the process can be aborted"""
         return cmds.progressWindow( q=1, ii=1 )
 
     def setAbortable( self, state ):
