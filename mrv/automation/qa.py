@@ -14,7 +14,7 @@ The quality assurance framework is defined by:
      * `QACheckAttribute`
 
 They specialize the respective parts of the workflow"""
-__docformat__ = "restructuredtext"
+
 
 from workflow import Workflow
 from process import ProcessBase
@@ -190,7 +190,7 @@ class QAWorkflow( Workflow, EventSender ):
         @return list( tuple( QACheckShell, QACheckResult ), ... ) list of pairs of
             QACheckShells and the check's result. The test result will be empty if the test
             did not run or failed with an exception
-        @note Sends the following events: ``e_preCheck`` , ``e_postCheck``, ``e_checkError``
+        @note Sends the following events: `e_preCheck` , `e_postCheck`, `e_checkError`
             e_checkError may set the abort_on_error variable to True to cause the operation
             not to proceed with other checks"""
         # reset abort on error to class default

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """ Contains improved clases for set and partition editing  """
-__docformat__ = "restructuredtext"
+
 
 import base as nt
 import typ
@@ -487,7 +487,7 @@ class ObjectSet:
         return self._applySetOp( objects, "intersection", sets_are_members = sets_are_members )
         
     def getDifference( self, objects, sets_are_members = False  ):
-        """return the result of ``self minus objects``, thus objects will be substracted from our obejcts
+        """return the result of `self minus objects`, thus objects will be substracted from our obejcts
         
         @param objects see `union`
         @param sets_are_members see `union`

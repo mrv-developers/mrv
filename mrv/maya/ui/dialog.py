@@ -2,7 +2,7 @@
 """
 Contains some default dialogs as well as layouts suitable for layout dialogs
 """
-__docformat__ = "restructuredtext"
+
 
 import base as uibase
 import maya.cmds as cmds

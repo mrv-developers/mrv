@@ -9,7 +9,7 @@ import optparse
 
 log = logging.getLogger("mrv.cmd.base")
 
-__docformat__ = "restructuredtext"
+
 
 __all__ = [ 'is_supported_maya_version', 'python_version_of', 'parse_maya_version', 'update_env_path', 
             'maya_location', 'update_maya_environment', 'exec_python_interpreter', 'uses_mayapy', 
@@ -552,7 +552,7 @@ class SpawnedCommand(object):
     the configuration will be applied according to k_log_application_id
     
     The parser used to parse all options is vailable at its member called 'parser', 
-    its set during ``option_parser``
+    its set during `option_parser`
     
     The instance may also be created within an existing process and 
     executed manually - in that case it will not exit automatically if a 
@@ -846,10 +846,10 @@ class SpawnedCommand(object):
     
     def _execute(self, *args):
         """internal method handling the basic arguments in a pre-process before 
-        calling ``execute``
+        calling `execute`
         
         We will parse all options, process the default ones and pass on the 
-        call to the ``execute`` method"""
+        call to the `execute` method"""
         options, args = self._preprocess_args(*self.option_parser().parse_args(list(args)))
         
         # make sure we have a default setup at least !

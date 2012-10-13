@@ -2,7 +2,7 @@
 """
 Contains the most controls like buttons and sliders for more convenient use
 """
-__docformat__ = "restructuredtext"
+
 
 import base as uibase
 import util as uiutil

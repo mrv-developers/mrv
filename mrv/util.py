@@ -1,11 +1,18 @@
-# -*- coding: utf-8 -*-
-"""All kinds of utility methods and classes that are used in more than one modules """
+#-*-coding:utf-8-*-
+"""
+@package mrv.util
+@brief All kinds of utility methods and classes that are used in more than one modules
+
+@copyright 2012 Sebastian Thiel
+"""
+import mrv.interface
+
 import networkx as nx
 from collections import deque as Deque
 import weakref
 import inspect
 import itertools
-from interface import iDuplicatable
+import interface
 
 from path import make_path
 
@@ -13,9 +20,9 @@ import os
 import logging
 log = logging.getLogger("mrv.maya.ui.util")
 
-__docformat__ = "restructuredtext"
+
 __all__ = ("decodeString", "decodeStringOrList", "capitalize", "uncapitalize", 
-    "pythonIndex", "copyClsMembers", "packageClasses", "iterNetworkxGraph", 
+           "pythonIndex", "copyClsMembers", "packageClasses", "iterNetworkxGraph", 
            "Call", "CallAdv", "WeakInstFunction", "Event", "EventSender", 
            "InterfaceMaster", "Singleton", "CallOnDeletion", 
            "DAGTree", "PipeSeparatedFile", "MetaCopyClsMembers", "And", "Or", 
@@ -62,7 +69,8 @@ def capitalize(s):
     return s[0].upper() + s[1:]
 
 def uncapitalize(s, preserveAcronymns=False):
-    """@return ``s`` with first letter lower case
+    """@return `s` with first letter lower case
+    @param s the string
     @param preserveAcronymns enabled ensures that 'NTSC' does not become 'nTSC'
     @note from pymel
     """
@@ -87,7 +95,8 @@ def copyClsMembers(sourcecls, destcls, overwritePrefix = None, forbiddenMembers 
     @param destcls class to receive members from sourcecls
     @param overwritePrefix if None, existing members on destcls will not be overwritten, if string,
         the original method will be stored in a name like prefix+originalname (allowing you to access the
-        original method lateron)
+        original method later on)
+    @param forbiddenMembers A list of item names that shouldn't be copied
     @param copyNamespaceGlobally if not None, the variable contains the name of the namespace as string 
         whose methods should also be copied into the global namespace, possibly overwriting existing ones.
         For instance, 'nsmethod' will be available as obj.nsmethod and as obj.method if the namespace value was 'ns.
@@ -149,8 +158,8 @@ def iterNetworkxGraph(graph, startItem, direction = 0, prune = lambda i,g: False
                        visit_once = True, ignore_startitem=1):
     """@return iterator yielding pairs of depth, item 
     @param direction specifies search direction, either :
-        0 = items being successors of startItem
-        1 = items being predecessors of startItem
+        - 0 = items being successors of startItem
+        - 1 = items being predecessors of startItem
     @param prune return True if item d,i in graph g should be pruned from result.
         d is the depth of item i
     @param stop return True if item d,i in graph g, d is the depth of item i
@@ -222,7 +231,7 @@ class Call(object):
 
     def __call__(self, *args, **kwargs):
         """Execute the stored function on call
-        @note having ``args`` and ``kwargs`` set makes it more versatile"""
+        @note having `args` and `kwargs` set makes it more versatile"""
         return self.func(*self.args, **self.kwargs)
 
 
@@ -288,19 +297,22 @@ class Event(object):
     EventSender"""
     _inst_event_attr = '__events__' # dict with event -> set() relation
     
-    #{ Configuration
-    # if true, functions will be weak-referenced - its useful if you use instance
-    # variables as callbacks
+    # -------------------------
+    ## @name Configuration
+    # @{
+    
+    ## if true, functions will be weak-referenced - its useful if you use instance
+    ## variables as callbacks
     use_weakref = True
 
-    # if True, callback handlers throwing an exception will immediately be
-    # removed from the callback list
+    ## if True, callback handlers throwing an exception will immediately be
+    ## removed from the callback list
     remove_on_error = False
     
-    
-    # If not None, this value overrides the corresponding value on the EventSender class
+    ## If not None, this value overrides the corresponding value on the EventSender class
     sender_as_argument = None
-    #} END configuration
+    
+    ## -- End Configuration -- @}
 
     # internally used to keep track of the current sender. Is None if no event
     # is being fired
@@ -309,12 +321,12 @@ class Event(object):
     def __init__(self, **kwargs):
         """
         @param kwargs
-             * weak: if True, default class configuration use_weakref, weak
-                references will be created for event handlers, if False it will be strong
-                references
-             * remove_failed: if True, defailt False, failed callback handlers
-                will be removed silently
-             * sender_as_argument - see class member"""
+         - weak: if True, default class configuration use_weakref, weak
+            references will be created for event handlers, if False it will be strong
+            references
+         - remove_failed: if True, defailt False, failed callback handlers
+            will be removed silently
+         - sender_as_argument - see class member"""
         self.use_weakref = kwargs.get("weak", self.__class__.use_weakref)
         self.remove_on_error = kwargs.get("remove_failed", self.__class__.remove_on_error)
         self.sender_as_argument = kwargs.get("sender_as_argument", self.__class__.sender_as_argument)
@@ -380,7 +392,6 @@ class Event(object):
         
     def send(self, *args, **kwargs):
         """Send our event using the given args
-        
         @note if an event listener is weak referenced and goes out of scope
         @note will catch all event exceptions trown by the methods called
         @return False if at least one event call threw an exception, true otherwise"""
@@ -471,18 +482,21 @@ class EventSender(object):
     """Base class for all classes that want to provide a common callback interface
     to supply event information to clients.
     
-    **Usage**:
+    Usage
+    -----
     Derive from this class and define your callbacks like:
     
-        >>> event = Event()
-        >>> # Call it using
-        >>> self.event.send([*args][,**kwargs]])
+    @code
+    event = Event()
+    # Call it using
+    self.event.send([*args][,**kwargs]])
 
-        >>> # Users register using
-        >>> yourinstance.event = callable
+    # Users register using
+    yourinstance.event = callable
 
-        >>> # and deregister using
-        >>> yourinstance.event.remove(callable)
+    # and deregister using
+    yourinstance.event.remove(callable)
+    @endcode
 
     @note if use_weakref is True, we will weakref the eventfunction, and deal
         properly with instance methods which would go out of scope immediatly otherwise
@@ -528,15 +542,22 @@ class EventSender(object):
         return Event._curSender
     
 
-class InterfaceMaster(iDuplicatable):
+class InterfaceMaster(mrv.interface.iDuplicatable):
     """Base class making the derived class an interface provider, allowing interfaces
     to be set, queried and used including build-in use"""
     __slots__ = ("_idict",)
-    #{ Configuration
-    im_provide_on_instance = True            # if true, interfaces are available directly through the class using descriptors
-    #} END configuration
+    # -------------------------
+    ## @name Configuration
+    # @{
+    
+    ## if true, interfaces are available directly through the class using descriptors    
+    im_provide_on_instance = True
+    ## -- End Configuration -- @}
 
-    #{ Helper Classes
+    # -------------------------
+    ## @name Helpers
+    # @{
+    
     class InterfaceDescriptor(object):
         """Descriptor handing out interfaces from our interface dict
         They allow access to interfaces directly through the InterfaceMaster without calling
@@ -612,14 +633,12 @@ class InterfaceMaster(iDuplicatable):
             caller - you will not receive a call from it anymore """
             pass
 
-    #} END helper classes
+    ## -- End Helpers -- @}
 
-    #{ Object Overrides
     def __init__(self):
         """Initialize the interface base with some tracking variables"""
         self._idict = dict()            # keep interfacename->interfaceinstance relations
 
-    #} END object overrides
 
     def copyFrom(self, other, *args, **kwargs):
         """Copy all interface from other to self, use they duplciate method if
@@ -633,7 +652,10 @@ class InterfaceMaster(iDuplicatable):
         # END for each interface in other
 
 
-    #{ Interface
+    # -------------------------
+    ## @name Interface
+    # @{
+    
     def setInterface(self, interfaceName, interfaceInstance):
         """Set the given interfaceInstance to be handed out once an interface
         with interfaceName is requested from the provider base
@@ -687,7 +709,7 @@ class InterfaceMaster(iDuplicatable):
         """@return list of names indicating interfaces available at our InterfaceMaster"""
         return self._idict.keys()
 
-    #} END interface
+    ## -- End Interface -- @}
 
 
 class Singleton(object) :
@@ -764,6 +786,7 @@ class DAGTree(nx.DiGraph):
         @note Directories are expected to exist
         @throws ValueError If an node's string representation contains a newline or 
             starts with a tab
+        @param output_path path to which to write the file
         @note works best with strings as nodes, which may not contain newlines"""
         fp = open(output_path, "wb")
         for depth, item in iterNetworkxGraph(self, root, branch_first=False, ignore_startitem=False):
@@ -780,7 +803,8 @@ class PipeSeparatedFile(object):
     """Read and write simple pipe separated files.
 
     The number of column must remain the same per line
-    **Format**:
+    Format
+    --------
     
         val11 | val2 | valn
         ...
@@ -837,7 +861,7 @@ class PipeSeparatedFile(object):
 class MetaCopyClsMembers(type):
     """Meta class copying members from given classes onto the type to be created
     it will read the following attributes from the class dict:
-    ``forbiddenMembers``, ``overwritePrefix``, ``__virtual_bases__``
+    `forbiddenMembers`, `overwritePrefix`, `__virtual_bases__`
 
     The virtual bases are a tuple of base classes whose members you whish to receive
     For information on these members, check the docs of `copyClsMembers`"""
@@ -864,7 +888,10 @@ class MetaCopyClsMembers(type):
         return super(MetaCopyClsMembers, metacls).__new__(metacls, name, bases, clsdict)
 
 
-#{ Predicates
+# ==============================================================================
+## @name Predicates
+# ------------------------------------------------------------------------------
+## @{
 
 # general boolean
 class And(object):
@@ -906,10 +933,13 @@ class Or(object):
         # END for each function
         return val
 
-#} END predicates
+## -- End Predicates -- @}
 
-#{ Module initialization helpers 
-
+# ==============================================================================
+ ## @name Module Initialization helpers
+ # ------------------------------------------------------------------------------
+ ## @{
+ 
 def list_submodules(path):
     """
     @return set(submodule_name, ...) list of submodule names that could 
@@ -929,4 +959,4 @@ def list_subpackages(path):
     """@return list of sub-package names""" 
     return [str(p.basename()) for p in make_path(path).dirname().dirs() if p.files("__init__.py?")]
 
-#} END module initialization helpers
+## -- End Module Initialization helpers -- @}

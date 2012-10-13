@@ -1,20 +1,20 @@
-# -*- coding: utf-8 -*-
-"""Contains interface definitions """
-__docformat__ = "restructuredtext"
+#-*-coding:utf-8-*-
+"""
+@package mrv.interface
+@brief Contains interface definitions
 
+@copyright 2012 Sebastian Thiel
+"""
 from collections import deque as Deque
 import logging
 log = logging.getLogger('mrv.interface')
 
-__all__ = ("Interface", "iDagItem", "iDuplicatable", "iChoiceDialog", "iPrompt", 
-           "iProgressIndicator")
+__all__ = ("Interface", "iDagItem", "iDuplicatable", "iChoiceDialog", "iPrompt",  "iProgressIndicator")
 
 class Interface( object ):
     """Base for all interfaces.
     All interfaces should derive from here."""
     
-    # assure we can be handled efficiently - subclasses are free not to define 
-    # slots, but those who do will not inherit a __dict__ from here
     __slots__ = tuple()
     
     def supports( self, interface_type ):
@@ -41,19 +41,23 @@ class iDagItem( Interface ):
         define that attribute on instance or on class level"""
 
     kOrder_DepthFirst, kOrder_BreadthFirst = range(2)
-
-    # assure we can be handled efficiently - subclasses are free not to define 
-    # slots, but those who do will not inherit a __dict__ from here
+    
     __slots__ = tuple()
 
-    #{ Configuration
-    # separator as appropriate for your class if it can be treated as string
-    # if string treatment is not possibly, override the respective method
+    # -------------------------
+    ## @name Configuration
+    # @{
+    
+    ## separator as appropriate for your class if it can be treated as string
+    ## if string treatment is not possibly, override the respective method
     _sep = None
-    #} END configuration
+    
+    ## -- End Configuration -- @}
 
-    #{ Query Methods
-
+    # -------------------------
+    ## @name Query Methods
+    # @{
+    
     def isRoot( self ):
         """@return True if this path is the root of the DAG """
         return self ==  self.root()
@@ -136,9 +140,12 @@ class iDagItem( Interface ):
         other = self.addSep( str( other ), self._sep )
         return other.startswith( selfstr )
 
-    #} END Query Methods
+    ## -- End Query Methods -- @}
 
-    #{ Iterators
+    # -------------------------
+    ## @name Iterators
+    # @{
+    
     def iterParents( self , predicate = lambda x : True ):
         """@return generator retrieving all parents up to the root
         @param predicate returns True for all x that you want to be returned"""
@@ -155,13 +162,17 @@ class iDagItem( Interface ):
         # END while true
 
 
-    #} END Iterators
+    ## -- End Iterators -- @}
 
-    #{ Name Generation
+    # -------------------------
+    ## @name Name Generation
+    # @{
+    
     @classmethod
     def addSep( cls, item, sep ):
         """@return item with separator added to it ( just once )
         @note operates best on strings
+        @param cls
         @param item item to add separator to
         @param sep the separator"""
         if not item.endswith( sep ):
@@ -178,21 +189,22 @@ class iDagItem( Interface ):
 
         return sname + childname
 
-    #} END name generation
+    ## -- End Name Generation -- @}
 
 
 class iDuplicatable( Interface ):
     """Simple interface allowing any class to be properly duplicated
     
     @note to implement this interface, implement `createInstance` and
-        `copyFrom` in your class """
+    `copyFrom` in your class """
     
-    # assure we can be handled efficiently - subclasses are free not to define 
-    # slots, but those who do will not inherit a __dict__ from here
     __slots__ = tuple()
     
     def __copyTo( self, instance, *args, **kwargs ):
-        """Internal Method with minimal checking"""
+        """Internal Method with minimal checking
+        @param instance
+        @param args
+        @param kwargs"""
         # Get reversed mro, starting at lowest base
         mrorev = instance.__class__.mro()
         mrorev.reverse()
@@ -217,8 +229,10 @@ class iDuplicatable( Interface ):
         # return the result !
         return instance
     
-    #{ Interface
-
+    # -------------------------
+    ## @name Interface
+    # @{
+    
     def createInstance( self, *args, **kwargs ):
         """Create and Initialize an instance of self.__class__( ... ) based on your own data
         
@@ -226,7 +240,7 @@ class iDuplicatable( Interface ):
         @note using self.__class__ instead of an explicit class allows derived
             classes that do not have anything to duplicate just to use your implementeation
             
-        @note you must support ``args`` and ``kwargs`` if one of your iDuplicate bases does"""
+        @note you must support `args` and `kwargs` if one of your iDuplicate bases does"""
         return self.__class__(*args, **kwargs)
 
     def copyFrom( self, other, *args, **kwargs ):
@@ -234,10 +248,10 @@ class iDuplicatable( Interface ):
         Only copy the data that is unique to your specific class - the data of other
         classes will be taken care of by them !
         
-        @note you must support ``args`` and ``kwargs`` if one of your iDuplicate bases does"""
+        @note you must support `args` and `kwargs` if one of your iDuplicate bases does"""
         raise NotImplementedError( "Copy all data you know from other into self" )
 
-    #} END interface
+    ## -- End Interface -- @}
 
     def duplicate( self, *args, **kwargs ):
         """Implements a c-style copy constructor by creating a new instance of self
@@ -267,6 +281,8 @@ class iDuplicatable( Interface ):
         Only the common classes will be copied to instance
         
         @return altered instance
+        @param instance
+        @param args
         @param kwargs
              If 'no_type_check' is given and a true value, we will allow to copy ourselves into any value.
         @note instance will be altered during the process"""
@@ -315,13 +331,14 @@ class iChoiceDialog( Interface ):
         
         @note all paramaters exist in a short and a long version for convenience, given
             in the form short/long
+        @param args
         @param kwargs
-             * t/title: optional title of the choice box, quickly saying what this choice is about
-             * m/message: message to be shown, informing the user in detail what the choice is about
-             * c/choices: single item or list of items identifying the choices if used as string
-             * dc/defaultChoice: choice in set of choices to be used as default choice, default is first choice
-             * cc/cancelChoice: choice in set of choices to be used if the dialog is cancelled using esc,
-               default is last choice"""
+         - t/title: optional title of the choice box, quickly saying what this choice is about
+         - m/message: message to be shown, informing the user in detail what the choice is about
+         - c/choices: single item or list of items identifying the choices if used as string
+         - dc/defaultChoice: choice in set of choices to be used as default choice, default is first choice
+         - cc/cancelChoice: choice in set of choices to be used if the dialog is cancelled using esc,
+           default is last choice"""
         self.title = kwargs.get( "t", kwargs.get( "title", "Choice Dialog" ) )
         self.message = kwargs.get( "m", kwargs.get( "message", None ) )
         assert self.message
@@ -335,7 +352,6 @@ class iChoiceDialog( Interface ):
 
         self.default_choice = kwargs.get( "dc", kwargs.get( "defaultChoice", self.choices[0] ) )
         self.cancel_choice = kwargs.get( "cc", kwargs.get( "cancelChoice", self.choices[-1] ) )
-
 
     def choice( self ):
         """Make the choice
@@ -359,11 +375,11 @@ class iPrompt( Interface ):
         """Configure the prompt, most parameters allow short and long names
         
         @param kwargs
-             * m/message: Message to be presented, like "Enter your name", must be set
-             * d/default: default value to return in case there is no input
-             * cd/cancelDefault: default value if prompt is cancelled
-             * confirmToken: token to enter/hit/press to finish the prompt
-             * cancelToken: token to cancel and abort the prompt"""
+         - m/message: Message to be presented, like "Enter your name", must be set
+         - d/default: default value to return in case there is no input
+         - cd/cancelDefault: default value if prompt is cancelled
+         - confirmToken: token to enter/hit/press to finish the prompt
+         - cancelToken: token to cancel and abort the prompt"""
         self.msg = kwargs.pop( "m", kwargs.pop( "message", None ) )
         assert self.msg is not None, "No Message given"
         self.confirmDefault = kwargs.pop( "d", kwargs.pop( "default", None ) )
@@ -392,10 +408,14 @@ class iProgressIndicator( Interface ):
         for you if you use the get() method yourself"""
 
 
-    #{ Initialization
+    # -------------------------
+    ## @name Initialization
+    # @{
+    
     def __init__( self, min = 0, max = 100, is_relative = True, may_abort = False, round_robin=False, **kwargs ):
         """@param min the minimum progress value
         @param max the maximum progress value
+        @param may_abort
         @param is_relative if True, the values given will be scaled to a range of 0-100,
             if False no adjustments will be done
         @param round_robin see `setRoundRobin` 
@@ -417,9 +437,12 @@ class iProgressIndicator( Interface ):
         call to the interface"""
         pass
 
-    #} END initialization
+    ## -- End Initialization -- @}
 
-    #{ Edit
+    # -------------------------
+    ## @name Edit
+    # @{
+    
     def refresh( self, message = None ):
         """Refresh the progress indicator so that it represents its values on screen.
         
@@ -461,7 +484,6 @@ class iProgressIndicator( Interface ):
     def setup( self, range=None, relative=None, abortable=None, begin=True, round_robin=None ):
         """Multifunctional, all in one convenience method setting all important attributes
         at once. This allows setting up the progress indicator with one call instead of many
-        
         @note If a kw argument is None, it will not be set
         @param range Tuple( min, max ) - start ane end of progress indicator range
         @param relative equivalent to `setRelative`
@@ -483,12 +505,14 @@ class iProgressIndicator( Interface ):
         if begin:
             self.begin()
 
-    #} END edit
+    ## -- End Edit -- @}
 
-    #{ Query
+    # -------------------------
+    ## @name Query
+    # @{
+    
     def get( self ):
         """@return the current progress value
-        
         @note if set to relative mode, values will range
             from 0.0 to 100.0.
             Values will always be within the ones returned by `range`"""
@@ -546,5 +570,6 @@ class iProgressIndicator( Interface ):
     def isCancelRequested( self ):
         """@return true if the operation should be aborted"""
         return False
-    #} END query
+        
+    ## -- End Query -- @}
 

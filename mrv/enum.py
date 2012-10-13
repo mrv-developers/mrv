@@ -1,6 +1,10 @@
-# -*- coding: utf-8 -*-
-"""This module is designed to be the equivalent of the enum type in other
-languages. An enumeration object is created at run time, and contains
+#-*-coding:utf-8-*-
+"""
+@package mrv.enum
+@brief This module is designed to be the equivalent of the enum type in other
+languages.
+
+An enumeration object is created at run time, and contains
 named members that are the enumeration elements.
 
 The enumeration is also a tuple of all of the values in it. You can iterate
@@ -14,32 +18,37 @@ are _repr_'d by the name of the element, which is convenient for testing,
 debugging, and generation text output.
 
 Example Code:
-    >>> # Using Element values
-    >>> Colors = Enumeration.create('red', 'green', 'blue')
+
+@code
+    # Using Element values
+    Colors = Enumeration.create('red', 'green', 'blue')
         
-    >>> # Using explicitly specified values
-    >>>Borders = Enumeration.create(('SUNKEN', 1),
-    >>>                             ('RAISED', 32),
-    >>>                             ('FLAT', 2))
+    # Using explicitly specified values
+    Borders = Enumeration.create(('SUNKEN', 1),
+                                 ('RAISED', 32),
+                                 ('FLAT', 2))
         
-    >>> x = Colors.red
-    >>> y = Colors.blue
+    x = Colors.red
+    y = Colors.blue
         
-    >>> assert x < y
-    >>> assert x == Colors('red')
-    >>> assert Borders.FLAT == 2:
-    >>> assert 1 in Borders
+    assert x < y
+    assert x == Colors('red')
+    assert Borders.FLAT == 2:
+    assert 1 in Borders
+@endcode
 
 @note slightly modified by Sebastian Thiel to be more flexible and suitable as
     base class
+    
+@copyright 2012 Sebastian Thiel
 """
-__docformat__ = "restructuredtext"
 __contact__='garret at bgb dot cc'
 __license__='freeware'
 
 import platform
 
 __all__ = ("Element", "Enumeration", "create")
+
 
 class Element(object):
     """Internal helper class used to represent an ordered abstract value.
@@ -229,7 +238,8 @@ class Enumeration(tuple):
 
     def _nextOrPrevious( self, element, direction, wrap_around ):
         """do-it method, see `next` and `previous`
-        
+        @param element
+        @param wrap_around
         @param direction -1 = previous, 1 = next """
         curindex = -1
         for i,elm in enumerate( self ):
@@ -284,13 +294,14 @@ def create(*elements, **kwargs ):
     Example:  Enumeration.create('fred', cls = EnumerationSubClass )
     Example:  Enumeration.create(Element('fred', Marge), ...)
 
+    @param elements
     @param kwargs 
-         * cls: The class to create an enumeration with, must be an instance of Enumeration
-         * elmcls: The class to create elements from, must be instance of Element
-         * bitflag: if True, default False, the values created will be suitable as bitflags.
-                    This will fail if you passed more items in than supported by the OS ( 32 , 64, etc ) or if
-                    you pass in tuples and thus define the values yourself.
-    :raise TypeError,ValueError: if bitflags cannot be supported in your case"""
+     - cls: The class to create an enumeration with, must be an instance of Enumeration
+     - elmcls: The class to create elements from, must be instance of Element
+     - bitflag: if True, default False, the values created will be suitable as bitflags.
+                This will fail if you passed more items in than supported by the OS ( 32 , 64, etc ) or if
+                you pass in tuples and thus define the values yourself.
+    @throws TypeError,ValueError if bitflags cannot be supported in your case"""
     cls = kwargs.pop( "cls", Enumeration )
     elmcls = kwargs.pop( "elmcls", Element )
     bitflag = kwargs.pop( "bitflag", False )

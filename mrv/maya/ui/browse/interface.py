@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """module with interfaces to define contracts"""
-__docformat__ = "restructuredtext"
+
 from mrv.interface import Interface
 
 __all__ = ('iFinderProvider', 'iOptions', 'iFinderFilter')
@@ -52,7 +52,7 @@ class iFinderProvider(Interface):
             
     def storeUrlItem(self, url_index, url_item):
         """Stores and associates a given url_index with a url_item. Makes the stored
-        item queryable by the ``storedUrlItemByIndex`` method
+        item queryable by the `storedUrlItemByIndex` method
         @param url_index index from 0 to n, where 0 corresponds to the first item
             in the url
         @param url_item the string item to store at the given index"""

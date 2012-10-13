@@ -1,6 +1,10 @@
-# -*- coding: utf-8 -*-
-""" Contains all exceptions used by the mrv package in general """
-__docformat__ = "restructuredtext"
+#-*-coding:utf-8-*-
+"""
+@package mrv.exc
+@brief Contains all exceptions used by the mrv package in general
+
+@copyright 2012 Sebastian Thiel
+"""
 
 class MRVError( Exception ):
     """ Base Class for all exceptions that the mrv framework throws"""

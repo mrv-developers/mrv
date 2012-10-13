@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-__docformat__ = "restructuredtext"
+
 import mrv.maya.ui as ui
 from mrv.maya.util import (logException,)
 
@@ -113,7 +113,7 @@ class Finder(ui.EventSenderUI):
         
     def setProvider(self, provider=None):
         """Set the provider to use
-        @param provider ``iFinderProvider`` compatible instance, or None
+        @param provider `iFinderProvider` compatible instance, or None
             If no provider is set, the instance will be blank"""
         if self._provider is provider:
             return

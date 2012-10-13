@@ -3,7 +3,7 @@
 
 @note It will not import anything if the sphinx build system is active as it 
     will take too much memory ( ~2gig )"""
-__docformat__ = "restructuredtext"
+
 import sys
 skip_import = sys.modules.has_key('sphinx')
 

@@ -3,7 +3,7 @@
 This module contains a storage interface able to easily handle python-style
 data within maya scenes. 
 """
-__docformat__ = "restructuredtext"
+
 
 import os
 import sys
@@ -51,12 +51,12 @@ if not hasattr(sys, "_maya_pyPickleData_trackingDict"):
 
 def createStorageAttribute(dataType, name_prefix=''):
     """ This method creates an Attribute in a configuration suitable to be used
-    with the ``StorageBase`` interface. 
+    with the `StorageBase` interface. 
     
     @note this allows your own plugin node to receive storage compatibility
     @param dataType the type of the typed attribute - either MTypeID or MFnData enumeration
         An MTypeID must point to a valid and already registered plugin data.
-        In order for the ``StorageBase`` interface to work, it must by ``PyPickleData.kPluginDataId``.
+        In order for the `StorageBase` interface to work, it must by `PyPickleData.kPluginDataId`.
     @param name_prefix string to be used as prefix for all short and long attribute names. 
         Useful if you want to have more than one storage attributes.
     @return attribute api object of its master compound attribute"""

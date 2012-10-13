@@ -2,7 +2,7 @@
 """
 Contains implementations of maya editors
 """
-__docformat__ = "restructuredtext"
+
 import base as uibase
 import util as uiutil
 

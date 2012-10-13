@@ -1,8 +1,9 @@
-# -*- coding: utf-8 -*-
+#-*-coding:utf-8-*-
 """
-Initialize mrv system assisting development, debugging and maintenance
+@package mrv
+@brief Initialize mrv system assisting development, debugging and maintenance
 
-    - install general `decorator` into __builtin__ namespace
+@copyright 2012 Sebastian Thiel
 """
 import __builtin__
 import logging
@@ -16,7 +17,11 @@ import os, sys
 from path import Path
 
 
-#{ Common
+# ==============================================================================
+## @name Common
+# ------------------------------------------------------------------------------
+## @{
+
 def init_modules( filepath, moduleprefix, recurse=False, self_module = None):
     """ Call '__initialize' functions in submodules of module at filepath if they exist
     These functions should setup the module to be ready for work, its a callback informing
@@ -90,10 +95,12 @@ def init_modules( filepath, moduleprefix, recurse=False, self_module = None):
             # EMD handle result
     # END for each file or dir
 
+## -- End Common -- @}
 
-#} END common
-
-#{ Initialization
+# ==============================================================================
+## @name Initialization
+# ------------------------------------------------------------------------------
+## @{
 
 def _remove_empty_syspath_entries():
     """fix sys.path: if there are empty entries and our cwd is the mrvroot
@@ -148,7 +155,7 @@ def _init_syspath( ):
     sys.path.append( networkxpath )
 
 
-# end __init_syspath
+## -- End Initialization -- @}
 
 
 def _init_KeyKeyValueStoreProvider( ):
@@ -191,19 +198,14 @@ def _init_logging( ):
         log.debug("Initialized logging configuration from file at %s" % logcfgfile)
     # END exception handling
     
-
-
+    
 def _init_python( ):
     """
     Assure that certain python classes have the least possible amount of compatablity
     so that we can work with them
     """
-    
 
-#} END initialization
 
-# INITIALIZE
-#############
 _init_syspath( )
 _init_KeyKeyValueStoreProvider( )
 _init_internationalization( )

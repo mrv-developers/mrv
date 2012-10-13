@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """Contains misc utiltiies"""
-__docformat__ = "restructuredtext"
+
 
 import mrv.maya
 import mrv.maya.ui as ui

@@ -159,7 +159,7 @@ def initWrappers( mdict, types, metacreatorcls, force_creation = False, substitu
     """ Create standin classes that will create the actual class once creation is
     requested.
     @param mdict module dictionary object from which the latter classes will be imported from, 
-    can be obtained using ``globals()`` in the module
+    can be obtained using `globals()` in the module
     @param types iterable containing the names of classnames ( they will be capitalized
     as classes must begin with a capital letter )
     @param substitute_existing if False, an existing type in mdict will be overwritten by a Standin type.

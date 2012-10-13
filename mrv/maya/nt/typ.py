@@ -4,7 +4,7 @@ Houses the MetaClass able to setup new types to work within the system. This can
 be considered the heart of the node wrapping engine, but it plays together with 
 the implementation in the `base` module.
 """
-__docformat__ = "restructuredtext"
+
 
 from mrv.maya.util import MetaClassCreator
 from mrv.maya.util import MEnumeration
@@ -65,7 +65,7 @@ class MetaClassCreatorNodes( MetaClassCreator ):
     @classmethod
     def _wrapStaticMembers( cls, newcls, mfncls ):
         """Find static mfnmethods - if these are available, initialize the 
-        mfn database for the given function set ( ``mfncls`` ) and create properly 
+        mfn database for the given function set ( `mfncls` ) and create properly 
         wrapped methods. 
         Additionally check for enumerations, and generate the respective enumeration
         instances

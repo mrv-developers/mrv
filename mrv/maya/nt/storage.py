@@ -2,14 +2,14 @@
 """Contains an implementation for the Persistence plugin for easy access within 
 mrv and derived nodes.
 """
-__docformat__ = "restructuredtext"
+
 
 import os
 from persistence import PyPickleData
 import maya.OpenMaya as api
 
 import mrv.maya.undo as undo
-from mrv.util import iDuplicatable
+from mrv.interface import iDuplicatable
 
 from base import Node, DependNode, Data, createNode, delete
 from set import ObjectSet
@@ -405,12 +405,12 @@ class StorageBase(iDuplicatable):
     #{ Edit
     
     def makePlug(self, dataID):
-        """see ``makePlug`` module level function"""
+        """see `makePlug` module level function"""
         return makePlug(self.masterPlug(), self._dprefix + dataID)
 
     @undoable
     def clearAllData(self):
-        """see ``clearAllData`` module level method
+        """see `clearAllData` module level method
         @note use this method if you want to make sure your node
             is empty after it has been duplicated (would usually be done in the postContructor"""
         return clearAllData(self.masterPlug())
@@ -448,7 +448,7 @@ class StorageBase(iDuplicatable):
         return dataIDs(self.masterPlug(), self._dprefix)
 
     def storagePlug(self, dataID, plugType = None, autoCreate=False):
-        """see ``storagePlug`` module level function"""
+        """see `storagePlug` module level function"""
         return storagePlug(self.masterPlug(), self._dprefix+dataID, plugType, autoCreate)
 
     #} END query plugs
@@ -493,12 +493,12 @@ class StorageBase(iDuplicatable):
     #{ Set Handling
     @undoable
     def objectSet(self, dataID, setIndex, autoCreate = True):
-        """see module level ``objectSet`` function"""
+        """see module level `objectSet` function"""
         return objectSet(self._elementPlug(dataID, self.kMessage, autoCreate), setIndex, autoCreate, dataID)
 
     @undoable
     def deleteObjectSet(self, dataID, setIndex):
-        """See the module level method called ``deleteObjectSet``"""
+        """See the module level method called `deleteObjectSet`"""
         try:
             return deleteObjectSet(self._elementPlug(dataID, self.kMessage, autoCreate = False), setIndex)
         except (ValueError, AttributeError):
@@ -514,7 +514,7 @@ class StorageBase(iDuplicatable):
 
     @undoable
     def setPartition(self, dataID, state):
-        """see ``setPartition`` function on module level"""
+        """see `setPartition` function on module level"""
         return setPartition(self._elementPlug(dataID, self.kMessage, autoCreate=False), state)
 
 

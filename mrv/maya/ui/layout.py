@@ -3,7 +3,7 @@
 Contains the most important mel-layouts wrapped into easy to use python classes
 These are specialized and thus more powerful than the default wraps
 """
-__docformat__ = "restructuredtext"
+
 import base as uibase
 import maya.cmds as cmds
 import mrv.maya.util as mutil

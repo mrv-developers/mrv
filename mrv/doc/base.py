@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """Contains basic classes and functionaliy"""
-__docformat__ = "restructuredtext"
+
 import os
 import sys
 import optparse
@@ -244,7 +244,7 @@ output: html"""
     
     def clean(self):
         """Clean the generated files by removing them
-        @note Must respect the options the same way as done by the ``generate``
+        @note Must respect the options the same way as done by the `generate`
         method"""
         if self._coverage:
             self.remove_version_info('coverage')

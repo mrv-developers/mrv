@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """ Contains implementations of animation specific types and utilities """
-__docformat__ = "restructuredtext"
+
 
 import base
 import maya.OpenMaya as api

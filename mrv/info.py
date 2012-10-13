@@ -1,56 +1,66 @@
-# -*- coding: utf-8 -*-
+#-*-coding:utf-8-*-
 """
-Provide project related global information.
+@package mrv.info
+@brief Provide project related global information.
 
 @note Importing this module must not have any side effects !
+@copyright 2012 Sebastian Thiel
 """
 import os
 
-# GENERAL INFORMATION
-#####################
+# ==============================================================================
+## @name General Information
+# ------------------------------------------------------------------------------
+## @{
+
 ## Version Info 
-# See http://docs.python.org/library/sys.html#sys.version_info for more information
-#               major, minor, micro, releaselevel, serial
+## See http://docs.python.org/library/sys.html#sys.version_info for more information
+##               major, minor, micro, releaselevel, serial
 version = (1,     0,     3,     'develop',        0)
 
-# The short name for your project, important for your documentation headline as 
-# well as for the name of your distribution archives and git heads.
+## The short name for your project, important for your documentation headline as 
+## well as for the name of your distribution archives and git heads.
 project_name = "mrv"
 
-# The name of your root package as used in import statements. Capitalization matters, 
-# usually all lower case letters
+## The name of your root package as used in import statements. Capitalization matters, 
+## usually all lower case letters
 root_package = "mrv"
 
-# The directory, relative to this file, containing all unit test. If it is not
-# set, it will default to 'test'
+## The directory, relative to this file, containing all unit test. If it is not
+## set, it will default to 'test'
 test_root = 'test'
 
-# The full name of the original author(s)
+## The full name of the original author(s)
 author = "Sebastian Thiel"
 
-# The author's email address(es), must be set to something for the distribution to work.
+## The author's email address(es), must be set to something for the distribution to work.
 author_email = 'byronimo@gmail.com'
 
-# URL of the project's home page, or '' if there is None
+## URL of the project's home page, or '' if there is None
 url = "https://github.com/Byron/mrv"
 
-# A short description of your project, usually not more than one line.
+## A short description of your project, usually not more than one line.
 description ='Development Framework for Autodesk Maya'
 
-# The name of the project's license
+## The name of the project's license
 license = "BSD License"
 
-# The sha belonging to the commit which created this release.
-# Will only be set in actual release versions, and must never be set manually
+## The sha belonging to the commit which created this release.
+## Will only be set in actual release versions, and must never be set manually
 src_commit_sha = '0'*40
 
+## -- End General Information -- @}
 
-# PATH INFORMATION
-###################
-# The distribution system offers to run regression tests automatically. For that 
-# to work, it needs a hint to where to find the respective executables.
-# These are assumed to be compatible to the ones provided by MRV in case 
-# you provide an own implementation.
+
+# ==============================================================================
+## @name Path Information
+# ------------------------------------------------------------------------------
+## @{
+
+## The distribution system offers to run regression tests automatically. For that 
+## to work, it needs a hint to where to find the respective executables.
+## These are assumed to be compatible to the ones provided by MRV in case 
+## you provide an own implementation.
 regression_test_exec = 'mrv/test/bin/tmrvr'
 nosetest_exec = 'mrv/test/bin/tmrv'
 # makedoc is special in that it wants to be started from within the project's doc
@@ -61,12 +71,17 @@ makedoc_exec = 'makedoc'
 # generation. If unset in your info.py, this default will be used
 docgen_class_path = "mrv.doc.base.DocGenerator"
 
+## -- End Path Information -- @}
 
-# SETUP SCRIPT KWARGS
-#####################
+
+# ==============================================================================
+## @name Setup Script kwargs
+# ------------------------------------------------------------------------------
 # MRV's distribution system is based on distutils. The following dictionary will 
 # be passed to the setup routine of the distutils and applies additional configuration.
 # Read more about the distutils: http://docs.python.org/distutils/
+## @{
+
 __scripts_bin = ['mrv/bin/mrv', 'mrv/bin/imrv']
 __scripts_test_bin = ['mrv/test/bin/tmrv', 'mrv/test/bin/tmrvr']
 __scripts_test_bin_s = [ p.replace('mrv/test/', '') for p in __scripts_test_bin ]
@@ -139,13 +154,22 @@ setup_kwargs = dict(
                                     build_scripts={ 'exclude_scripts' : ['mrv/test/bin/tmrvr']}) 
                     )
 
+## -- End Setup Script kwargs -- @}
 
-# EPYDOC CONFIGURATION
-######################
-# These values help to dynamically generate the epydoc.cfg file which will be used 
-# to configure the epydoc source documentaiton generator.
+
+# ==============================================================================
+## @name Epydoc Configuration
+# ------------------------------------------------------------------------------
+## @{
+
+## These values help to dynamically generate the epydoc.cfg file which will be used 
+## to configure the epydoc source documentaiton generator.
 doc_config = dict(
                 epydoc_show_source = 'yes',
                 epydoc_modules = "modules: unittest,../%s" % root_package,
                 epydoc_exclude = "mrv.test,%s.cmd.ipythonstartup" % root_package,
                 )
+
+## -- End Epydoc Configuration -- @}
+
+

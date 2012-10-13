@@ -86,7 +86,7 @@ class NotificatorWindow(ui.Window):
     def add_test_section(self, prepare_fun=None, check_fun=None, prepare_text=None, check_text=None):
         """Add a new test section
         @param prepare_fun function to prepare the section, fun()
-            It may give instructions through the window's ``notify`` method.
+            It may give instructions through the window's `notify` method.
             May be None in case no preparation is required
             signature is fun(data)
         @param check_fun Check function to check the result, fun()

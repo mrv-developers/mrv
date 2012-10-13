@@ -5,7 +5,7 @@ Contains some basic  classes that are required to run the nodes system
 All classes defined here can replace classes in the node type hierarachy if the name
 matches. This allows to create hand-implemented types.
 """
-__docformat__ = "restructuredtext"
+
 
 from typ import nodeTypeToMfnClsMap, nodeTypeTree, MetaClassCreatorNodes, _addCustomType
 from mrv.util import uncapitalize, capitalize, pythonIndex, Call 
@@ -284,9 +284,9 @@ def toNodesFromNames(nodenames, **kwargs):
 
 def findByName(name , **kwargs):
     """
-    @return list of node matching name, whereas simple regex using ``*`` can be used
+    @return list of node matching name, whereas simple regex using `*` can be used
         to describe a pattern
-    @param name string like pcube, or pcube*, or ``pcube*|*Shape``
+    @param name string like pcube, or pcube*, or `pcube*|*Shape`
     @param kwargs passed to `fromSelectionList`"""
     sellist = api.MSelectionList()
     api.MGlobal.getSelectionListByName(name, sellist)
@@ -426,10 +426,10 @@ def createNode(nodename, nodetype, autocreateNamespace=True, renameOnClash = Tru
                  forceNewLeaf=True , maxShapesPerTransform = 0):
     """Create a new node of nodetype with given nodename
     
-    @param nodename like ``mynode``or ``namespace:mynode`` or ``|parent|mynode`` or
-        ``|ns1:parent|ns1:ns2:parent|ns3:mynode``. The name may contain any amount of parents
+    @param nodename like `mynode`or `namespace:mynode` or `|parent|mynode` or
+        `|ns1:parent|ns1:ns2:parent|ns3:mynode`. The name may contain any amount of parents
         and/or namespaces.
-    @note For reasons of safety, dag nodes must use absolute paths like ``|parent|child`` -
+    @note For reasons of safety, dag nodes must use absolute paths like `|parent|child` -
         otherwise names might be ambiguous ! This method will assume absolute paths !
     @param nodetype a nodetype known to maya to be created accordingly
     @param autocreateNamespace if True, namespaces given in the nodename will be created
@@ -1717,7 +1717,7 @@ class DagNode(Entity, iDagItem):    # parent just for epydoc
              * '' - empty string, creates a unique name based on the actual node name by appending a copy number
                to it, if newTransform is True, the newly created shape/transform will keep its name, but receives a new parent
              * 'newname' - relative path, the node will be duplicated not changing its current parent if newTransform is False
-             * ``|parent|newname`` - absolute path, the node will be duplicated and reparented under the given path
+             * `|parent|newname` - absolute path, the node will be duplicated and reparented under the given path
                 if newTransform is True, a new transform name will be created based on your name by appending a unique copy number
             
         @param autocreateNamespace if true, namespaces given in newpath will be created automatically, otherwise

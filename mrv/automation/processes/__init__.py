@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """Contains all processes """
-__docformat__ = "restructuredtext"
+
 
 from mrv.automation.process import ProcessBase
 import mrv.util as util

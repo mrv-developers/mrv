@@ -2,7 +2,7 @@
 """
 Module containing helpers to create the UI types at runtime.
 """
-__docformat__ = "restructuredtext"
+
 
 import mrv.maya as mrvmaya
 from mrv.util import uncapitalize
@@ -59,7 +59,7 @@ class MetaClassCreatorUI( mutil.MetaClassCreator ):
         
      - assign an event:
        windowinstance.e_restoreCommand = func
-       whereas func takes: ``func( windowinstance, *args, **kwargs )``
+       whereas func takes: `func( windowinstance, *args, **kwargs )`
 
     **ADDITIONAL CONFIGURAITON**:
      - strong_event_handlers:

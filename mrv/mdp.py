@@ -1,8 +1,14 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
-"""Module containing the commandline interface for the Maya Depdendency Parser"""
+#-*-coding:utf-8-*-
+"""
+@package mrv.mdp
+@brief Module containing the commandline interface for the Maya Depdendency Parser
+
+@copyright 2012 Sebastian Thiel
+"""
 # may not be imported directly
 __all__ = None
+
 # assure we have the main module initialized
 import mrv
 from mdepparse import *
@@ -14,11 +20,11 @@ import getopt
 import sys
 
 
-
 def main( fileList, **kwargs ):
     """Called if this module is called directly, creating a file containing
         dependency information
     
+    @param fileList
     @param kwargs will be passed directly to `createFromFiles`"""
     return MayaFileGraph.createFromFiles( fileList, **kwargs )
 
@@ -108,6 +114,7 @@ All values returned in query mode will be new-line separated file paths
 def tokensToRemapFunc( tokenstring ):
     """Return a function applying remapping as defined by tokenstring
     
+    @param tokenstring
     @note it also applies a mapping from mb to ma, no matter what.
         Thus we currently only store .ma files as keys even though it might be mb files"""
     tokens = tokenstring.split( "=" )
@@ -125,10 +132,13 @@ def tokensToRemapFunc( tokenstring ):
 
 
 
-# COMMAND LINE INTERFACE
-############################
-if __name__ == "__main__":
-    # parse the arguments as retrieved from the command line !
+# ==============================================================================
+## @name Commandline Interface
+# ------------------------------------------------------------------------------
+## @{
+
+def main():
+    """ parse the arguments as retrieved from the command line !"""
     try:
         opts, rest = getopt.getopt( sys.argv[1:], "iat:s:ld:benvo:", [ "affects", "affected-by",
                                                                         "to-fs-map=","to-db-map=" ] )
@@ -295,3 +305,8 @@ if __name__ == "__main__":
             else:
                 pydot.write_dot( graph, dotOutputFile )
     # END dot writing
+    
+## -- End Commandline Interface -- @}
+
+if __name__ == "__main__":
+    main()

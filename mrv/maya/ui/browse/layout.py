@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """module containing layouts which combine finder ui modules"""
-__docformat__ = "restructuredtext"
+
 import sys
 import string
 

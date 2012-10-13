@@ -2,7 +2,7 @@
 """
 Allows convenient access and handling of references in an object oriented manner
 """
-__docformat__ = "restructuredtext"
+
 
 from mrv.path import make_path
 from mrv.util import And

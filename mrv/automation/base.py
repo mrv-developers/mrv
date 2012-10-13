@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """general methods and classes """
-__docformat__ = "restructuredtext"
+
 
 from mrv.dge import PlugAlreadyConnected
 import logging

@@ -3,7 +3,7 @@
 Allows to query the maya environment, like variables, version numbers and system
 paths.
 """
-__docformat__ = "restructuredtext"
+
 
 from maya import cmds
 

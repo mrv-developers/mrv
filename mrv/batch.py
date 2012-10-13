@@ -1,8 +1,13 @@
-#!/usr/bin/env python 
-# -*- coding: utf-8 -*-
-"""This modules contains utilities to do opeations in batch mode.
+#!/usr/bin/env python
+#-*-coding:utf-8-*-
+"""
+@package mrv.batch
+@brief This modules contains utilities to do opeations in batch mode.
+
 The module can be used from within python if required, but is more commonly used
 from the commandline, possibly wrapped by a shell script to specialize its usae
+
+@copyright 2012 Sebastian Thiel
 """
 import sys,os
 import signal
@@ -16,6 +21,10 @@ __all__ = None
 def superviseJobs( jobs, returnIfLessThan, cmdinput, errorstream, donestream ):
     """Check on the jobs we have and wait for finished ones. Write information
     about them into the respective streams
+    @param jobs
+    @param cmdinput
+    @param errorstream
+    @param donestream
     @param returnIfLessThan return once we have less than the given amount of running jobs"""
     sleeptime = 1.0      # wait one second in the main loop before checking the processes
 
@@ -118,7 +127,10 @@ def process( cmd, args, inputList, errorstream = None, donestream = None, inputs
     superviseJobs( jobs, 1, list(), errorstream, donestream )
 
 
-#{ Command Line Tool
+# ==============================================================================
+## @name Commandline Tool
+# ------------------------------------------------------------------------------
+## @{
 
 def _usageAndExit( msg = None ):
     """Print usage"""
@@ -143,6 +155,7 @@ def _usageAndExit( msg = None ):
 
 def _toStream( arg, stream ):
     """@return stream according to arg
+    @param arg
     @param stream stream to return if arg sais so """
     if arg == "-":
         return stream
@@ -262,4 +275,4 @@ def main( *args ):
 if __name__ == "__main__":
     main( *sys.argv[1:] )
 
-#} END command line tool
+## -- End Commandline Tool -- @}

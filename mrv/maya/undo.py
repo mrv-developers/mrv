@@ -29,7 +29,7 @@ To globally disable the undo queue using cmds.undo will disable tracking of opea
 still call the mel command.
 
 Disable the 'undoable' decorator effectively remove the surrounding mel script calls
-by setting the ``MRV_UNDO_ENABLED`` environment variable to 0 (default 1). 
+by setting the `MRV_UNDO_ENABLED` environment variable to 0 (default 1). 
 Additionally it will turn off the maya undo queue as a convenience.
 
 If the mrv undo queue is disabled, MPlugs will not store undo information anymore
@@ -42,7 +42,7 @@ Implementing an undoable method
    - only use operation's doIt() method to apply your changes
    - if you raise, you should not have created an undo operation
 """
-__docformat__ = "restructuredtext"
+
 
 import sys
 import os

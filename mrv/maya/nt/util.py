@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """General utility methods"""
-__docformat__ = "restructuredtext"
+
 
 import maya.OpenMaya as api
 import mrv.maya.undo as undo

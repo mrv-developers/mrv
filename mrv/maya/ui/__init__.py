@@ -3,7 +3,7 @@
 
 All classes of the ui submodules can be accessed by importing this package.
 """
-__docformat__ = "restructuredtext"
+
 
 ############################
 #### Exceptions         ####

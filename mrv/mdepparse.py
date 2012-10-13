@@ -1,11 +1,13 @@
-# -*- coding: utf-8 -*-
-"""Contains parser allowing to retrieve dependency information from maya ascii files
-and convert it into an easy-to-use networkx graph with convenience methods.
+#-*-coding:utf-8-*-
 """
-__docformat__ = "restructuredtext"
+@package mrv.mdepparse
+@brief Contains parser allowing to retrieve dependency information from maya ascii files and convert it into 
+an easy-to-use networkx graph with convenience methods.
 
+@copyright 2012 Sebastian Thiel
+"""
 from networkx import DiGraph, NetworkXError
-from util import iterNetworkxGraph
+import mrv.util
 from path import make_path
 
 import sys
@@ -25,11 +27,15 @@ class MayaFileGraph( DiGraph ):
     invalidNodeID = "__invalid__"
     invalidPrefix = ":_iv_:"
 
-    #{ Edit
+    # -------------------------
+    ## @name Edit
+    # @{
+    
     @classmethod
     def createFromFiles( cls, fileList, **kwargs ):
         """@return MayaFileGraph providing dependency information about the files
             in fileList and their subReference.
+        @param cls
         @param fileList iterable providing the filepaths to be parsed and added
             to this graph
         @param kwargs alll arguemnts of `addFromFiles` are supported """
@@ -82,6 +88,7 @@ class MayaFileGraph( DiGraph ):
 
     def _parseDepends( self, mafile, allPaths ):
         """@return list of filepath as parsed from the given mafile.
+        @param mafile
         @param allPaths if True, the whole file will be parsed, if False, only
             the reference section will be parsed"""
         outdepends = list()
@@ -104,6 +111,7 @@ class MayaFileGraph( DiGraph ):
         this graph
         
         @note the more files are given, the more efficient the method can be
+        @param mafiles
         @param parse_all_paths if True, default False, all paths found in the file will be used.
             This will slow down the parsing as the whole file will be searched for references
             instead of just the header of the file
@@ -159,15 +167,19 @@ class MayaFileGraph( DiGraph ):
             # END dependency loop
         # END for each file to parse
 
-        #} END edit
+    ## -- End Edit -- @}
 
-    #{ Query
+    # -------------------------
+    ## @name Query
+    # @{
+    
     def depends( self, filePath, direction = kAffects,
                    to_os_path = lambda f: os.path.expandvars( f ),
                     os_path_to_db_key = lambda f: f, return_unresolved = False,
                    invalid_only = False, **kwargs ):
         """@return list of paths ( converted to os paths ) that are related to
             the given filePath
+        @param filePath
         @param direction specifies search direction, either :
             kAffects = Files that filePath affects
             kAffectedBy = Files that affect filePath
@@ -193,7 +205,7 @@ class MayaFileGraph( DiGraph ):
         outlist = list()
 
         try:
-            for d, f in iterNetworkxGraph( self, keypath, **kwargs ):
+            for d, f in mrv.util.iterNetworkxGraph( self, keypath, **kwargs ):
                 is_valid = f not in invalid
                 f = to_os_path( f )     # remap only valid paths
 
@@ -218,5 +230,5 @@ class MayaFileGraph( DiGraph ):
         except NetworkXError:
             return list()
         # END no invalid found exception handling
-    #} END query
+    ## -- End Query -- @}
 

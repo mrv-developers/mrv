@@ -4,7 +4,7 @@ from mrv.path import make_path
 
 def fixture_path( name ):
     """@return
-        path to fixture file with ``name``, you can use a relative path as well, like
+        path to fixture file with `name`, you can use a relative path as well, like
         subfolder/file.ext"""
     return make_path(os.path.abspath( os.path.join( os.path.dirname( __file__ ), "../fixtures/%s" % name ) ))
     

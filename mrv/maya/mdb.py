@@ -7,7 +7,7 @@ Provides classes and functions operating on the MayaAPI class database
 @note The implementation is considered internal and may change any time unless stated
     otherwise.
 """
-__docformat__ = "restructuredtext"
+
 
 from mrv.path import make_path
 from mrv.util import PipeSeparatedFile

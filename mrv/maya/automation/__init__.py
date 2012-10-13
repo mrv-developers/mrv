@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """Intiailize the automation and process framework for maya """
-__docformat__ = "restructuredtext"
+
 
 #{ Initialization
 

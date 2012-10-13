@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """Specialization of workflow to allow checks to be natively implemented in MEL """
-__docformat__ = "restructuredtext"
+
 
 from mrv.automation.qa import QACheck, QACheckAttribute, QACheckResult
 from mrv.maya.util import Mel

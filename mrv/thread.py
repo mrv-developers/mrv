@@ -1,11 +1,19 @@
-# -*- coding: utf-8 -*-
-"""Module with threading utilities"""
-__docformat__ = "restructuredtext"
+#-*-coding:utf-8-*-
+"""
+@package mrv.thread
+@brief Module with threading utilities
+
+@copyright 2012 Sebastian Thiel
+"""
 import threading
 import inspect
 import Queue
 
-#{ Decorators
+# ==============================================================================
+## @name Decorators
+# ------------------------------------------------------------------------------
+## @{
+
 
 def do_terminate_threads(whitelist=list()):
     """Simple function which terminates all of our threads
@@ -40,16 +48,15 @@ def terminate_threads( func ):
     wrapper.__name__ = func.__name__
     return wrapper
 
-#} END decorators
+## -- End Decorators -- @}
 
-#{ Classes
-    
+
 class TerminatableThread(threading.Thread):
     """A simple thread able to terminate itself on behalf of the user.
     
     Terminate a thread as follows:
     
-    t.stop_and_join()
+        t.stop_and_join()
     
     Derived classes call _should_terminate() to determine whether they should 
     abort gracefully
@@ -70,7 +77,7 @@ class TerminatableThread(threading.Thread):
         """Called once the thread terminated. Its called in the main thread
         and may perform cleanup operations
         @note in the current implementation, this method will only be called if 
-            the thread was stopped by ``stop_and_join``. If you have very important
+            the thread was stopped by `stop_and_join`. If you have very important
             cleanup to do, you should do it before you exit your run method"""
         pass
 
@@ -107,26 +114,30 @@ class WorkerThread(TerminatableThread):
     Tasks could be anything, but should usually be class methods and arguments to
     allow the following:
     
+    @code
     inq = Queue()
     outq = Queue()
     w = WorkerThread(inq, outq)
     w.start()
     inq.put((WorkerThread.<method>, args, kwargs))
     res = outq.get()
+    @endcode
     
     finally we call quit to terminate asap.
     
     alternatively, you can make a call more intuitively - the output is the output queue
     allowing you to get the result right away or later
-    w.call(arg, kwarg='value').get()
     
+    @code
+    w.call(arg, kwarg='value').get()
     inq.put(WorkerThread.quit)
     w.join()
+    @endcode
     
     You may provide the following tuples as task:
-    t[0] = class method, function or instance method
-    t[1] = optional, tuple or list of arguments to pass to the routine
-    t[2] = optional, dictionary of keyword arguments to pass to the routine
+    - t[0] = class method, function or instance method
+    - t[1] = optional, tuple or list of arguments to pass to the routine
+    - t[2] = optional, dictionary of keyword arguments to pass to the routine
     """
     __slots__ = ('inq', 'outq')
     
@@ -142,11 +153,11 @@ class WorkerThread(TerminatableThread):
         """Method that makes the call to the worker using the input queue, 
         returning our output queue
         
-        @param funciton can be a standalone function unrelated to this class, 
+        @param function can be a standalone function unrelated to this class, 
             a class method of this class or any instance method.
             If it is a string, it will be considered a function residing on this instance
         @param args arguments to pass to function
-        :parma **kwargs: kwargs to pass to function"""
+        @param kwargs kwargs to pass to function"""
         self.inq.put((function, args, kwargs))
         return self.outq
     
@@ -219,5 +230,3 @@ class WorkerThread(TerminatableThread):
     def quit(self):
         raise StopIteration
     
-    
-#} END classes

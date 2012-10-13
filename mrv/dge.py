@@ -1,25 +1,26 @@
-# -*- coding: utf-8 -*-
-"""Contains a simple but yet powerful dependency graph engine allowing computations
-to be organized more efficiently.
+#-*-coding:utf-8-*-
 """
-__docformat__ = "restructuredtext"
+@package mrv.dge
+@brief Contains a simple but yet powerful dependency graph engine allowing computations to be organized more efficiently
 
+@copyright 2012 Sebastian Thiel
+"""
 import networkx as nx
 from collections import deque
 import inspect
 import weakref
 import itertools
-from util import iDuplicatable
+import mrv.interface
 
 __all__ = ("ConnectionError", "PlugIncompatible", "PlugAlreadyConnected", "AccessError",
            "NotWritableError", "NotReadableError", "MissingDefaultValueError", "ComputeError", 
            "ComputeFailed", "ComputeFailed", "PlugUnhandled", 
            "iterShells", "Attribute", "iPlug", "plug", "Graph", "NodeBase")
 
-#####################
-## EXCEPTIONS ######
-###################
-#{ Exceptions
+# ==============================================================================
+## @name Exceptions
+# ------------------------------------------------------------------------------
+## @{
 
 class ConnectionError( Exception ):
     """Exception base for all plug related errors"""
@@ -53,16 +54,16 @@ class ComputeFailed( ComputeError ):
 class PlugUnhandled( ComputeError ):
     """Raised if a plug was not handled by the node's compute method"""
 
-#} END exceptions
+## -- End Exceptions -- @}
 
 
 
-#####################
-## Iterators  ######
-###################
-#{ Iterators
-def iterShells( rootPlugShell, stopAt = lambda x: False, prune = lambda x: False,
-               direction = "up", visit_once = False, branch_first = False ):
+# ==============================================================================
+## @name Iterators
+# ------------------------------------------------------------------------------
+## @{
+
+def iterShells( rootPlugShell, stopAt = lambda x: False, prune = lambda x: False, direction = "up",  visit_once = False, branch_first = False ):
     """Iterator starting at rootPlugShell going "up"stream ( input ) or "down"stream ( output )
     breadth first over plugs, applying filter functions as defined.
     
@@ -139,53 +140,53 @@ def iterShells( rootPlugShell, stopAt = lambda x: False, prune = lambda x: False
         # END downstream
     # END for each shell on work stack
 
-#} END iterators
+## -- End Iterators -- @}
 
 
-#####################
-## Classes    ######
-###################
+# ==============================================================================
+## @name Plugs and Attributes
+# ------------------------------------------------------------------------------
+## @{
 
-
-#{ END Plugs and Attributes
-
-class Attribute( object ):
+class Attribute(object):
     """Simple class defining the type of a plug and several flags that
     affect it. Additionally it can determine how well suited another attribute is
+    Flags
+    -----
+    exact_type: if True, derived classes of our typecls are not considered to be a valid type.
+    i.e: basestring could be stored in a str attr if exact type is false - its less than we need, but
+    still something.
+    Putting a str into a basestring attribute will always work though, as it would be more than we need
+    readonly: if True, the attribute's plug cannot be written to. Read-only attributes can be used
+    as storage that the user can read, but not write.
+    You can write read-only plugs by directly setting its cache - this of course - is only
+    for the node itself, but will never be done by the framework
+    
+    computable
+    ----------
+    Nodes are automatically computable if they are affected by another plug.
+    If this is not the case, they are marked input only and are not computed.
+    If this flag is true, even unaffeted plugs are computable.
+    Plugs that affect something are automatically input plugs and will not be computed.
+    If the plug does not affect anything and this flag is False, they are seen as input plugs
+    anyway.
 
-    **Flags**:
-        exact_type: if True, derived classes of our typecls are not considered to be a valid type.
-        i.e: basestring could be stored in a str attr if exact type is false - its less than we need, but
-        still something.
-        Putting a str into a basestring attribute will always work though, as it would be more than we need
-        readonly: if True, the attribute's plug cannot be written to. Read-only attributes can be used
-        as storage that the user can read, but not write.
-        You can write read-only plugs by directly setting its cache - this of course - is only
-        for the node itself, but will never be done by the framework
+    The system does not allow plugs to be input and output plugs at the same time, thus your compute
+    cannot be triggered by your own compute
+            
+    cls: if True, the plug requires classes to be set ( instances of 'type' ) , but no instances of these classes
+    uncached: if False, computed values may be cached, otherwise they will always be recomputed.
+    unconnectable: if True, the node cannot be the destination of a connection
+    check_passing_values: check each value as it flows through a connection - usually compatability is only checked
+    on connection and once values are set, but not if they flow through an existing connection
     
-    **computable**:
-        Nodes are automatically computable if they are affected by another plug.
-        If this is not the case, they are marked input only and are not computed.
-        If this flag is true, even unaffeted plugs are computable.
-        Plugs that affect something are automatically input plugs and will not be computed.
-        If the plug does not affect anything and this flag is False, they are seen as input plugs
-        anyway.
-    
-        The system does not allow plugs to be input and output plugs at the same time, thus your compute
-        cannot be triggered by your own compute
-                
-        cls: if True, the plug requires classes to be set ( instances of 'type' ) , but no instances of these classes
-        uncached: if False, computed values may be cached, otherwise they will always be recomputed.
-        unconnectable: if True, the node cannot be the destination of a connection
-        check_passing_values: check each value as it flows through a connection - usually compatability is only checked
-        on connection and once values are set, but not if they flow through an existing connection
-    
-    **Default Values**:
-        Although default values can be simple primitives are classes, a callable is specifically supported.
-        It allows you to get a callback whenever a default value is required.
-        The same result could be achieved by connected the plug in question, but dynamic defaults are a quick
-        way to achive that.
-        Your returned value will be type-checked against the required type if check_passing_values is set."""
+    Default Values
+    --------------
+    Although default values can be simple primitives are classes, a callable is specifically supported.
+    It allows you to get a callback whenever a default value is required.
+    The same result could be achieved by connected the plug in question, but dynamic defaults are a quick
+    way to achive that.
+    Your returned value will be type-checked against the required type if check_passing_values is set."""
     kNo, kGood, kPerfect = 0, 127, 255              # specify how good attributes fit together
     exact_type, readonly, computable, cls, uncached, unconnectable,check_passing_values = ( 1, 2, 4, 8, 16, 32, 64 )
 
@@ -231,8 +232,10 @@ class Attribute( object ):
 
         return rate
 
-    #{ Interface
-
+    # -------------------------
+    ## @name Interface
+    # @{
+    
     def affinity( self, otherattr ):
         """Compute affinity for otherattr.
         
@@ -315,7 +318,7 @@ class Attribute( object ):
         return self._default
 
 
-    #} END interface
+    ## -- End Interface -- @}
 
 
 
@@ -330,19 +333,19 @@ class iPlug( object ):
     need to be re-retrieved on freshly duplicated nodes to allow graph duplication to
     be done properly
 
-    @note if your plug class supports the ``setName`` method, a metaclass will
+    @note if your plug class supports the `setName` method, a metaclass will
         adjust the name of your plug to match the name it has in the parent class
     """
     kNo,kGood,kPerfect = ( 0, 127, 255 )
 
-    #{ Base Implementation
     def __str__( self ):
         return self.name()
 
-    #} END base implementation
 
-
-    #{ Interface
+    # -------------------------
+    ## @name Interface
+    # @{
+    
     def name( self ):
         """@return name of the plug ( the name that identifies it on the node"""
         raise NotImplementedError( "Implement this in subclass" )
@@ -368,7 +371,7 @@ class iPlug( object ):
         """@return True if this is an input plug that will never cause computations"""
         raise NotImplementedError( "Implement this in subclass" )
 
-    #} END interface
+    ## -- End Interface -- @}
 
 
 class plug( iPlug ):
@@ -391,7 +394,6 @@ class plug( iPlug ):
     """
     kNo,kGood,kPerfect = ( 0, 127, 255 )
 
-    #{ Overridden object methods
     def __init__( self, attribute ):
         """Intialize the plug with a distinctive name"""
         self._name = None
@@ -399,10 +401,11 @@ class plug( iPlug ):
         self._affects = list()          # list of plugs that are affected by us
         self._affectedBy = list()       # keeps record of all plugs that affect us
 
-    #} END object overridden methods
 
-    #{ Value access
-
+    # -------------------------
+    ## @name Value Access
+    # @{
+    
     def __get__( self, obj, cls=None ):
         """A value has been requested - return our plugshell that brings together
         both, the object and the static plug"""
@@ -420,7 +423,7 @@ class plug( iPlug ):
         # raise AssertionError( "To set this value, use the node.plug.set( value ) syntax" )
         # obj.toShell( self ).set( value )
 
-    #} value access
+    ## -- End Value Access -- @}
 
 
     def name( self ):
@@ -460,8 +463,7 @@ class plug( iPlug ):
         #return len( self._affects ) != 0 and not self.providesOutput( )
         return not self.providesOutput() # previous version did not recognize storage plugs as input
 
-
-#} END plugs and attributes
+## -- End Plugs and Attributes -- @}
 
 
 class _PlugShell( tuple ):
@@ -478,8 +480,10 @@ class _PlugShell( tuple ):
     @note Do not instantiate this class youself, it must be created by the node as different
     node types can use different versions of this shell"""
 
-    #{ Object Overrides
-
+    # -------------------------
+    ## @name Object Overrides
+    # @{
+    
     def __new__( cls, *args ):
         return tuple.__new__( cls, args )
 
@@ -499,11 +503,13 @@ class _PlugShell( tuple ):
     def __str__( self ):
         return repr( self )
 
-    #} END object overrides
+    ## -- End Object Overrides -- @}
 
 
-    #{ Values
-
+    # -------------------------
+    ## @name Values
+    # @{
+    
     def get( self, mode = None ):
         """@return value of the plug
         @param mode optional arbitary value specifying the mode of the get attempt"""
@@ -554,6 +560,7 @@ class _PlugShell( tuple ):
 
     def set( self, value, ignore_connection = False ):
         """Set the given value to be used in our plug
+        @param value
         @param ignore_connection if True, the plug can be destination of a connection and
         will still get its value set - usually it would be overwritten by the value form the
         connection. The set value will be cleared if something upstream in it's connection chain
@@ -585,14 +592,15 @@ class _PlugShell( tuple ):
         """
         return self.plug.attr.compatabilityRate( value )
 
+    ## -- End Values -- @}
 
-    #} END values
-
-    #{ Connections
-
+    # -------------------------
+    ## @name Connections
+    # @{
+    
     def connect( self, otherplugshell, **kwargs ):
         """Connect this plug to otherplugshell such that otherplugshell is an input plug for our output
-        
+        @param otherplugshell
         @param kwargs everything supported by `Graph.connect`
         @return self on success, allows chained connections
         @throws PlugAlreadyConnected if otherplugshell is connected and force is False
@@ -629,6 +637,8 @@ class _PlugShell( tuple ):
     def connections( self, inpt, output, predicate = lambda shell: True ):
         """@return get all input and or output connections from this shell
             or to this shell as edges ( sourceshell, destinationshell )
+        @param inpt
+        @param output
         @param predicate return true for each destination shell that you can except in the
             returned edge or the sourceshell where your shell is the destination.
         @note Use this method to get edges read for connection/disconnection"""
@@ -655,10 +665,13 @@ class _PlugShell( tuple ):
         node.outAttribute.iterShells( )"""
         return iterShells( self, **kwargs )
 
-    #} END connections
+    ## -- End Connections -- @}
 
 
-    #{Caching
+    # -------------------------
+    ## @name Caching
+    # @{
+    
     def _cachename( self ):
         return self.plug.name() + "_c"
 
@@ -716,26 +729,25 @@ class _PlugShell( tuple ):
             for shell in all_shells:
                 shell.clearCache( clear_affected = True, cleared_shells_set = cleared_shells_set )
             # END for each shell in all_shells to clear
-    #} END caching
+    ## -- End Caching -- @}#} END caching
 
-
-    #{ Name Overrides
     __rshift__ = lambda self,other: self.connect( other, force=True )
     # NOTE: this will cause problems when sorting them :) - so lets just use >> for the
     # forced connection !
     # __gt__ = lambda self,other: self.connect( other, force=False )
 
-    #} END name overrides
 
 
-
-class Graph( nx.DiGraph, iDuplicatable ):
+class Graph( nx.DiGraph, mrv.interface.iDuplicatable ):
     """Holds the nodes and their connections
 
     Nodes are kept in a separate list whereas the plug connections are kept
     in the underlying DiGraph"""
 
-    #{ Overridden Object Methods
+    # -------------------------
+    ## @name Overridden Object Methods
+    # @{
+    
     def __init__( self, **kwargs ):
         """initialize the DiGraph and add some additional attributes"""
         super( Graph, self ).__init__( **kwargs )
@@ -756,9 +768,12 @@ class Graph( nx.DiGraph, iDuplicatable ):
         except NameError:
             return super( Graph, self ).__getattribute__( attr )
 
-    #} END object methods
+    ## -- End Overridden Object Methods -- @}
 
-    #{ Debugging
+    # -------------------------
+    ## @name Debugging
+    # @{
+    
     def writeDot( self , fileOrPath  ):
         """Write the connections in self to the given file object or path
         @todo remove if no longer needed"""
@@ -787,9 +802,8 @@ class Graph( nx.DiGraph, iDuplicatable ):
         # WRITE DOT FILE
         nx.write_dot(writegraph, fileOrPath)
 
-    #} END debugging
+    ## -- End Debugging -- @}
 
-    #{ iDuplicatable Interface
     def createInstance( self ):
         """Create a copy of self and return it"""
         return self.__class__( )
@@ -830,10 +844,10 @@ class Graph( nx.DiGraph, iDuplicatable ):
         # END for each edge( startshell, endshell )
 
 
-    # END iDuplicatable
-
-
-    #{ Node Handling
+    # -------------------------
+    ## @name Node Handling
+    # @{
+    
     def addNode( self, node ):
         """Add a new node instance to the graph
         @note node membership is exclusive, thus node instances
@@ -875,10 +889,12 @@ class Graph( nx.DiGraph, iDuplicatable ):
         for node in self._nodes:
             node.clearCache()
 
-    #} END node handling
+    ## -- End Node Handling -- @}
 
-    #{ Query
-
+    # -------------------------
+    ## @name Query
+    # @{
+    
     def hasNode( self , node ):
         """@return True if the node is in this graph, false otherwise"""
         return node in self._nodes
@@ -925,10 +941,12 @@ class Graph( nx.DiGraph, iDuplicatable ):
 
         raise NameError( "Node with ID %s not found in graph" % nodeID )
 
+    ## -- End Query -- @}
 
-    #} END query
-
-    #{ Connecitons
+    # -------------------------
+    ## @name Connections
+    # @{
+    
     def connect( self, sourceshell, destinationshell, force = False ):
         """Connect this plug to destinationshell such that destinationshell is an input plug for our output
         
@@ -991,13 +1009,14 @@ class Graph( nx.DiGraph, iDuplicatable ):
 
     def outputs( self, plugshell, predicate = lambda x : True ):
         """@return a list of plugs being the destination of the connection to plugshell
+        @param plugshell
         @param predicate plug will only be returned if predicate is true for it - shells will be passed in """
         try:
             return [ s for s in self.successors( plugshell ) if predicate( s ) ]
         except nx.NetworkXError:
             return list()
 
-    #} END connections
+    ## -- End Connections -- @}
 
 
 class _NodeBaseCheckMeta( type ):
@@ -1037,9 +1056,7 @@ class _NodeBaseCheckMeta( type ):
         return newcls
 
 
-
-
-class NodeBase( iDuplicatable ):
+class NodeBase( mrv.interface.iDuplicatable ):
     """Base class that provides support for plugs to the superclass.
     It will create some simple tracking attriubtes required for the plug system
     to work
@@ -1052,12 +1069,12 @@ class NodeBase( iDuplicatable ):
     shellcls = _PlugShell                   # class used to instantiate new shells
     __metaclass__ = _NodeBaseCheckMeta      # check the class before its being created
 
-    #{ Overridden from Object
     def __init__( self, *args, **kwargs ):
         """We require a directed graph to track the connectivity between the plugs.
         It must be supplied by the super class and should be as global as required to
         connecte the NodeBases together properly.
         
+        @param args
         @param kwargs 'id' = id of the instance, defaults to None if it is not required
         @note we are super() compatible, and assure our base is initialized correctly"""
         self.graph = None
@@ -1084,9 +1101,7 @@ class NodeBase( iDuplicatable ):
             return str( self.id() )
 
         return super( NodeBase, self ).__str__( )
-    #} Overridden from Object
 
-    #{ iDuplicatable Interface
     def createInstance( self, *args, **kwargs ):
         """Create a copy of self and return it
         
@@ -1095,7 +1110,7 @@ class NodeBase( iDuplicatable ):
 
     def copyFrom( self, other, add_to_graph = True ):
         """Just take the graph from other, but do not ( never ) duplicate it
-        
+        @param other
         @param add_to_graph if true, the new node instance will be added to the graph of
         @note default implementation does not copy plug caches ( which are stored in
             the node dict - this is because a reevaluate is usually required on the
@@ -1104,9 +1119,7 @@ class NodeBase( iDuplicatable ):
         if add_to_graph and other.graph:        # add ourselves to the graph of the other node
             other.graph.addNode( self )
 
-    #} END iDuplicatable
 
-    #{ Base Interface
     def compute( self, plug, mode ):
         """Called whenever a plug needs computation as the value its value is not
         cached or marked dirty ( as one of the inputs changed )
@@ -1118,9 +1131,11 @@ class NodeBase( iDuplicatable ):
         @note to be implemented by superclass """
         raise NotImplementedError( "To be implemented by subclass" )
 
-    #} END base interface
 
-    #{ ID Handling
+    # -------------------------
+    ## @name ID Handling
+    # @{
+    
     def setID( self, newID ):
         """Set id of this node to newiD
         @return previously assigned id"""
@@ -1132,9 +1147,8 @@ class NodeBase( iDuplicatable ):
         """@return ID of this instance"""
         return self._id
 
-    #} END id handling
+    ## -- End ID Handling -- @}
 
-    #{ Base
     def toShells( self, plugs ):
         """@return list of shells made from plugs and our node"""
         # may not use it as generator as it binds variables ( of course ! )
@@ -1157,6 +1171,7 @@ class NodeBase( iDuplicatable ):
     def plugsStatic( cls, predicate = lambda x: True ):
         """@return list of static plugs as defined on this node - they are class members
         @param predicate return static plug only if predicate is true
+        @param cls
         @note Use this method only if you do not have an instance - there are nodes
             that actually have no static plug information, but will dynamically generate them.
             For this to work, they need an instance - thus the plugs method is an instance
@@ -1236,6 +1251,8 @@ class NodeBase( iDuplicatable ):
             Thus they could connect to it as well as get their value set.
             Most suitable plug comes first.
             Incompatible plugs will be pruned.
+        @param cls
+        @param plugs
         @param attrOrValue either an attribute or the value you would like to set to the
             attr at the plug in question.
         @param raise_on_ambiguity if True, the method raises if a plug has the same
@@ -1304,9 +1321,4 @@ class NodeBase( iDuplicatable ):
         # END ambiguous check
 
         return outSorted
-
-    #} END base
-
-
-
 

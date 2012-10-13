@@ -2,7 +2,7 @@
 """
 Utilities and classes useful for user interfaces
 """
-__docformat__ = "restructuredtext"
+
 
 from mrv.util import EventSender, Event, Call, WeakInstFunction
 import maya.cmds as cmds
@@ -15,7 +15,7 @@ def makeEditOrQueryMethod( flag, isEdit=False, methodName=None ):
     """Create a function calling inFunc with an edit or query flag set.
     
     @note only works on mrv wrapped ui elements
-    @note THIS IS MOSTLY A DUPLICATION OF PROVEN CODE FROM ``mrv.maya.util`` !
+    @note THIS IS MOSTLY A DUPLICATION OF PROVEN CODE FROM `mrv.maya.util` !
     @param flag name of the query or edit flag
     @param isEdit If not False, the method returned will be an edit function
     @param methodName the name of the method returned, defaults to inCmd name"""
@@ -68,7 +68,7 @@ class Signal( Event ):
     unless we are being properly cleaned up on deletion.
     
     Calls generated from this event will not put the sender as first argument, but 
-    you may retrieve it using ``self.sender()``."""
+    you may retrieve it using `self.sender()`."""
     #{ Configuration 
     use_weakref = False
     remove_on_error = False
@@ -83,12 +83,12 @@ class EventSenderUI( EventSender ):
     keeping an own list of callbacks registered for a specific event, and calling them
     whenever the maya ui callback has been triggered
 
-    To use this class , see the documentation of ``EventSender``, but use the Event
+    To use this class , see the documentation of `EventSender`, but use the Event
     instead.
-    If you want to add your own events, use your own ``Signal`` s.
+    If you want to add your own events, use your own `Signal` s.
 
     The class does NOT use weakreferences for the main callbacks to make it easier to use.
-    Use the ``WeakFunction`` to properly and weakly bind an instance function
+    Use the `WeakFunction` to properly and weakly bind an instance function
 
     When registered for an event, the sender will be provided to each callback as first
     argument.

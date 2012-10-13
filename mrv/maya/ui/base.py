@@ -2,7 +2,7 @@
 """
 Contains some basic  classes that are required to run the UI system
 """
-__docformat__ = "restructuredtext"
+
 import maya.cmds as cmds
 from mrv.util import capitalize
 from mrv.maya.util import noneToList

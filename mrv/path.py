@@ -1,22 +1,22 @@
-# -*- coding: utf-8 -*-
-"""path.py - An object representing a path to a file or directory.
+#-*-coding:utf-8-*-
+"""
+@package mrv.path
+@brief An object representing a path to a file or directory.
 
-Example:
-    >>> from path import path
-    >>> d = path('/home/guido/bin')
-    >>> for f in d.files('*.py'):
-    >>>     f.chmod(0755)
+@code
+    from path import path
+    d = path('/home/guido/bin')
+    for f in d.files('*.py'):
+        f.chmod(0755)
+@endcode
 
 This module requires Python 2.4 or later.
 
-TODO
-----
+@todo
    - Tree-walking functions don't avoid symlink loops.  Matt Harrison sent me a patch for this.
    - Tree-walking functions can't ignore errors.  Matt Harrison asked for this.
-
    - Two people asked for path.chdir().  This just seems wrong to me,
      I dunno.  chdir() is moderately evil anyway.
-
    - Bug in write_text().  It doesn't support Universal newline mode.
    - Better error message in listdir() when self isn't a
      directory. (On Windows, the error message really sucks.)
@@ -24,9 +24,11 @@ TODO
    - Add methods for regex find and replace.
    - guess_content_type() method?
    - Could add split() and join() methods that generate warnings.
+   
+@copyright 2012 Sebastian Thiel
 """
 from __future__ import generators
-__docformat__ = "restructuredtext"
+
 
 __license__='Freeware'
 
@@ -38,7 +40,7 @@ import glob
 import shutil
 import codecs
 import re
-from interface import iDagItem
+import mrv.interface
 log = logging.getLogger("mrv.path")
 
 __version__ = '3.0'
@@ -91,7 +93,7 @@ class TreeWalkWarning(Warning):
     pass
 
 
-class Path( _base, iDagItem ):
+class Path( _base, mrv.interface.iDagItem ):
     """ Represents a filesystem path.
 
     For documentation on individual methods, consult their
@@ -101,8 +103,10 @@ class Path( _base, iDagItem ):
     sep = None
     osep = None
     
-    #{ Special Python methods
-
+    # -------------------------
+    ## @name Operators
+    # @{
+    
     def __repr__(self):
         return '%s(%s)' % ( self.__class__.__name__, _base.__repr__(self) )
 
@@ -146,7 +150,7 @@ class Path( _base, iDagItem ):
         """Expanded hash method"""
         return hash(unicode(self._expandvars(self)))
 
-    #} END Special Python methods
+    ## -- End Operators -- @}
 
     @classmethod
     def set_separator(cls, sep):
@@ -169,8 +173,6 @@ class Path( _base, iDagItem ):
         """@return the current working directory as a path object. """
         return cls(_getcwd())
 
-    #{ iDagItem Implementation
-
     def parent( self ):
         """@return the parent directory of this Path or None if this is the root"""
         parent = self.dirname()
@@ -191,9 +193,10 @@ class Path( _base, iDagItem ):
 
         return [ c for c in children if predicate( c ) ]
 
-    #} END idagitem implementation
 
-    #{ Operations on path strings.
+    # -------------------------
+    ## @name String Path Operations
+    # @{
     
     @classmethod
     def _expandvars(cls, path):
@@ -201,8 +204,8 @@ class Path( _base, iDagItem ):
         expanded variable
         
         @note It is a slightly changed copy of the version in posixfile
-            as the windows version was implemented differently ( it expands
-            variables to an empty space which is undesireable )"""
+        as the windows version was implemented differently ( it expands
+        variables to an empty space which is undesireable )"""
         if '$' not in path:
             return path
         
@@ -310,7 +313,7 @@ class Path( _base, iDagItem ):
         return self.__class__(parent), child
 
     def splitdrive(self):
-        """ p.splitdrive() -> Return (p.drive, <the rest of p>).
+        """ p.splitdrive() -> Return (p.drive, \<the rest of p>).
 
         Split the drive specifier from this path.  If there is
         no drive specifier, p.drive is empty, so the return value
@@ -439,10 +442,12 @@ class Path( _base, iDagItem ):
             d = "\\"
         return Path( self.replace( s, d ) )
 
-    #} END Operations on path strings
+    ## -- End String Path Operations -- @}
 
-    #{ Listing, searching, walking, and matching
-
+    # -------------------------
+    ## @name Listing, searching, walking, and matching
+    # @{
+    
     def listdir(self, pattern=None):
         """return list of items in this directory.
 
@@ -466,7 +471,7 @@ class Path( _base, iDagItem ):
         This does not walk recursively into subdirectories
         (but see path.walkdirs).
 
-        With the optional ``pattern`` argument, this only lists
+        With the optional `pattern` argument, this only lists
         directories whose names match the given pattern.  For
         example, d.dirs("build-\*").
         """
@@ -478,7 +483,7 @@ class Path( _base, iDagItem ):
         The elements of the list are path objects.
         This does not walk into subdirectories (see path.walkfiles).
 
-        With the optional ``pattern`` argument, this only lists files
+        With the optional `pattern` argument, this only lists files
         whose names match the given pattern.  For example,
         d.files("\*.pyc").
         """
@@ -579,11 +584,13 @@ class Path( _base, iDagItem ):
         pathexpanded = self.expandvars()
         return [cls(s) for s in glob.glob(_base(pathexpanded / pattern))]
 
-    #} END Listing, searching, walking and watching
+    ## -- End Listing, searching, walking, and matching -- @}
 
 
-    #{ Reading or writing an entire file at once
-
+    # -------------------------
+    ## @name Reading or writing an entire file at once
+    # @{
+    
     def open(self, *args, **kwargs):
         """ Open this file.  Return a file object. """
         return open(self._expandvars(self), *args, **kwargs)
@@ -618,16 +625,15 @@ class Path( _base, iDagItem ):
     def text(self, encoding=None, errors='strict'):
         r""" Open this file, read it in, return the content as a string.
 
-        This uses "U" mode in Python 2.3 and later, so "\r\n" and "\r"
+        This uses "U" mode in Python 2.3 and later, so "\\r\n" and "\\r"
         are automatically translated to '\n'.
 
-        Optional arguments:
-         * encoding - The Unicode encoding (or character set) of
-           the file.  If present, the content of the file is
-           decoded and returned as a unicode object; otherwise
-           it is returned as an 8-bit str.
-         * errors - How to handle Unicode errors; see help(str.decode)
-           for the options.  Default is 'strict'.
+        @param encoding - The Unicode encoding (or character set) of
+        the file.  If present, the content of the file is
+        decoded and returned as a unicode object; otherwise
+        it is returned as an 8-bit str.
+        @param errors - How to handle Unicode errors; see help(str.decode)
+        for the options.  Default is 'strict'.
         """
         mode = 'U'  # we are in python 2.4 at least
         
@@ -654,32 +660,27 @@ class Path( _base, iDagItem ):
         path.write_bytes(): newline handling and Unicode handling.
         See below.
 
-        **Parameters**:
-          - text - str/unicode - The text to be written.
+        @param text - str/unicode - The text to be written.
+        @param encoding - str - The Unicode encoding that will be used.
+        This is ignored if 'text' isn't a Unicode string.
+        @param errors - str - How to handle Unicode encoding errors.
+        Default is 'strict'.  See help(unicode.encode) for the
+        options.  This is ignored if 'text' isn't a Unicode
+        string.
+        @param linesep - keyword argument - str/unicode - The sequence of
+        characters to be used to mark end-of-line.  The default is
+        os.linesep.  You can also specify None; this means to
+        leave all newlines as they are in 'text'.
+        @param append - keyword argument - bool - Specifies what to do if
+        the file already exists (True: append to the end of it;
+        False: overwrite it.)  The default is False.
 
-          - encoding - str - The Unicode encoding that will be used.
-            This is ignored if 'text' isn't a Unicode string.
-
-          - errors - str - How to handle Unicode encoding errors.
-            Default is 'strict'.  See help(unicode.encode) for the
-            options.  This is ignored if 'text' isn't a Unicode
-            string.
-
-          - linesep - keyword argument - str/unicode - The sequence of
-            characters to be used to mark end-of-line.  The default is
-            os.linesep.  You can also specify None; this means to
-            leave all newlines as they are in 'text'.
-
-          - append - keyword argument - bool - Specifies what to do if
-            the file already exists (True: append to the end of it;
-            False: overwrite it.)  The default is False.
-
-
-        **Newline handling**:
+        Newline handling
+        ----------------
          - write_text() converts all standard end-of-line sequences
-            ("\n", "\r", and "\r\n") to your platforms default end-of-line
+            ("\n", "\\r", and "\\r\n") to your platforms default end-of-line
             sequence (see os.linesep; on Windows, for example, the
-            end-of-line marker is "\r\n").
+            end-of-line marker is "\\r\n").
     
          - If you don't like your platform's default, you can override it
             using the "linesep=" keyword argument.  If you specifically want
@@ -694,7 +695,8 @@ class Path( _base, iDagItem ):
             in Python.)
 
 
-        **Unicode**:
+        Unicode
+        -------
             If "text" isn't Unicode, then apart from newline handling, the
             bytes are written verbatim to the file.  The "encoding" and
             'errors' arguments are not used and must be omitted.
@@ -742,21 +744,21 @@ class Path( _base, iDagItem ):
         This puts a platform-specific newline sequence on every line.
         See 'linesep' below.
 
-        lines - A list of strings.
-
-        encoding - A Unicode encoding to use.  This applies only if
-            'lines' contains any Unicode strings.
-
-        errors - How to handle errors in Unicode encoding.  This
-            also applies only to Unicode strings.
-
-        linesep - The desired line-ending.  This line-ending is
-            applied to every line.  If a line already has any
-            standard line ending, that will be stripped off and
-            this will be used instead.  The default is os.linesep,
-            which is platform-dependent ('\r\n' on Windows, '\n' on
-            Unix, etc.)  Specify None to write the lines as-is,
-            like file.writelines().
+        @param lines - A list of strings.
+        @param encoding A Unicode encoding to use.  This applies only if
+        'lines' contains any Unicode strings.
+        @param errors How to handle errors in Unicode encoding.  This
+        also applies only to Unicode strings.
+        @param linesep The desired line-ending.  This line-ending is
+        applied to every line.  If a line already has any
+        standard line ending, that will be stripped off and
+        this will be used instead.  The default is os.linesep,
+        which is platform-dependent ('\\r\n' on Windows, '\n' on
+        Unix, etc.)  Specify None to write the lines as-is,
+        like file.writelines().
+        @param append if True, the file will be opened in append mode. 
+        Otherwise it will be cleared before writing, in case it exists.
+        
 
         Use the keyword argument append=True to append lines to the
         file.  The default is to overwrite the file.  Warning:
@@ -804,19 +806,16 @@ class Path( _base, iDagItem ):
     def lines(self, encoding=None, errors='strict', retain=True):
         r""" Open this file, read all lines, return them in a list.
 
-        Optional arguments:
-             * encoding: The Unicode encoding (or character set) of
-                the file.  The default is None, meaning the content
-                of the file is read as 8-bit characters and returned
-                as a list of (non-Unicode) str objects.
-                
-             * errors: How to handle Unicode errors; see help(str.decode)
-                for the options.  Default is 'strict'
-                
-             * retain: If true, retain newline characters; but all newline
-                character combinations ("\r", "\n", "\r\n") are
-                translated to "\n".  If false, newline characters are
-                stripped off.  Default is True.
+        @param encoding The Unicode encoding (or character set) of
+        the file.  The default is None, meaning the content
+        of the file is read as 8-bit characters and returned
+        as a list of (non-Unicode) str objects.
+        @param errors How to handle Unicode errors; see help(str.decode)
+        for the options.  Default is 'strict'
+        @param retain If true, retain newline characters; but all newline
+        character combinations ("\\r", "\n", "\\r\n") are
+        translated to "\n".  If false, newline characters are
+        stripped off.  Default is True.
         
         This uses "U" mode in Python 2.3 and later.
         """
@@ -849,10 +848,12 @@ class Path( _base, iDagItem ):
         
         return hashobject.digest()
 
-    #} END Reading or writing an enitre file at once
+    ## -- End Reading or writing an entire file at once -- @}
 
-    #{ Methods for querying the filesystem
-
+    # -------------------------
+    ## @name Filesystem Query
+    # @{
+    
     exists = lambda self: os.path.exists( self._expandvars(self) )
     if hasattr(os.path, 'lexists'):
         lexists = lambda self: os.path.lexists( self._expandvars(self) )
@@ -872,9 +873,9 @@ class Path( _base, iDagItem ):
 
     if hasattr(os, 'access'):
         def access(self, mode):
-            """ Return true if current user has access to this path.
+            """@return true if current user has access to this path.
 
-            mode - One of the constants os.F_OK, os.R_OK, os.W_OK, os.X_OK
+            @param mode One of the constants os.F_OK, os.R_OK, os.W_OK, os.X_OK
             """
             return os.access(self._expandvars(self), mode)
 
@@ -891,7 +892,7 @@ class Path( _base, iDagItem ):
 
         This follows symbolic links.
 
-        On Windows, this returns a name of the form ur'DOMAIN\User Name'.
+        On Windows, this returns a name of the form ur'DOMAIN\\User Name'.
         On Windows, a group can own a file or directory.
         """
         if os.name == 'nt':
@@ -932,11 +933,12 @@ class Path( _base, iDagItem ):
             return True
         # END handle file open
 
+    ## -- End Filesystem Query -- @}
 
-    #} END Methods for querying the filesystem
-
-    #{ Modifying operations on files and directories
-
+    # -------------------------
+    ## @name Filesystem Modification
+    # @{
+    
     def setutime(self, times):
         """ Set the access and modified times of this file.
         
@@ -973,10 +975,12 @@ class Path( _base, iDagItem ):
         os.renames(self._expandvars(self), new)
         return type(self)(new)
 
-    #} END Modifying operations on files and directories
+    ## -- End Filesystem Modification -- @}
 
-    #{ Create/delete operations on directories
-
+    # -------------------------
+    ## @name Directory Creation and Deletion
+    # @{
+    
     def mkdir(self, mode=0777):
         """Make this directory, fail if it already exists
         
@@ -1005,10 +1009,12 @@ class Path( _base, iDagItem ):
         os.removedirs(self._expandvars(self))
         return self
 
-    #} END Create/delete operations on directories
+    ## -- End Directory Creation and Deletion -- @}
 
-    #{ Modifying operations on files
-
+    # -------------------------
+    ## @name File Modification
+    # @{
+    
     def touch(self, flags = os.O_WRONLY | os.O_CREAT, mode = 0666):
         """ Set the access/modified times of this file to the current time.
         Create the file if it does not exist.
@@ -1034,10 +1040,12 @@ class Path( _base, iDagItem ):
         os.unlink(self._expandvars(self))
         return self
 
-    #} END Modifying operations on files
+    ## -- End File Modification -- @}
 
-    #{ Links
-
+    # -------------------------
+    ## @name Symbolic Links
+    # @{
+    
     if hasattr(os, 'link'):
         def link(self, newpath):
             """ Create a hard link at 'newpath', pointing to this file. 
@@ -1074,10 +1082,12 @@ class Path( _base, iDagItem ):
             else:
                 return (self.parent() / p).abspath()
 
-    #} END Links
+    ## -- End Symbolic Links -- @}
 
-    #{ High-level functions from shutil
-
+    # -------------------------
+    ## @name Shutil Bindings
+    # @{
+    
     def copyfile(self, dest):
         """Copy self to dest
         
@@ -1116,6 +1126,7 @@ class Path( _base, iDagItem ):
     def copytree(self, dest, **kwargs):
         """Deep copy this file or directory to destination
         
+        @param dest
         @param kwargs passed to shutil.copytree
         @return Path to dest"""
         shutil.copytree( self._expandvars(self), dest, **kwargs )
@@ -1137,10 +1148,12 @@ class Path( _base, iDagItem ):
         shutil.rmtree( self._expandvars(self),  **kwargs )
         return self
             
-    #} END High-Level
+    ## -- End Shutil Bindings -- @}
 
-
-    #{ Special stuff from os
+    # -------------------------
+    ## @name os special functions
+    # @{
+    
     if hasattr(os, 'chroot'):
         def chroot(self):
             """Change the root directory path
@@ -1156,9 +1169,13 @@ class Path( _base, iDagItem ):
             @return self"""
             os.startfile(self._expandvars(self))
             return self
-    #} END Special stuff from os
+    ## -- End os special functions -- @}
     
-#{ utilities
+# ==============================================================================
+## @name Utilities
+# ------------------------------------------------------------------------------
+## @{
+
 _ossep = os.path.sep
 _oossep = (_ossep == "/" and "\\") or "/"
 
@@ -1166,7 +1183,7 @@ def _to_os_path(path):
     """@return string being an os compatible path"""
     return path.replace(_oossep, _ossep)
     
-#} END utilities
+## -- End Utilities -- @}
 
 # backup original class
 BasePath = Path
@@ -1223,7 +1240,11 @@ class ConversionPath(BasePath):
 # END handle backslashes
 
 
-#{ Utilities 
+# ==============================================================================
+## @name Creators
+# ------------------------------------------------------------------------------
+## @{
+
 def make_path(path):
     """@return A path instance of the correct type
     @note use this constructor if you use the Path.set_separator method at runtime
@@ -1231,7 +1252,7 @@ def make_path(path):
         of the type you imported last"""
     return Path(path)
 
-#} END utilities
+## -- End Creators -- @}
 
 # assure separator is set
 ################################

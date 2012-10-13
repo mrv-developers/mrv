@@ -3,7 +3,7 @@
 Contains different multi-purpose iterators allowing to conveniently walk the dg and
 dag.
 """
-__docformat__ = "restructuredtext"
+
 
 import maya.OpenMaya as api
 import maya.cmds as cmds

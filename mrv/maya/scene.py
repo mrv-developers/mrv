@@ -4,7 +4,7 @@ Provides methodes to query and alter the currently loaded scene. It covers
 most of the functionality of the 'file' command, but has been renamed to scene
 as disambiguation to a filesystem file.
 """
-__docformat__ = "restructuredtext"
+
 
 import util as mutil
 import mrv.util as util

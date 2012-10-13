@@ -11,7 +11,7 @@ As they are usually derived from the class they patch , they could also be used 
 @note **never import classes directly in here**, import the module instead, thus
     **not**: thisImportedClass **but**: module.thisImportedClass !
 """
-__docformat__ = "restructuredtext"
+
 
 import base
 import mrv.maya.undo as undo

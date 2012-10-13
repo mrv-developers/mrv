@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """Contains routines to startup individual programs"""
-__docformat__ = "restructuredtext"
+
 
 import sys
 import os
@@ -61,7 +61,7 @@ def mrv(args, info, args_modifier=None):
     @param info info module instance
     @param args_modifier Function returning a possibly modified argument list. The passed 
         in argument list was parsed already to find and extract the maya version. 
-        Signature: ``arglist func(arglist, maya_version, start_maya, info)
+        Signature: `arglist func(arglist, maya_version, start_maya, info)
         If start_maya is True, the process to be started will be maya.bin, not the 
         python interpreter. If maya_version is 0, the process will continue execution
         within this python interpreter which is assured to have mrv facilities availble 

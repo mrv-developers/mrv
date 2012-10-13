@@ -2,7 +2,7 @@
 """
 Allows convenient access and handling of namespaces in an object oriented manner
 """
-__docformat__ = "restructuredtext"
+
 
 import undo
 from mrv.maya.util import noneToList

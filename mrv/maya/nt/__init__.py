@@ -17,7 +17,7 @@ Optionally: Attribute access is as easy as using properties like:
 
 Default maya commands will require them to be used as strings instead.
 """
-__docformat__ = "restructuredtext"
+
 
 import mrv.maya as mrvmaya
 import typ
@@ -199,7 +199,7 @@ class PluginDB(dict):
     is why we just listen to plugin changed events, and figure out the differences ourselves.
     
     Currently we are only interested in the registered node types, which is why we 
-    are on ``mrv.maya.nt`` level, not on ``mrv.maya`` level
+    are on `mrv.maya.nt` level, not on `mrv.maya` level
     """
     __slots__ = 'log'
     
@@ -240,7 +240,7 @@ class PluginDB(dict):
             self.plugin_unloaded(pn)
         
     def plugin_loaded(self, pluginName):
-        """Retrieve plugin information from a plugin named ``pluginName``, which is 
+        """Retrieve plugin information from a plugin named `pluginName`, which is 
         assumed to be loaded.
         Currently the nodetypes found are added to the node-type tree to make them available.
         The plugin author is free to add specialized types to the tree afterwards, overwriting 
