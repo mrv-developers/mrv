@@ -1,4 +1,11 @@
 #!/usr/bin/env python
+#-*-coding:utf-8-*-
+"""
+@package mrv.cmd.spcmd
+@brief Just an entry point for the spcmd startup
+
+@copyright 2012 Sebastian Thiel
+"""
 
 import sys
 

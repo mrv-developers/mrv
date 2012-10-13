@@ -1,12 +1,21 @@
-# -*- coding: utf-8 -*-
-"""Intiailize the cmd package"""
+#-*-coding:utf-8-*-
+"""
+@package mrv.cmd
+@brief Intiailize the cmd package
 
+@copyright 2012 Sebastian Thiel
+"""
 
-#{ MRV Globals
+# ==============================================================================
+## @name MRV Global Flags
+# ------------------------------------------------------------------------------
+## @{
+
 mrv_nomaya_flag = '--mrv-no-maya'
 mrv_ui_flag = '--mrv-maya'
 mrv_mayapy_flag = '--mrv-mayapy'
-#} END MRV Globals
+
+## -- End MRV Global Flags -- @}
 
 
 

@@ -1,12 +1,17 @@
-# -*- coding: utf-8 -*-
-"""Contains routines to startup individual programs"""
+#-*-coding:utf-8-*-
+"""
+@package mrv.cmd.startup
+@brief Contains routines to startup individual programs
 
-
+@copyright 2012 Sebastian Thiel
+"""
 import sys
 import os
 
-
-#{ IPython 
+# ==============================================================================
+## @name IPython
+# ------------------------------------------------------------------------------
+## @{
 
 def ipython_apply_user_configuration():
     """Run optional user scripts"""
@@ -49,15 +54,16 @@ def ipython_setup(maya_support):
     # init logging
     logging.basicConfig(level=logging.INFO)
     
-# } END initialization
+## -- End IPython -- @}
 
-
-#} END ipython
-
-#{ Startup
+# ==============================================================================
+## @name MRV Startup
+# ------------------------------------------------------------------------------
+## @{
 
 def mrv(args, info, args_modifier=None):
     """Prepare the environment to allow the operation of maya
+    @param args all input arguments
     @param info info module instance
     @param args_modifier Function returning a possibly modified argument list. The passed 
         in argument list was parsed already to find and extract the maya version. 
@@ -208,9 +214,6 @@ def imrv():
     ipython_setup(maya_support)
     ipython_apply_user_configuration()
     ips.mainloop()
-    
-        
-    
 
-#} END startup
+## -- End MRV Startup -- @}
 

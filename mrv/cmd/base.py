@@ -1,5 +1,10 @@
-# -*- coding: utf-8 -*-
-"""Contains routines required to initialize mrv"""
+#-*-coding:utf-8-*-
+"""
+@package mrv.cmd.base
+@brief Contains routines required to initialize mrv
+
+@copyright 2012 Sebastian Thiel
+"""
 import os
 import sys
 import subprocess
@@ -16,7 +21,11 @@ __all__ = [ 'is_supported_maya_version', 'python_version_of', 'parse_maya_versio
             'exec_maya_binary', 'available_maya_versions', 'python_executable', 'find_mrv_script',
             'log_exception', 'SpawnedHelpFormatter', 'SpawnedOptionParser', 'SpawnedCommand']
 
-#{ Globals
+# ==============================================================================
+## @name Globals
+# ------------------------------------------------------------------------------
+## @{
+
 maya_to_py_version_map = {
     8.5 : 2.4, 
     2008: 2.5, 
@@ -27,11 +36,14 @@ maya_to_py_version_map = {
     2013: 2.6
 }
 
-#} END globals
+## -- End Globals -- @}
 
 
-#{ Maya-Intiialization
-    
+# ==============================================================================
+## @name Maya Initialization
+# ------------------------------------------------------------------------------
+## @{
+
 def is_supported_maya_version(version):
     """@return True if version is a supported maya version
     @param version float which is either 8.5 or 2008 to 20XX"""
@@ -73,6 +85,7 @@ def mayapy_maya_version():
 def parse_maya_version(arg, default):
     """@return tuple(bool, version) tuple of bool indicating whether the version could 
     be parsed and was valid, and a float representing the parsed or default version.
+    @param arg
     @param default The desired default maya version"""
     parsed_arg = False
     version = default
@@ -102,6 +115,9 @@ def update_env_path(environment, env_var, value, append=False):
     """Set the given env_var to the given value, but append the existing value
     to it using the system path separator
     
+    @param environment environ dict
+    @param env_var environment variable to update
+    @param value the value you would like the environment variable to represent
     @param append if True, value will be appended to existing values, otherwise it will 
         be prepended"""
     curval = environment.get(env_var, None)
@@ -360,6 +376,7 @@ def _execute(executable, args):
     This method does whatever is required to get it right on windows, which is 
     the only reason this method exists !
     
+    @param executable path to executable
     @param args arguments, without the executable as first argument
     @note does not return """
     # on windows we spawn, otherwise we don't get the interactive input right
@@ -455,7 +472,7 @@ def exec_maya_binary(args, maya_version):
     
     @param args The arguments to be provided to maya
     @param maya_version Float identifying the maya version to be launched
-    :rase EnvironmentError: if the respective maya version could not be found"""
+    @throws EnvironmentError if the respective maya version could not be found"""
     mayalocation = maya_location(maya_version)
     mayabin = os.path.join(mayalocation, 'bin', 'maya')
     
@@ -463,10 +480,11 @@ def exec_maya_binary(args, maya_version):
     # in order to keep things consistent
     _execute(mayabin, tuple(args))
     
-    
-#} END Maya initialization
+## -- End Maya Initialization -- @}
 
-#{ Decorators
+# -------------------------
+## @name Decorators
+# @{
 
 def log_exception( func ):
     """Assures that exceptions result in a logging message.
@@ -487,9 +505,8 @@ def log_exception( func ):
     wrapper.__name__ = func.__name__
     return wrapper
 
-#} END decorators
+## -- End Decorators -- @}
 
-#{ Classes
 
 class SpawnedHelpFormatter(optparse.TitledHelpFormatter):
     """Formatter assuring our help looks good"""
@@ -534,7 +551,6 @@ class SpawnedOptionParser(optparse.OptionParser):
             else:
                 raise optparse.OptParseError(msg)
         # END options
-            
 
 
 class SpawnedCommand(object):
@@ -558,66 +574,70 @@ class SpawnedCommand(object):
     executed manually - in that case it will not exit automatically if a 
     serious event occours"""
     
-    #{ Configuration 
-    # If not None, the name will be available for printing help text, and other tasks
-    # such as application specific initialization of modules
+    # -------------------------
+    ## @name Configuration
+    # @{
+    
+    ## If not None, the name will be available for printing help text, and other tasks
+    ## such as application specific initialization of modules
     k_log_application_id = None
     
-    # path at which your class is located. It must be derived from SpawnedCommand
+    ## path at which your class is located. It must be derived from SpawnedCommand
     k_class_path = "package.module.YourClass"
     
-    # An identifier for the version of your command
+    ## An identifier for the version of your command
     k_version = None
     
-    # Path to the executable
+    ## Path to the executable
     _exec_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'bin', 'mrv')
     
-    # If set, its the directory containing your project's info file. It must be set from the
-    # derived class, as it knows its actual position
+    ## If set, its the directory containing your project's info file. It must be set from the
+    ## derived class, as it knows its actual position
     _mrv_info_dir = None
     
-    # additional arguments to pass on to the newly created process
+    ## additional arguments to pass on to the newly created process
     _add_args = ['--mrv-no-maya']
     
-    # The usage of your command in BMF
-    # i.e. %prog [options]
+    ## The usage of your command in BMF
+    ## i.e. %prog [options]
     k_usage = None
     
-    # a short description of your command printed below its usage
+    ## a short description of your command printed below its usage
     k_description = None
     
-    # the name of your program's actual executable
+    ## the name of your program's actual executable
     k_program_name = None
     
-    # File mode creation mask of the daemon.
-    # If None, current one will not be changed
+    ## File mode creation mask of the daemon.
+    ## If None, current one will not be changed
     _daemon_umask = None
     
-    # Default working directory for the daemon.
-    # If None, the current one will not be changed
+    ## Default working directory for the daemon.
+    ## If None, the current one will not be changed
     _daemon_workdir = None
     
-    # Default maximum for the number of available file descriptors that we try to close
+    ## Default maximum for the number of available file descriptors that we try to close
     _daemon_maxfd = 64
     
-    # The standard I/O file descriptors are redirected to /dev/null by default.
+    ## The standard I/O file descriptors are redirected to /dev/null by default.
     if (hasattr(os, "devnull")):
        _daemon_redirect_to = os.devnull
     else:
        _daemon_redirect_to = "/dev/null"
     
-    #} END configuration
+    ## -- End Configuration -- @}
     
     __slots__ = ('parser', 'log')
     
     
     def __init__(self, *args, **kwargs):
         """
-        @param _spawned If True, default False, we assume we have our own process.
-            Otherwise we will do nothing that would adjust the current process, such as:
-            
-            * sys.exit
-            * change configuration of logging system"""
+        @param args
+        @param kwargs
+        - _spawned If True, default False, we assume we have our own process.
+          Otherwise we will do nothing that would adjust the current process, such as:
+          + sys.exit
+          + change configuration of logging system"""
         try:
             super(SpawnedCommand, self).__init__(*args, **kwargs)
         except TypeError:
@@ -640,10 +660,12 @@ class SpawnedCommand(object):
         """Spawn a new standalone process of this command type
         Additional arguments passed to the command process
         
+        @param cls
+        @param args
         @param kwargs Additional keyword arguments to be passed to Subprocess.Popen, 
             use it to configure your IO
         
-        Returns: Subprocess.Popen instance"""
+        @return Subprocess.Popen instance"""
         import spcmd
         margs = [cls._exec_path, spcmd.__file__, cls.k_class_path]
         margs.extend(args)
@@ -866,7 +888,10 @@ class SpawnedCommand(object):
                 raise
         # END help the user in case he provides invalid options
         
-    #{ Overridable 
+    # -------------------------
+    ## @name Subclass Interface
+    # @{
+    
     @log_exception
     def execute(self, options, args):
         """Method implementing the actual functionality of the command
@@ -880,8 +905,6 @@ class SpawnedCommand(object):
         @note Should be overridden by subclass to add additional options and 
             option groups themselves after calling the base class implementation"""
         return self.parser
-    #} END needing subclass
         
+    ## -- End Subclass Interface -- @}
         
-#} END classes
-
