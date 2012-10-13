@@ -26,13 +26,15 @@ DOXYFILE_ENCODING      = UTF-8
 # identify the project. Note that if you do not use Doxywizard you need
 # to put quotes around the project name if it contains spaces.
 
-PROJECT_NAME           = "@DOXYFILE_PROJECT_NAME@"
+#PROJECT_NAME           = "@DOXYFILE_PROJECT_NAME@"
+PROJECT_NAME           = "MRV"
 
 # The PROJECT_NUMBER tag can be used to enter a project or revision number.
 # This could be handy for archiving the generated documentation or
 # if some version control system is used.
 
-PROJECT_NUMBER         = "@DOXYFILE_PROJECT_VERSION@"
+#PROJECT_NUMBER         = "@DOXYFILE_PROJECT_VERSION@"
+PROJECT_NUMBER         = "1.0.3"
 
 # Using the PROJECT_BRIEF tag one can provide an optional one line description
 # for a project that appears at the top of each page and should give viewer
@@ -45,14 +47,15 @@ PROJECT_BRIEF          =
 # exceed 55 pixels and the maximum width should not exceed 200 pixels.
 # Doxygen will copy the logo to the output directory.
 
-PROJECT_LOGO           = "@CMAKE_TEMPLATE_DIR@/logo.jpg"
+PROJECT_LOGO           = 
 
 # The OUTPUT_DIRECTORY tag is used to specify the (relative or absolute)
 # base path where the generated documentation will be put.
 # If a relative path is entered, it will be relative to the location
 # where doxygen was started. If left blank the current directory will be used.
 
-OUTPUT_DIRECTORY       = "@DOXYFILE_OUTPUT_DIR@"
+#OUTPUT_DIRECTORY       = "@DOXYFILE_OUTPUT_DIR@"
+OUTPUT_DIRECTORY       = "doxyout"
 
 # If the CREATE_SUBDIRS tag is set to YES, then doxygen will create
 # 4096 sub-directories (in 2 levels) under the output directory of each output
@@ -655,7 +658,8 @@ WARN_LOGFILE           =
 # directories like "/usr/src/myproject". Separate the files or directories
 # with spaces.
 
-INPUT                  = @DOXYFILE_SOURCE_DIRS@
+#INPUT                  = @DOXYFILE_SOURCE_DIRS@
+INPUT                  = ../mrv
 
 # This tag can be used to specify the character encoding of the source files
 # that doxygen parses. Internally doxygen uses the UTF-8 encoding, which is
@@ -716,7 +720,8 @@ EXCLUDE_SYMBOLS        =
 # directories that contain example code fragments that are included (see
 # the \include command).
 
-EXAMPLE_PATH           = "@CMAKE_CURRENT_SOURCE_DIR@"
+#EXAMPLE_PATH           = "@CMAKE_CURRENT_SOURCE_DIR@"
+EXAMPLE_PATH           = ".."
 
 # If the value of the EXAMPLE_PATH tag contains directories, you can use the
 # EXAMPLE_PATTERNS tag to specify one or more wildcard pattern (like *.cpp
@@ -736,7 +741,8 @@ EXAMPLE_RECURSIVE      = NO
 # directories that contain image that are included in the documentation (see
 # the \image command).
 
-IMAGE_PATH             = "@CMAKE_CURRENT_SOURCE_DIR@"
+#IMAGE_PATH             = "@CMAKE_CURRENT_SOURCE_DIR@"
+IMAGE_PATH             = "../source"
 
 # The INPUT_FILTER tag can be used to specify a program that doxygen should
 # invoke to filter for each input file. Doxygen will invoke the filter program
@@ -747,7 +753,8 @@ IMAGE_PATH             = "@CMAKE_CURRENT_SOURCE_DIR@"
 # If FILTER_PATTERNS is specified, this tag will be
 # ignored.
 
-INPUT_FILTER           = "@PYTHON_EXECUTABLE@ @DOXYPY_SCRIPT@"
+#INPUT_FILTER           = "@PYTHON_EXECUTABLE@ @DOXYPY_SCRIPT@"
+INPUT_FILTER           = "doxygen/doxypy"
 
 # The FILTER_PATTERNS tag can be used to specify filters on a per file pattern
 # basis.
@@ -866,7 +873,7 @@ GENERATE_HTML          = YES
 # If a relative path is entered the value of OUTPUT_DIRECTORY will be
 # put in front of it. If left blank `html' will be used as the default path.
 
-HTML_OUTPUT            = @DOXYFILE_HTML_DIR@
+HTML_OUTPUT            = "html"
 
 # The HTML_FILE_EXTENSION tag can be used to specify the file extension for
 # each generated HTML page (for example: .htm,.php,.asp). If it is left blank
@@ -1223,7 +1230,7 @@ GENERATE_LATEX         = NO
 # If a relative path is entered the value of OUTPUT_DIRECTORY will be
 # put in front of it. If left blank `latex' will be used as the default path.
 
-LATEX_OUTPUT           = @DOXYFILE_LATEX_DIR@
+LATEX_OUTPUT           = latex
 
 # The LATEX_CMD_NAME tag can be used to specify the LaTeX command name to be
 # invoked. If left blank `latex' will be used as the default command name.
@@ -1231,13 +1238,13 @@ LATEX_OUTPUT           = @DOXYFILE_LATEX_DIR@
 # generating bitmaps for formulas in the HTML output, but not in the
 # Makefile that is written to the output directory.
 
-LATEX_CMD_NAME         = @LATEX_COMPILER@
+LATEX_CMD_NAME         = 
 
 # The MAKEINDEX_CMD_NAME tag can be used to specify the command name to
 # generate index for LaTeX. If left blank `makeindex' will be used as the
 # default command name.
 
-MAKEINDEX_CMD_NAME     = @MAKEINDEX_COMPILER@
+MAKEINDEX_CMD_NAME     = 
 
 # If the COMPACT_LATEX tag is set to YES Doxygen generates more compact
 # LaTeX documents. This may be useful for small projects and may help to
@@ -1604,7 +1611,7 @@ HIDE_UNDOC_RELATIONS   = YES
 # toolkit from AT&T and Lucent Bell Labs. The other options in this section
 # have no effect if this option is set to NO (the default)
 
-HAVE_DOT = YES
+HAVE_DOT = NO
 
 # The DOT_NUM_THREADS specifies the number of dot invocations doxygen is
 # allowed to run in parallel. When set to 0 (the default) doxygen will
@@ -1737,7 +1744,7 @@ INTERACTIVE_SVG        = YES
 # The tag DOT_PATH can be used to specify the path where the dot tool can be
 # found. If left blank, it is assumed the dot tool can be found in the path.
 
-DOT_PATH               = @DOXYGEN_DOT_PATH@
+DOT_PATH               = 
 
 # The DOTFILE_DIRS tag can be used to specify one or more directories that
 # contain dot files that are included in the documentation (see the

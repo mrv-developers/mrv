@@ -175,7 +175,7 @@ output: html"""
         
         hlp = """Specifies a coverage report. It will be referenced from within the 
         sphinx documentation"""
-        parser.add_option('-c', '--coverage', dest='coverage', type='int', default=1, 
+        parser.add_option('-c', '--coverage', dest='coverage', type='int', default=0, 
                             help=hlp, metavar='STATE')
         
         return parser
