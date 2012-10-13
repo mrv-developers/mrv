@@ -1,6 +1,10 @@
-# -*- coding: utf-8 -*-
-"""Contains basic classes and functionaliy"""
+#-*-coding:utf-8-*-
+"""
+@package mrv.doc.base
+@brief Contains basic classes and functionaliy
 
+@copyright 2012 Sebastian Thiel
+"""
 import os
 import sys
 import optparse
@@ -23,7 +27,11 @@ __all__ = [ "DocGenerator" ]
 class DocGenerator(object):
     """Encapsulates all functionality required to create sphinx/epydoc documentaiton"""
 
-    #{ Configuration 
+    # -------------------------
+    ## @name Configuration
+    # @{
+    
+    
     forbidden_dirs = ['test', 'ext', 'doc', '.']
     
     # PATHS
@@ -42,14 +50,14 @@ modules: ../mrv,../mrv/ext/networkx/networkx,../mrv/ext/pyparsing/src,../mrv/ext
 
     epydoc_exclude = "mrv.test,mrv.cmd.ipythonstartup"
 
-    # BOOTSTRAPPING
-    # To be set by derived types in order to define the root package name that 
-    # shouldbe imported
+    ## BOOTSTRAPPING
+    ## To be set by derived types in order to define the root package name that 
+    ## shouldbe imported
     package_name = None
 
-    # DYNAMICALLY ADJUSTED MEMBERS
-    # These members will be adjusted after reading the current project's 
-    # information
+    ## DYNAMICALLY ADJUSTED MEMBERS
+    ## These members will be adjusted after reading the current project's 
+    ## information
     pinfo = None
     rootmodule = None
     epydoc_cfg = """[epydoc]
@@ -62,12 +70,15 @@ sourcecode: %s
 exclude: %s
 output: html"""
 
-    #} END configuration
+    ## -- End Configuration -- @}
 
     def __init__(self, sphinx=True, sphinx_autogen=True, coverage=True, epydoc=True, base_dir='.', *args):
         """Initialize the instance
         
+        @param base_dir
+        @param args
         @param sphinx If True, sphinx documentation will be produced
+        @param sphinx_autogen if True, auto-generate sphinx api docs
         @param coverage If True, the coverage report will be generated
         @param epydoc If True, epydoc documentation will be generated"""
         if self.pinfo is None:
@@ -106,7 +117,9 @@ output: html"""
                                             cls.epydoc_exclude)
         
     
-    #{ Public Interface
+    # -------------------------
+    ## @name Interface
+    # @{
     
     @classmethod
     def remove_version_info(cls, idstring, basedir='.'):
@@ -187,7 +200,8 @@ output: html"""
             we should be able to import it
         @param basedir we expect to be in the root/doc path of the project - if this is not 
             the case, the basedir can be adjusted accordingly to 'virtually' chdir into the 
-            doc directory"""
+            doc directory
+        @param cls"""
         return ospd(os.path.realpath(os.path.abspath(basedir)))
         
     @classmethod
@@ -298,9 +312,11 @@ output: html"""
                 # END remove html dir
             # END for each directory
         # END clean sphinx
-    #} END public interface
+    ## -- End Interface -- @}
     
-    #{ Paths
+    # -------------------------
+    ## @name Paths
+    # @{
     
     def base_dir(self):
         """@return Path containing all documentation sources and output files"""
@@ -354,9 +370,12 @@ output: html"""
         import mrv.cmd.base
         return mrv.cmd.base.find_mrv_script('tmrv')
         
-    #} END paths
+    ## -- End Paths -- @}
     
-    #{ Utilities
+    # -------------------------
+    ## @name Utilities
+    # @{
+    
     def _mrv_maya_version(self):
         """@return maya version with which mrv subcommands should be started with"""
         import mrv.cmd.base
@@ -382,9 +401,11 @@ output: html"""
         if rval:
             raise EnvironmentError("Call to %s failed with status %i" % (args[0][0], rval))
         # END handle call error
-    #} END utilities
+    ## -- End Utilities -- @}
     
-    #{ Protected Interface
+    # -------------------------
+    ## @name Subclass Interface
+    # @{
     
     @classmethod
     def _retrieve_project_info(cls, base_dir='.'):
@@ -685,5 +706,5 @@ output: html"""
         
         self.write_version('epydoc')
 
-    #} END protected interface
+    ## -- End Subclass Interface -- @}
 

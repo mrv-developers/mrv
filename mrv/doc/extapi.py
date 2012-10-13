@@ -1,3 +1,12 @@
+#-*-coding:utf-8-*-
+"""
+@package mrv.doc.extapi
+@brief integrates links for external api into sphinx-autogen docs
+
+@copyright 2012 TRIXTER Film GmbH
+"""
+__all__ = []
+
 # computers.
 #
 # Copyright (C) 2009 by Artur Wroblewski <wrobell@pld-linux.org>
@@ -26,12 +35,12 @@ def api_role(role, rawtext, text, lineno, inliner, options={}, content=[]):
 
     Other tools, other than EpyDoc, can be easily supported as well.
 
-    First generate the documentation to be referenced, i.e. with EpyDoc::
+    First generate the documentation to be referenced, i.e. with EpyDoc
 
         $ mkdir -p doc/_build/html/api
         $ epydoc -o doc/_build/html/api ...
 
-    Next step is to generate documentation with Sphinx::
+    Next step is to generate documentation with Sphinx:
 
         $ sphinx-build doc doc/_build/html
 
