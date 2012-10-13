@@ -1,7 +1,10 @@
-# -*- coding: utf-8 -*-
-"""Specialization of workflow to allow checks to be natively implemented in MEL """
+#-*-coding:utf-8-*-
+"""
+@package mrv.maya.automation.qa
+@brief Specialization of workflow to allow checks to be natively implemented in MEL
 
-
+@copyright 2012 Sebastian Thiel
+"""
 from mrv.automation.qa import QACheck, QACheckAttribute, QACheckResult
 from mrv.maya.util import Mel
 from mrv.dge import _NodeBaseCheckMeta

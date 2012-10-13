@@ -1,8 +1,10 @@
-# -*- coding: utf-8 -*-
-"""Intiailize the automation and process framework """
-#{ Initialization
+#-*-coding:utf-8-*-
+"""
+@package mrv.automation
+@brief An automation and process framework 
 
-#} END initialization
+@copyright 2012 Sebastian Thiel
+"""
 
 
 

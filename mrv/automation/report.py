@@ -1,25 +1,29 @@
-# -*- coding: utf-8 -*-
-"""contains report implementations allowing to analyse the callgraph of """
+#-*-coding:utf-8-*-
+"""
+@package mrv.automation.report
+@brief contains report implementations allowing to analyse the callgraph of 
 
+@copyright 2012 Sebastian Thiel
+"""
 
 
 class ReportBase( object ):
     """Provides main interface for all reports as well as the basic implementation"""
 
-    #{ Overridden Methods
     def __init__( self, callgraph ):
         """intiialize the report with the given callgraph"""
         self._callgraph = callgraph
 
-    #} END overridden Methods
 
-    #{ Report Methods
-
+    # -------------------------
+    ## @name Interface
+    # @{
+    
     def makeReport( self ):
         """@return report as result of a prior Callgraph analysis"""
         raise NotImplementedError( "This method needs to be implemented by subclasses" )
 
-    #} END report methods
+    ## -- End Interface -- @}
 
 
 class Plan( ReportBase ):
@@ -27,7 +31,7 @@ class Plan( ReportBase ):
 
     def _analyseCallgraph( self  ):
         """Create a list of ProcessData instances that reflects the call order"""
-        kwargs = {}
+        kwargs = dict()
         kwargs[ 'reverse' ] = True
         return self._callgraph.toCallList( **kwargs )
 
@@ -39,7 +43,7 @@ class Plan( ReportBase ):
         @param headline line to be given as first line """
         cl = self._analyseCallgraph( )
 
-        out = []
+        out = list()
         if headline:
             out.append( headline )
 

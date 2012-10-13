@@ -1,60 +1,74 @@
-# -*- coding: utf-8 -*-
-"""Specialization of workflow to provide quality assurance capabilities.
+#-*-coding:utf-8-*-
+"""
+@package mrv.automation.qa
+@brief Specialization of workflow to provide quality assurance capabilities.
 
 General Idiom of a quality assurance facility is to provide read-only checks for
-possibly quaility issues and possibly a fix for them.
+possibly quality issues and possibly a fix for them.
 
 The interface is determined by plugs that define the capabilities of the node implementing
 the checks.
 
 The quality assurance framework is defined by:
-     * `QAWorkflow`
-     * `QAProcessBase`
-     * `QACheckResult`
-     * `QACheckAttribute`
+ - `QAWorkflow`
+ - `QAProcessBase`
+ - `QACheckResult`
+ - `QACheckAttribute`
 
-They specialize the respective parts of the workflow"""
+They specialize the respective parts of the workflow
 
-
-from workflow import Workflow
-from process import ProcessBase
-from mrv.util import EventSender, Event
-from mrv.dge import Attribute, plug, ComputeFailed
+@copyright 2012 Sebastian Thiel
+"""
+import mrv.automation.workflow
+import mrv.automation.process
+from mrv.util import Event
+import mrv.util
+import mrv.dge
+from mrv.dge import plug
 from mrv.enum import create as enum
 import sys
 
 import logging
 log = logging.getLogger("mrv.automation.qa")
 
-#{ Exceptions
-class CheckIncompatibleError( ComputeFailed ):
-    """Raised if a check cannot accomdate the requested mode and thus cannot run"""
+# ==============================================================================
+## @name Exceptions
+# ------------------------------------------------------------------------------
+## @{
+
+class CheckIncompatibleError( mrv.dge.ComputeFailed ):
+    """Raised if a check cannot accommodate the requested mode and thus cannot run"""
     pass
 
 
-#} END exceptions
+## -- End Exceptions -- @}
 
 
-class QAProcessBase( ProcessBase ):
+class QAProcessBase( mrv.automation.process.ProcessBase ):
     """Quality Assurance Process including a specialized QA interface"""
 
-    # query: find issues and report them using `QACheckResult`, but do not attempt to fix
-    # fix: find issues and fix them, report fixed ( and possibly failed ) items by
+    ## - query: find issues and report them using `QACheckResult`, but do not attempt to fix
+    ## - fix: find issues and fix them, report fixed ( and possibly failed ) items by
     eMode = enum( "query", "fix" )  # computation mode for QAProcessBasees
 
     #( Configuration
-    # QA Processes do not require this feature due to their quite simplistic call structure
-    # If required, subclasses can override this though
+    ## QA Processes do not require this feature due to their quite simplistic call structure
+    ## If required, subclasses can override this though
     track_compute_calls = False
     #) END configuration
 
 
-    #{ Interface
+    # -------------------------
+    ## @name Interface
+    # @{
+    
     def assureQuality( self, check, mode, *args, **kwargs ):
         """Called when the test identified by plug should be handled
         
         @param check QACheck to be checked for issues
         @param mode mode of the computation, see `QAProcessBase.eMode`
+        @param args
+        @param kwargs
         @return QACheckResult instance keeping information about the outcome of the test"""
         raise NotImplementedError( "To be implemented by subclass" )
 
@@ -63,7 +77,7 @@ class QAProcessBase( ProcessBase ):
         @param kwargs see `QAWorkflow.filterChecks`"""
         return self.workflow().filterChecks( [ self ], **kwargs )
 
-    #} END interface
+    ## -- End Interface -- @}
 
     def evaluateState( self, plug, mode, *args, **kwargs ):
         """Prepares the call to the actual quality check implemenetation and assuring
@@ -74,7 +88,7 @@ class QAProcessBase( ProcessBase ):
         return self.assureQuality( plug, mode, *args, **kwargs )
 
 
-class QACheckAttribute( Attribute ):
+class QACheckAttribute( mrv.dge.Attribute ):
     """The Test Attribute represents an interface to a specific test as implemented
     by the parent `QAProcessBase`.
     The QA Attribute returns specialized quality assurance results and provides
@@ -87,7 +101,7 @@ class QACheckAttribute( Attribute ):
         qa system unusable"""
 
     def __init__(   self, annotation, has_fix = False,
-                    flags = Attribute.computable ):
+                    flags = mrv.dge.Attribute.computable ):
         """Initialize attribute with meta information
         
         @param annotation information string describing the purpose of the test
@@ -106,11 +120,14 @@ class QACheck( plug ):
     respective `QACheckAttribute`.
     All non-plug calls are passed on to the underlying attribute, allowing it to
     be treated like one"""
-    #{ Configuration
-
+    # -------------------------
+    ## @name Configuration
+    # @{
+    
     # class of the check attribute to use when instanciating this check
     check_attribute_cls = QACheckAttribute
-    #} END configuration
+    
+    ## -- End Configuration -- @}
 
     def __init__( self, *args, **kwargs ):
         super( QACheck, self ).__init__( self.check_attribute_cls( *args, **kwargs ) )
@@ -119,39 +136,47 @@ class QACheck( plug ):
         return getattr( self.attr, attrname )
 
 
-class QAWorkflow( Workflow, EventSender ):
+class QAWorkflow( mrv.automation.workflow.Workflow, mrv.util.EventSender ):
     """Represents a workflow of QAProcessBase instances and allows to query them more
     conveniently"""
 
-    #( Configuration
+    # -------------------------
+    ## @name Configuration
+    # @{
+    ## configures the EventSender
     sender_as_argument = False
 
-    # if True, we will abort once the first error has been raised during check execution
-    # It is also held as instance variable so it can be set on per instance basis, allowing
-    # error check callbacks to adjust the error handling behaviour and abort the operation
+    ## if True, we will abort once the first error has been raised during check execution
+    ## It is also held as instance variable so it can be set on per instance basis, allowing
+    ## error check callbacks to adjust the error handling behaviour and abort the operation
     abort_on_error = False
 
-    # as checks can take some time, it might be useful to have realtime results
-    # to std out in UI mode at least. It accompanies the feedback the workflow
-    # gives and keeps the default unittest style
+    ## as checks can take some time, it might be useful to have realtime results
+    ## to std out in UI mode at least. It accompanies the feedback the workflow
+    ## gives and keeps the default unittest style
     info_to_stdout = True
-    #) END configuration
+    
+    ## -- End Configuration -- @}
 
-    #( Filters
+    # -------------------------
+    ## @name Filters
+    # @{
     fIsQAProcessBase = staticmethod( lambda n: isinstance( n, QAProcessBase ) )
     fIsQAPlug = staticmethod( lambda p: isinstance( p, QACheck ) )
-    #) END filters
+    ## -- End Filters -- @}
 
-    #{ Events
-    # called before a check is run as func: func( event, check )
+    # -------------------------
+    ## @name Events
+    # @{
+    ## called before a check is run as func: func( event, check )
     e_preCheck = Event()
 
-    # called if a check fails with an error: func( event, check, exception, workflow )
+    ## called if a check fails with an error: func( event, check, exception, workflow )
     e_checkError = Event()
 
-    # called after a check has been run: func( event, check, result )
+    ## called after a check has been run: func( event, check, result )
     e_postCheck = Event()
-    #}
+    ## -- End Events -- @}
 
     def __init__( self, *args, **kwargs ):
         """Initialize our instance"""
@@ -168,6 +193,7 @@ class QAWorkflow( Workflow, EventSender ):
     def filterChecks( self, processes, predicate = lambda c: True ):
         """As `listChecks`, but allows you do define the processes to use
         
+        @param processes
         @param predicate func( p ) for plug p returns True for it to be included in the result"""
         outchecks = list()
         for node in processes:
@@ -238,6 +264,7 @@ class QAWorkflow( Workflow, EventSender ):
 
         return outresult
 
+
 class QACheckResult( object ):
     """Wrapper class declaring test results as a type that provides a simple interface
     to retrieve the test results
@@ -289,5 +316,4 @@ class QACheckResult( object ):
             msg += ", ".join( str( i ) for i in self.fixed_items ) + "\n"
         msg += ", ".join( str( i ) for i in self.failed_items )
         return msg
-
 

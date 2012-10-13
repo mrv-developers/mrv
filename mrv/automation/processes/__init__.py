@@ -1,7 +1,10 @@
-# -*- coding: utf-8 -*-
-"""Contains all processes """
+#-*-coding:utf-8-*-
+"""
+@package mrv.automation.processes
+@brief Contains all processes
 
-
+@copyright 2012 Sebastian Thiel
+"""
 from mrv.automation.process import ProcessBase
 import mrv.util as util
 
@@ -34,13 +37,6 @@ def addProcesses( *args ):
 
         gd[pcls.__name__] = pcls
     # END for each arg
-
-
-#{ Initialization
-
-#} END initialization
-
-
 
 
 

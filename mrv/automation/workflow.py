@@ -1,19 +1,25 @@
-# -*- coding: utf-8 -*-
-"""Contains workflow classes that conenct processes in a di - graph """
+#-*-coding:utf-8-*-
+"""
+@package mrv.automation.workflow
+@brief Contains workflow classes that conenct processes in a di-graph 
 
+@copyright 2012 Sebastian Thiel
+"""
+import mrv.dge
+from mrv.dge import ComputeError
 
 import networkx as nx
-from mrv.dge import Graph, ComputeError
 import time
 import weakref
 import traceback
 import logging
 log = logging.getLogger('mrv.automation.workflow')
 
-#####################
-## EXCEPTIONS ######
-###################
-#{ Exceptions
+# ==============================================================================
+## @name Exceptions
+# ------------------------------------------------------------------------------
+## @{
+
 class TargetError( ValueError ):
     """Thrown if target is now supported by the workflow ( and thus cannot be made )"""
 
@@ -36,31 +42,35 @@ class DirtyException( Exception ):
 
     def __str__( self ):
         return str( self.report )
-    #{ Interface
-
+    
+    
+    # -------------------------
+    ## @name Interface
+    # @{
+    
     def makeReport( self ):
         """
         @return printable report, usually a string or some object that
             responds to str() appropriately"""
         return self.report
 
-    #} END interface
+    ## -- End Interface -- @}
+## -- End Exceptions -- @}
 
-#} END exceptions
 
-#####################
-## CLASSES    ######
-###################
-
-class Workflow( Graph ):
+class Workflow( mrv.dge.Graph ):
     """Implements a workflow as connected processes
     
     @note if you have to access the processes directly, use the DiGraph methods"""
 
-    #{ Utility Classes
+    # -------------------------
+    ## @name Utility Classes
+    # @{
+    
     class ProcessData( object ):
         """Allows to store additional information with each process called during the workflow"""
         __slots__ = ( 'process','plug','mode', '_result', 'starttime', 'endtime','exception','index' )
+        
         def __init__( self, process, plug, mode ):
             self.process = process
             self.plug = plug
@@ -184,7 +194,7 @@ class Workflow( Graph ):
                 calllist.reverse()  # actually brings it in the right order, starting at root
             return calllist
 
-    #} END utility classes
+    ## -- End Utility Classes -- @}
 
     def __init__( self, **kwargs ):
         """Initalized base class"""
@@ -192,7 +202,6 @@ class Workflow( Graph ):
 
         self._callgraph = None
         self._mode = False
-
 
     def __str__( self ):
         return self.name
@@ -203,8 +212,10 @@ class Workflow( Graph ):
         # shallow copy callgraph
         self._callgraph = other._callgraph
 
-    #{ Main Interface
-
+    # -------------------------
+    ## @name Interface
+    # @{
+    
     def makeTarget( self, target ):
         """@param target target to make - can be class or instance
         @return result when producing the target"""
@@ -217,13 +228,12 @@ class Workflow( Graph ):
         return result
 
     def makeTargets( self, targetList, errstream=None, donestream=None ):
-        """batch module compatible method allowing to make mutliple targets at once
-        
-        @param targetList iterable providing the targets to make
-        @param errstream object with file interface allowing to log errors that occurred
-            during operation
+        """@param targetList iterable providing the targets to make
+        @param errstream object with file interface allowing to log errors that occurred during operation
         @param donestream if list, targets successfully done will be appended to it, if
-            it is a stream, the string representation will be wrtten to it"""
+        it is a stream, the string representation will be written to it
+        @brief batch module compatible method allowing to make multiple targets at once
+        """
         def to_stream(msg, stream):
             """print msg to stream or use the logger instead"""
             if stream:
@@ -254,8 +264,6 @@ class Workflow( Graph ):
                 donestream.append( target )
         # END for each target
 
-
-
     def _evaluateDirtyState( self, outputplug, processmode ):
         """Evaluate the given plug in process mode and return a dirty report tuple
         as used by `makeDirtyReport`"""
@@ -272,7 +280,6 @@ class Workflow( Graph ):
 
         return tuple( report )
 
-
     def makeDirtyReport( self, target, mode = "single" ):
         """
         @return list of tuple( shell, DirtyReport|None )
@@ -280,12 +287,12 @@ class Workflow( Graph ):
             why the process is dirty and needs an update
         @param target target you which to check for it's dirty state
         @param mode
-             * single - only the process assigned to evaluate target will be checked
-             * multi - as single, but the whole callgraph will be checked, starting
-                        at the first node, stepping down the callgraph. This gives a per
-                        node dirty report.
-             * deep - try to evaluate target, but fail if one process in the target's
-                call history is dirty
+         - single - only the process assigned to evaluate target will be checked
+         - multi - as single, but the whole callgraph will be checked, starting
+                    at the first node, stepping down the callgraph. This gives a per
+                    node dirty report.
+         - deep - try to evaluate target, but fail if one process in the target's
+            call history is dirty
         """
         import process
         pb = process.ProcessBase
@@ -336,6 +343,7 @@ class Workflow( Graph ):
         """Setup the workflow's dg such that the returned output shell can be queried
         to evaluate target
         
+        @param target
         @param globalmode mode with which all other processes will be handling
             their input calls
         """
@@ -411,10 +419,11 @@ class Workflow( Graph ):
         inputshell.set( target, ignore_connection = True )
         return outputshell
 
-
     def _evaluate( self, target, processmode, globalmode ):
         """Make or update the target using a process in our workflow
         
+        @param target
+        @param globalmode
         @param processmode the mode with which to call the initial process
         @return tuple( shell, result ) - plugshell queried to get the result
         """
@@ -428,7 +437,6 @@ class Workflow( Graph ):
 
         return ( outputshell, result )
 
-
     def createReportInstance( self, reportType ):
         """Create a report instance that describes how the previous target was made
         
@@ -440,7 +448,7 @@ class Workflow( Graph ):
         # make the target as dry run
         return reportType( self._callgraph )
 
-    #} END main interface
+    ## -- End Interface -- @}
 
 
     #{ Query

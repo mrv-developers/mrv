@@ -1,8 +1,10 @@
-# -*- coding: utf-8 -*-
-"""Contains specialized attributes that judge value based on different criteria,
-allowing more elaborate typechecking"""
+#-*-coding:utf-8-*-
+"""
+@package mrv.automation.attributes
+@brief Contains specialized attributes that judge value based on different criteria, allowing more elaborate type checking
 
-
+@copyright 2012 Sebastian Thiel
+"""
 from mrv.dge import Attribute
 
 class RegexStringAttr( Attribute ):
@@ -10,7 +12,9 @@ class RegexStringAttr( Attribute ):
 
     def __init__( self, regexstring, *args, **kwargs ):
         """Initialize the attribute with a glob filter
-        @param regexstring i.e. .*\..* or .*\.py or ^base_.*\.pyo"""
+        @param regexstring i.e. .*\..* or .*\.py or ^base_.*\.pyo
+        @param args
+        @param kwargs"""
         import re
         self.regex = re.compile( regexstring )
         Attribute.__init__( self, *args, **kwargs )

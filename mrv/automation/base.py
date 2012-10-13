@@ -1,12 +1,14 @@
-# -*- coding: utf-8 -*-
-"""general methods and classes """
+#-*-coding:utf-8-*-
+"""
+@package mrv.automation.base
+@brief general methods and classes
 
+@copyright 2012 Sebastian Thiel
+"""
 
 from mrv.dge import PlugAlreadyConnected
 import logging
 log = logging.getLogger("mrv.automation.base")
-
-#{ Edit
 
 def _toSimpleType( stringtype ):
     for cls in [ int, float, str ]:
@@ -42,6 +44,11 @@ def _getNodeInfo( node ):
         typename = typename.strip('"').split( "(" )[0]
 
     return ( typename, args,kwargs )
+    
+    
+# -------------------------
+## @name Interface
+# @{
 
 def loadWorkflowFromDotFile( dotfile, workflowcls = None ):
     """Create a graph from the given dotfile and create a workflow from it.
@@ -49,6 +56,7 @@ def loadWorkflowFromDotFile( dotfile, workflowcls = None ):
     The all compatible plugs will automatically be connected for all processes
     connected in the dot file
     
+    @param dotfile the dotfile to load the workflow from
     @param workflowcls if not None, a dgengine.Graph compatible class to be used
         for workflow creation. Defaults to automation.workflow.Workflow.
     @return List of initialized workflow classes - as they can be nested, the
@@ -172,6 +180,8 @@ def loadWorkflowFromDotFile( dotfile, workflowcls = None ):
 def addWorkflowsFromDotFiles( module, dotfiles, workflowcls = None ):
     """Create workflows from a list of dot-files and add them to the module
     
+    @param module python module to put workflow instances into
+    @param dotfiles paths to dot files to read
     @param workflowcls see `loadWorkflowFromDotFile`
     @return list of workflow instances created from the given files"""
     outwfls = list()
@@ -188,5 +198,5 @@ def addWorkflowsFromDotFiles( module, dotfiles, workflowcls = None ):
 
     return outwfls
 
-#} END interface
+## -- End Interface -- @}
 

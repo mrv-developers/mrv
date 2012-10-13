@@ -1,25 +1,25 @@
-# -*- coding: utf-8 -*-
-"""Keeps all workflows specific to maya
+#-*-coding:utf-8-*-
+"""
+@package mrv.automation.workflows
+@brief Keeps all workflows
 
 @note `createWorkflow` method must be supported in a module keeping workflows
 @todo it would be better to have the createWorkflow method in some sort of workflowManager,
-    for now that appears like overkill though 
+for now that appears like overkill though 
+
+@copyright 2012 Sebastian Thiel
 """
-
-
 from mrv.path import make_path
 _this_module = __import__( "mrv.automation.workflows", globals(), locals(), ['workflows'] )
 import pydot
 import mrv.automation.processes
 
 
-#{ Initialization
 import mrv.automation.base as common
 
 # load all workflows at once
 common.addWorkflowsFromDotFiles( _this_module, make_path( __file__ ).parent().glob( "*.dot" ) )
 
-#} END initialization
 
 
 
