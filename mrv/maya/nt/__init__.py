@@ -1,7 +1,8 @@
-# -*- coding: utf-8 -*-
+#-*-coding:utf-8-*-
 """
-All classes required to wrap maya nodes in an object oriented manner into python objects
-and allow easy handling of them.
+@package mrv.maya.nt
+@brief All classes required to wrap maya nodes in an object oriented manner into python objects and allow easy handling of them. 
+
 
 These python classes wrap the API representations of their respective nodes - most general
 commands will be natively working on them.
@@ -10,15 +11,17 @@ These classes follow the node hierarchy as supplied by the maya api.
 
 Optionally: Attribute access is as easy as using properties like:
 
-    >>> node.translateX
+@code
+    node.translateX
+@endcode
 
 @note it is important not to cache these as the underlying obejcts my change over time.
     For long-term storage, use handles instead.
 
 Default maya commands will require them to be used as strings instead.
+
+@copyright 2012 Sebastian Thiel
 """
-
-
 import mrv.maya as mrvmaya
 import typ
 _thismodule = __import__( "mrv.maya.nt", globals(), locals(), ['nt'] )
@@ -37,13 +40,20 @@ import logging
 # May not use all as it will receive all submodules 
 # __all__
 
-#{ Globals
+# ==============================================================================
+## @name Globals
+# ------------------------------------------------------------------------------
+## @{
 
 pluginDB = None
 
-#} END globals
+## -- End Globals -- @}
 
-#{ Common
+
+# ==============================================================================
+## @name Common
+# ------------------------------------------------------------------------------
+## @{
 
 def addCustomType( newcls, parentClsName=None, **kwargs ):
     """ Add a custom class to this module - it will be handled like a native type
@@ -54,10 +64,10 @@ def addCustomType( newcls, parentClsName=None, **kwargs ):
         in the nodeTypeTree ( see /maya/cache/nodeHierarchy.html )
         Otherwise, if unset, the parentclassname will be extracted from the newcls object
     @param kwargs
-         * force_creation: 
-                if True, default False, the class type will be created immediately. This
-                can be useful if you wish to use the type for comparison, possibly before it is first being
-                queried by the system. The latter case would bind the StandinClass instead of the actual type.
+     - **force_creation** 
+      + if True, default False, the class type will be created immediately. This
+        can be useful if you wish to use the type for comparison, possibly before it is first being
+        queried by the system. The latter case would bind the StandinClass instead of the actual type.
     @throws KeyError if the parentClsName does not exist"""
     newclsname = newcls
     newclsobj = None
@@ -95,8 +105,8 @@ def addCustomTypeFromFile( hierarchyfile, **kwargs ):
         The root node has no indentation, whereas each child node adds one indentation level using 
         tabs.
     @param kwargs
-         * force_creation: see `addCustomType`
-    @note all attributes of `addCustomType` are supported
+     - **force_creation** see `addCustomType()`
+    @note all attributes of `addCustomType()` are supported
     @note there must be exactly one root type
     @return iterator providing all class names that have been added"""
     dagtree = mrvmaya.dag_tree_from_tuple_list( mrvmaya.tuple_list_from_file( hierarchyfile ) )
@@ -142,9 +152,12 @@ def enforcePersistence( ):
     reload(storage)
     persistence.__initialize( _thismodule )
 
-#} END common utilities
+## -- End Common -- @}
 
-#{ Initialization 
+# ==============================================================================
+## @name Initialization
+# ------------------------------------------------------------------------------
+## @{
 
 def _init_package( ):
     """Do the main initialization of this package"""
@@ -187,9 +200,13 @@ def _init_plugin_db():
     global pluginDB
     pluginDB = PluginDB()
     
-#} END initialization
+## -- End Initialization -- @}
 
-#{ Utility Classes
+
+# ==============================================================================
+## @name Utility Types
+# ------------------------------------------------------------------------------
+## @{
 
 class PluginDB(dict):
     """Simple container keeping information about the loaded plugins, namely the node
@@ -329,20 +346,16 @@ class PluginDB(dict):
             
             typ._removeCustomType(nt, tnc)
         # END for each typename
-        
-        
-
-#} END utilty classes
-
+## -- End Utility Types -- @}
 
 
 if 'init_done' not in locals():
     init_done = False
 
+
 if not init_done:
 
     _init_package( )
-
 
     # overwrite dummy node bases with hand-implemented ones
     from base import *

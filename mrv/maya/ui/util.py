@@ -1,15 +1,19 @@
-# -*- coding: utf-8 -*-
+#-*-coding:utf-8-*-
 """
-Utilities and classes useful for user interfaces
+@package mrv.maya.ui.util
+@brief Utilities and classes useful for user interfaces
+
+@copyright 2012 Sebastian Thiel
 """
-
-
 from mrv.util import EventSender, Event, Call, WeakInstFunction
 import maya.cmds as cmds
 from mrv.enum import create as enum
 import weakref
 
-#{ MEL Function Wrappers
+# ==============================================================================
+## @name MEL Function Wrappers
+# ------------------------------------------------------------------------------
+## @{
 
 def makeEditOrQueryMethod( flag, isEdit=False, methodName=None ):
     """Create a function calling inFunc with an edit or query flag set.
@@ -59,7 +63,7 @@ def propertyQE( flag, methodName = None ):
     queryFunc = queryMethod( flag, methodName = methodName )
     return property( queryFunc, editFunc )
 
-#}
+## -- End MEL Function Wrappers -- @}
 
 
 class Signal( Event ):
@@ -69,11 +73,13 @@ class Signal( Event ):
     
     Calls generated from this event will not put the sender as first argument, but 
     you may retrieve it using `self.sender()`."""
-    #{ Configuration 
+    # -------------------------
+    ## @name Configuration
+    # @{
     use_weakref = False
     remove_on_error = False
     sender_as_argument = False
-    #} END configuration 
+    ## -- End Configuration -- @}
 
 
 class EventSenderUI( EventSender ):
@@ -93,20 +99,26 @@ class EventSenderUI( EventSender ):
     When registered for an event, the sender will be provided to each callback as first
     argument.
     """
-    #( Configuration
-    # we are to be put as first arguemnt, allowing listeners to do something
-    # with the sender when handling the event
+    # -------------------------
+    ## @name Configuration
+    # @{
+    
+    ## we are to be put as first argument, allowing listeners to do something
+    ## with the sender when handling the event
     sender_as_argument = True
     reraise_on_error  =True
-    #} END configuration
+    
+    ## -- End Configuration -- @}
 
         
     class _UIEvent( Event ):
         """Event suitable to deal with user interface callback"""
-        #( Configuration
+        # -------------------------
+        ## @name Configuration
+        # @{
         use_weakref = False
         remove_on_error = True
-        #) END configuration
+        ## -- End Configuration -- @}
     
         def __init__( self, eventname, **kwargs ):
             """Allows to set additional arguments to be given when a callback
@@ -138,7 +150,6 @@ class EventSenderUI( EventSender ):
             # END create event
     
             super( EventSenderUI._UIEvent, self ).__set__( inst, eventfunc )
-    # END _UIEvent
 
 
 class UIContainerBase( object ):
@@ -158,7 +169,7 @@ class UIContainerBase( object ):
 
     def __getitem__( self, key ):
         """
-        @return the child with the given name, see `childByName`
+        @return the child with the given name, see `childByName()`
         @param key if integer, will return the given list index, if string, the child
             matching the id"""
         if isinstance( key, basestring ):
@@ -176,7 +187,7 @@ class UIContainerBase( object ):
 
     def add( self, child, set_self_active = False, revert_to_previous_parent = True ):
         """Add the given child UI item to our list of children
-        
+        @param child to add
         @param set_self_active if True, we explicitly make ourselves the current parent
             for newly created UI elements
         @param revert_to_previous_parent if True, the previous parent will be restored
@@ -266,7 +277,10 @@ class iItemSet( object ):
     # identify the type of event to handle as called during setItems
     eSetItemCBID = enum( "preCreate", "preUpdate", "preRemove", "postCreate", "postUpdate", "postRemove" )
 
-    #{ Interface
+    # -------------------------
+    ## @name Interface
+    # @{
+    
     def setItems( self, item_ids, **kwargs ):
         """Set the UI to display items identified by the given item_ids
         
@@ -316,10 +330,12 @@ class iItemSet( object ):
 
         return ( items_to_remove, items_to_create )
 
-    #} END interace
+    ## -- End Interface -- @}
 
-    #{ SubClass Implementation
-
+    # -------------------------
+    ## @name Subclass Implementation
+    # @{
+    
     def currentItemIds( self, **kwargs ):
         """
         @return list of item ids that are currently available in your layout.
@@ -331,8 +347,8 @@ class iItemSet( object ):
     def handleEvent( self, eventid, **kwargs ):
         """Called whenever a block of items is being handled for an operation identified
         by eventid, allowing you to prepare for such a block or finish it
-        
-        @param eventid eSetItemCBID identifying the event to handle"""
+        @param eventid eSetItemCBID identifying the event to handle
+        @param kwargs"""
         pass
 
     def createItem( self, itemid, **kwargs ):
@@ -354,4 +370,4 @@ class iItemSet( object ):
         @note its up to you how you remove the item, as long as it is not visible anymore"""
         raise NotImplementedError( "To be implemented by subClass" )
 
-    #} END subclass implementation
+    ## -- End Subclass Implementation -- @}

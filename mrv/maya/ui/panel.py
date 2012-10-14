@@ -1,6 +1,9 @@
-# -*- coding: utf-8 -*-
+#-*-coding:utf-8-*-
 """
-Contains implementations of maya editors
+@package mrv.maya.ui.panel
+@brief Contains implementations of maya editors
+
+@copyright 2012 Sebastian Thiel
 """
 
 import base as uibase

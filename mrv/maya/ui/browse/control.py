@@ -1,7 +1,10 @@
-# -*- coding: utf-8 -*-
-"""Contains ui modules to build a finder-like browser for items of any kind"""
+#-*-coding:utf-8-*-
+"""
+@package mrv.maya.ui.browse.control
+@brief Contains ui modules to build a finder-like browser for items of any kind
 
-
+@copyright 2012 Sebastian Thiel
+"""
 from interface import (iFinderProvider, iFinderFilter)
 
 import mrv.maya.ui as ui
@@ -17,7 +20,10 @@ __all__ = ( 'FileProvider', 'BookmarkControl',
 
 
 
-#{ Utilities
+# ==============================================================================
+## @name Utilities
+# ------------------------------------------------------------------------------
+## @{
 
 class FileProvider(iFinderProvider):
     """Implements a provider for a file system"""
@@ -65,7 +71,9 @@ class StackControlBase(ui.TextScrollList):
         # unformatted items
         self.base_items = list()
         
-    #{ Interface
+    # -------------------------
+    ## @name Interface
+    # @{
     
     def formatItem(self, item):
         """@return formatted version of item"""
@@ -88,9 +96,7 @@ class StackControlBase(ui.TextScrollList):
             index = self.base_items.index(index_or_item)
         self.p_selectIndexedItem = index+1
         
-    #} END Interface
-    
-    #{ Overridden Methods
+    ## -- End Interface -- @}
     
     def removeItem(self, item):
         """Remove the given formatted item from the list, as well as the corresponding
@@ -107,8 +113,6 @@ class StackControlBase(ui.TextScrollList):
     def addItem(self, item):
         self.base_items.append(item)
         return super(StackControlBase, self).addItem(self.formatItem(item))
-    
-    #} END overridden methods
     
     
 class FinderElement(StackControlBase):
@@ -224,6 +228,8 @@ class BookmarkControl(StackControlBase):
     
     def _store_bookmark(self, root, path, add=True):
         """Store the given path under the given root
+        @param root
+        @param path
         @param add if True, the path will be added to the bookmarks of the given 
             root, otherwise it will be removed"""
         items = self._unpack_stored_bookmarks()
@@ -396,17 +402,15 @@ class FileRootSelectorControl(ui.TextScrollList):
         self.root_changed.send(self._providers[index])
     #} END callbacks
         
-#} END utilities
+## -- End Utilities -- @}
 
-#{ Modules
+# ==============================================================================
+## @name Modules
+# ------------------------------------------------------------------------------
+## @{
 
 class FileFilterControl(ui.FormLayout, iFinderFilter):
     """Control providing a filter for finder urls which are file paths"""
     
-
-
-
-#} END modules
-
-
+## -- End Modules -- @}
 

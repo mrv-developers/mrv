@@ -1,7 +1,10 @@
-# -*- coding: utf-8 -*-
-""" Contains improved clases for set and partition editing  """
+#-*-coding:utf-8-*-
+"""
+@package mrv.maya.nt.set
+@brief Contains improved clases for set and partition editing
 
-
+@copyright 2012 Sebastian Thiel
+"""
 import base as nt
 import typ
 import maya.OpenMaya as api
@@ -10,36 +13,41 @@ import it
 import mrv.maya.undo as undo
 
 
-#{ Exceptions 
+# ==============================================================================
+## @name Exceptions
+# ------------------------------------------------------------------------------
+## @{
+
 class ConstraintError( RuntimeError ):
     """Thrown if a partition does not allow objects to be added, and the addition 
     was not forced, and failure was not ignored as well"""
-#} 
+## -- End Exceptions -- @}
 
 
-class ObjectSet:
+class ObjectSet(nt.Entity):
     """ Extended and more convenient object set interface dealing with Nodes ( and 
     provides the original MFnSet interface as well
     """                                                               
     __metaclass__ = typ.MetaClassCreatorNodes
     kReplace, kAdd,kAddForce, kRemove = range( 4 )
     
-    #{ Partition Handling 
+    # -------------------------
+    ## @name Partition Handling
+    # @{
     
     def partitions( self ):
         """@return list of Nodes of partitions the entity is set is part of"""
         return [ p.mwrappedNode() for p in self.partition.moutputs() ]
          
-    
     @undoable   
     def setPartition( self, partition, mode = 0 ):
         """Add, add exclusive or remove the given partition from our partition list
         
         @param partition Node, representing the partition, or a list of such
         @param mode
-             * 0 = replace
-             * 1 = add 
-             * 2 = remove 
+         - 0 = replace
+         - 1 = add 
+         - 2 = remove 
         @return self for chained operations
         @note use the supplied enumeration to specify the mode"""
         # convert to list
@@ -69,10 +77,9 @@ class ObjectSet:
             
         raise AssertionError( "Invalid mode given: %i" % mode )
                 
-    #} END partition handling
+    ## -- End Partition Handling -- @}
     
-    #{ Member Editing
-    
+
     def _toMemberObj( self, member ):
         """Convert member to a valid member object ( MObject, DagPath or Plug )"""
         memberobj = member
@@ -91,6 +98,9 @@ class ObjectSet:
         Finally dd the members in question to us again
         
         @param member can be selection list or MObject, MDagPath, MPlug
+        @param component
+        @param is_single_member
+        @param ignore_failure
         @return self if everything is fine"""
         for partition in self.partitions():
             for otherset in partition.sets():
@@ -113,7 +123,10 @@ class ObjectSet:
     def _checkMemberAddResult( self, member, component, mode, ignore_failure, is_single_member ):
         """Check whether the given member has truly been added to our set
         and either force membership or raise and exception
-        
+        @param member
+        @param component
+        @param mode
+        @param ignore_failure
         @param is_single_member if True, member can safely be assumed to be a single member, 
             this speeds up operations as we do not have to use multi-member tests"""
         if mode in ( self.kAdd, self.kAddForce ):
@@ -148,7 +161,10 @@ class ObjectSet:
     def _addRemoveMember( self, member, component, mode, ignore_failure ):
         """Add or remove the member with undo support
         
-        @param mode kRemove or kAdd"""
+        @param member
+        @param component
+        @param mode kRemove or kAdd
+        @param ignore_failure"""
         memberobj = self._toMemberObj( member )
             
         op = undo.GenericOperation()
@@ -177,8 +193,9 @@ class ObjectSet:
         
     def _addRemoveMembers( self, members, mode, ignore_failure ):
         """Add or remove the members to the set
-        
-        @param mode kRemove or kAdd or kAddForce"""
+        @param members
+        @param mode kRemove or kAdd or kAddForce
+        @param ignore_failure"""
         sellist = nt.toSelectionList( members ) # handles 'member is SelectionList' case !
             
         lsellist = sellist.length()
@@ -215,6 +232,10 @@ class ObjectSet:
         
         return self._checkMemberAddResult( sellist, None, mode, ignore_failure, False )
     
+    # -------------------------
+    ## @name Member Editing
+    # @{
+    
     @undoable
     def clear( self ):
         """Clear the set so that it will be empty afterwards
@@ -247,7 +268,8 @@ class ObjectSet:
         
         @param member_or_members one of the input types supported by `addMember` and
             `addMembers`
-        @param kwargs see `addMember`
+        @param args see `addMember()`
+        @param kwargs see `addMember()`
         @note this method is for convenience only and should not be used to 
             add massive amounts of items"""
         addfun = None
@@ -261,17 +283,17 @@ class ObjectSet:
     @undoable
     def removeMember( self, member, component = api.MObject()  ):
         """Remove the member from the set
-        
-        @param member member of the list, for types see `addMember`"""
+        @param component optional component to remove
+        @param member member of the list, for types see `addMember()`"""
         return self._addRemoveMember( member, component, ObjectSet.kRemove, True )
     
     @undoable
     def discard( self, member_or_members, *args, **kwargs ):
         """Removes a single member or multiple members from the set
-        
         @param member_or_members any of the types supported by `removeMember`
             or `removeMembers`
-        @param kwargs see `removeMember`"""
+        @param args see `removeMember()`
+        @param kwargs see `removeMember()`"""
         rmfun = None
         if isinstance(member_or_members, (tuple, list, api.MSelectionList)):
             rmfun = self.removeMembers
@@ -285,8 +307,8 @@ class ObjectSet:
         """Add items from iterable or selection list as members to this set
         
         @param nodes MSelectionList or list of Nodes and Plugs
-        @param force see `addMember`
-        @param ignore_failure see `addMember`
+        @param force see `addMember()`
+        @param ignore_failure see `addMember()`
         @return self """
         mode = self.kAdd
         if force:
@@ -297,14 +319,14 @@ class ObjectSet:
     def removeMembers( self, nodes ):
         """Remove items from iterable or selection list from this set
         
-        @param nodes see `addMembers`
+        @param nodes see `addMembers()`
         @return self """
         return self._addRemoveMembers( nodes, ObjectSet.kRemove, True )
             
     @undoable
     def setMembers( self, nodes, mode, **kwargs ):
         """Adjust set membership for nodes
-        
+        @param mode see `addMembers()`
         @param nodes items to handle, supports everything that `addMembers` does
         @param kwargs arguments passed to `addMembers` or `removeMembers`"""
         if mode == self.kReplace:
@@ -318,10 +340,12 @@ class ObjectSet:
         # remove 
         return self.removeMembers( nodes, **kwargs )
                                    
-    #} END member editing
+    ## -- End Member Editing -- @}
     
     
-    #{ Member Query 
+    # -------------------------
+    ## @name Member Query
+    # @{
     
     def getMembers( self, flatten = False ):
         """@return MSelectionList with members of this set
@@ -343,6 +367,7 @@ class ObjectSet:
     
     def isMember( self, obj, component = api.MObject() ):
         """@return True if obj is a member of this set
+        @param obj
         @param component is given, the component must be fully part of the set 
             for the object ( dagNode ) to be considered part of the set
         @note all keywords of `it.iterSelectionList` are supported
@@ -352,14 +377,17 @@ class ObjectSet:
             return self._mfncls( self._apiobj ).isMember( self._toMemberObj( obj ), component )
         return self._mfncls( self._apiobj ).isMember( self._toMemberObj( obj ) )
         
-    #} END member query
+    ## -- End Member Query -- @}
     
-    # Aliases
+    # -------------------------
+    ## @name Aliases
+    # @{
+    
     members = getMembers
     
+    ## -- End Aliases -- @}
     
-    #{ Set Operations
-    
+ 
     class _TmpSet( object ):
         """Temporary set that will delete itself once its python destructor is called"""
         __slots__ = "setobj"
@@ -389,7 +417,9 @@ class ObjectSet:
         
         @note it may return a temporary set that will delete itself once the wrapper object
             is being destroyed
-        @param sets_are_members see `union`
+        @param cls
+        @param objects
+        @param sets_are_members see `union()`
         @note set """
         if isinstance( objects, (tuple, list) ):
             # MOBJECTARRAY OF SETS
@@ -450,14 +480,19 @@ class ObjectSet:
             
         return outlist
 
+    # -------------------------
+    ## @name Set Operations
+    # @{
+
     @classmethod
     def tmpSet( cls, objects, sets_are_members = False ):
         """
         @return temporary set that will delete itself once it's reference count
             reaches 0. Use rval.setobj to access the actual set, as the returned object is 
             just a hanlde to it. The handle is a valid input to the set functions as well
-        @param objects see `union`
-        @param sets_are_members see `union`
+        @param cls
+        @param objects see `union()`
+        @param sets_are_members see `union()`
         @note useful if you want to use the set member union, intersection or substraction 
             methods efficiently on many sets in a row - these internally operate on a set, thus 
             it is faster to use them with another set from the beginning to prevent creation of intermediate 
@@ -481,16 +516,16 @@ class ObjectSet:
         """As `union`, but returns the intersection ( items in common ) of this 
         set with objects
         
-        @param objects see `union`
-        @param sets_are_members see `union`
+        @param objects see `union()`
+        @param sets_are_members see `union()`
         @return MSelectionList of objects being in self and in objects"""
         return self._applySetOp( objects, "intersection", sets_are_members = sets_are_members )
         
     def getDifference( self, objects, sets_are_members = False  ):
         """return the result of `self minus objects`, thus objects will be substracted from our obejcts
         
-        @param objects see `union`
-        @param sets_are_members see `union`
+        @param objects see `union()`
+        @param sets_are_members see `union()`
         @return MSelectionList containing objects of self not being in objects list"""
         # have to do the intersections individually and keep them 
         intersections = list()
@@ -521,37 +556,51 @@ class ObjectSet:
         
     def iterUnion( self, setOrSetsOrObjects, **kwargs ):
         """As union, but returns an iterator
-        
+        @param setOrSetsOrObjects
         @param kwargs passed to it.iterSelectionList"""
         return it.iterSelectionList( self.union( setOrSetsOrObjects ), **kwargs )
         
     def iterIntersection( self, setOrSetsOrObjects, **kwargs ):
         """As intersection, but returns an iterator
-        
+        @param setOrSetsOrObjects
         @param kwargs passed to it.iterSelectionList"""
         return it.iterSelectionList( self.intersection( setOrSetsOrObjects ), **kwargs )
         
     def iterDifference( self, setOrSetsOrObjects, **kwargs ):
         """As difference, but returns an iterator
         
+        @param setOrSetsOrObjects
         @param kwargs passed to it.iterSelectionList"""
         return it.iterSelectionList( self.difference( setOrSetsOrObjects ), **kwargs )
         
-    #} END set operations
+    ## -- End Set Operations -- @}
     
-    # aliases
+    
+    # -------------------------
+    ## @name Aliases
+    # @{
+    
     union = getUnion
     intersection = getIntersection
     difference = getDifference
     
-    #{ Operators
+    ## -- End Aliases -- @}
+    
+    # -------------------------
+    ## @name Operators
+    # @{
+    
     __or__ = union
     __add__ = union
     __sub__ = difference
     __and__ = intersection
-    #} END operators
     
-    #{ Protocols 
+    ## -- End Operators -- @}
+    
+    # -------------------------
+    ## @name Protocols
+    # @{
+    
     def __len__(self):
         """
         @warning This method is possibly slow as it will retrieve all members 
@@ -564,11 +613,12 @@ class ObjectSet:
     def __contains__( self, obj ):
         """@return True if the given obj is member of this set"""
         return self.isMember( obj )
-    #} END protocols 
+        
+    ## -- End Protocols -- @}
     
     
 
-class ShadingEngine:
+class ShadingEngine(ObjectSet):
     """Provides specialized methods able to deal better with shaders
     than the default implementation.
     
@@ -579,11 +629,10 @@ class ShadingEngine:
     
     
     
-class Partition:
+class Partition(nt.Entity):
     """Deal with common set <-> partition interactions"""
     __metaclass__ = typ.MetaClassCreatorNodes
     
-    #{ Set Membership 
     
     @undoable
     def _addRemoveMember( self, objectset, mode ):
@@ -597,6 +646,9 @@ class Partition:
         
         return self
     
+    # -------------------------
+    ## @name Set Membership
+    # @{
     
     def addMember( self, objectset ):
         """Add the given objectset or list of sets to the partition
@@ -646,18 +698,24 @@ class Partition:
         # END for each plug in set connections
         return out
         
-        
-    #}END set membership
+    ## -- End Set Membership -- @}
     
-    #{ Name Remapping
+    # -------------------------
+    ## @name Name Remapping
+    # @{
+    
     addSets = addMember
     removeSets = removeMember
     replaceSets = replaceMember
     sets = getMembers
     members = getMembers
-    #} END name remapping 
     
-    #{ Protocols 
+    ## -- End Name Remapping -- @}
+    
+    # -------------------------
+    ## @name Protocol
+    # @{
+    
     def __len__(self):
         return len(self.st.minputs())
         
@@ -666,4 +724,4 @@ class Partition:
             yield s
         # END for each member (ObjectSet)
     
-    #} END protocols 
+    ## -- End Protocol -- @}

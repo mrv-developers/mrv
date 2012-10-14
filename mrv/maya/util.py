@@ -1,12 +1,18 @@
-# -*- coding: utf-8 -*-
-"""All kinds of utility methods and classes that are used in more than one modules """
+#-*-coding:utf-8-*-
+"""
+@package mrv.maya.util
+@brief All kinds of utility methods and classes that are used in more than one modules
 
-
+@copyright 2012 Sebastian Thiel
+"""
 import maya.mel as mm
 import maya.cmds as cmds
 import maya.OpenMaya as api
-import mrv.util as util
-from mrv.util import capitalize,uncapitalize
+import mrv.util
+from mrv.util import (
+                        capitalize, 
+                        uncapitalize
+                     )
 import networkx.exception as networkxexc
 
 import traceback
@@ -18,7 +24,11 @@ __all__ = ("noneToList", "isIterable", "pythonToMel", "makeEditOrQueryMethod",
            "optionvars", "StandinClass", "MetaClassCreator", "CallbackEventBase", 
            "MEnumeration", "notifyException")
 
-#{ Utility Functions
+# ==============================================================================
+## @name Utilities
+# ------------------------------------------------------------------------------
+## @{
+
 def noneToList( res ):
     """@return list instead of None"""
     if res is None:
@@ -34,10 +44,7 @@ def pythonToMel(arg):
     elif isIterable(arg):
         return u'{%s}' % ','.join( map( pythonToMel, arg) )
     return unicode(arg)
-#} END utility functions
-
-
-#{ Decorator
+## -- End Utilities -- @}
 
 def _logException(func, reraise):
     def wrapper(*args, **kwargs):
@@ -63,6 +70,11 @@ def _logException(func, reraise):
     wrapper.__name__ = func.__name__
     return wrapper
 
+# ==============================================================================
+## @name Decorators
+# ------------------------------------------------------------------------------
+## @{
+
 def logException(func):
     """Decorator which shows short exception information in a popup and a full
     stack trace to stdout. Finally the exception will be reraised"""
@@ -74,9 +86,12 @@ def notifyException(func):
     callback. Additionally, no stacktrace will be shown"""
     return _logException(func, reraise=False)
 
-#} END decorator
+## -- End Decorators -- @}
 
-#{ MEL Function Wrappers
+# ==============================================================================
+## @name MEL Function Wrappers
+# ------------------------------------------------------------------------------
+## @{
 
 def makeEditOrQueryMethod( inCmd, flag, isEdit=False, methodName=None ):
     """Create a function calling inFunc with an edit or query flag set.
@@ -125,12 +140,15 @@ def propertyQE( inCmd, flag, methodName = None ):
     queryFunc = queryMethod( inCmd, flag, methodName = methodName )
     return property( queryFunc, editFunc )
 
-#} END mel function wrappers
+## -- End MEL Function Wrappers -- @}
 
 
-#{ Utitliy Classes
+# ==============================================================================
+## @name Utility Types
+# ------------------------------------------------------------------------------
+## @{
 
-class Mel(util.Singleton):
+class Mel(mrv.util.Singleton):
     """This class is a necessity for calling mel scripts from python. It allows scripts to be called
     in a cleaner fashion, by automatically formatting python arguments into a string
     which is executed via maya.mel.eval().
@@ -194,7 +212,7 @@ class Mel(util.Singleton):
     info = staticmethod( lambda *args: Mel._melprint( "print", *args ) )
 
 
-class OptionVarDict( util.Singleton ):
+class OptionVarDict( mrv.util.Singleton ):
     """  A singleton dictionary-like class for accessing and modifying optionVars.
     
     @note Idea and base Implementation from PyMel, modified to adapt to mrv """
@@ -300,10 +318,13 @@ class OptionVarDict( util.Singleton ):
 # use it as singleton
 optionvars = OptionVarDict()
 
-#} END utility classes
+## -- End Utility Types -- @}
 
 
-#{ API Utilities Classes
+# ==============================================================================
+## @name API Utility Types
+# ------------------------------------------------------------------------------
+## @{
 
 class StandinClass( object ):
     """ Simple Function Object allowing to embed the name of the type as well as
@@ -342,6 +363,10 @@ class MetaClassCreator( type ):
         """Create a new class from hierarchy information found in dagtree and
         put it into the module if it not yet exists
         
+        @param metacls
+        @param name
+        @param bases
+        @param clsdict
         @param dagtree `mrv.util.DAGTree` instance with hierarchy information
         @param module the module instance to which to add the new classes to
         @param nameToTreeFunc convert the class name to a name suitable for dagTree look-up
@@ -388,7 +413,8 @@ class MetaClassCreator( type ):
 
         return newcls
 
-class CallbackEventBase( util.Event ):
+
+class CallbackEventBase( mrv.util.Event ):
     """Allows the mapping of MMessage callbacks to mrv's event sender system.
     This event will register a new message once the first event receiver registers
     itself. Once the last event receiver deregisters, the message will be deregistered in 
@@ -400,7 +426,10 @@ class CallbackEventBase( util.Event ):
         be deregistered. Its worth knowing that the eventSender in question is strongly 
         bound to his callback event, so it cannot be deleted while the event is active."""
 
-    #{ Utility Classes
+    # -------------------------
+    ## @name Utility Types
+    # @{
+    
     class CBStorageFunction(object):
         __slots__ = '_callbackID'
         def __init__(self, callbackID=None):
@@ -423,23 +452,29 @@ class CallbackEventBase( util.Event ):
         
         def __call__(self, *args, **kwargs):
             return self._callbackID
-    #} END utility classes
+    ## -- End Utility Types -- @}
 
     def __init__( self, eventId, **kwargs ):
         """Initialize our instance with the callbackID we are to represent."""
         super( CallbackEventBase, self ).__init__( **kwargs )
         self._eventID = eventId
         
-    #{ Subclass Implementation Needed
+    # -------------------------
+    ## @name Subclass Implementation
+    # @{
+    
     def _getRegisterFunction(self, eventID):
         """
         @return MMessage::register* compatible callback function which can be 
             used to register the given eventID"""
         raise NotImplementedError("To be implemented in subclass")
 
-    #} END subclass implementation needed
+    ## -- End Subclass Implementation -- @}
 
-    #{ CallbackID handling
+    # -------------------------
+    ## @name Handle Callback ID
+    # @{
+    
     def _storeCallbackID(self, inst, callbackID):
         """Store the given callbackID in the event sender instance. 
         We do that by registering it as function for the given instance which
@@ -451,6 +486,7 @@ class CallbackEventBase( util.Event ):
     def _getCallbackIDStorage(self, inst, create=False):
         """
         @return Callback storage function if it exists or None
+        @param inst
         @param create if True, the storage will be created if needed, hence 
             you will always receive a valid storage"""
         functions = self._getFunctionSet(inst)
@@ -474,9 +510,8 @@ class CallbackEventBase( util.Event ):
             return None
         return storage.callbackID()
         
-    #} END handle callback ID
+    ## -- End Handle Callback ID -- @}
 
-    
     def send( self, inst, *args, **kwargs ):
         """Sets our instance prior to calling the super class
         
@@ -531,7 +566,9 @@ class MEnumeration(tuple):
     def __repr__(self):
         return "MEnumeration(%s)" % self.name
     
-    #{ Interface
+    # -------------------------
+    ## @name Interface
+    # @{
     
     def nameByValue(self, value):
         """@return name string with the given integer value
@@ -547,7 +584,7 @@ class MEnumeration(tuple):
         # END for each item in our dict
         raise ValueError("Value %i not in enumeration" % value)
         
-    #} END interface
+    ## -- End Interface -- @}
     
     @classmethod
     def create( cls, ed, mfncls ):
@@ -583,4 +620,4 @@ class MEnumeration(tuple):
         
         return enum
     
-#} END api utility classes
+## -- End API Utility Types -- @}

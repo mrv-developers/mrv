@@ -1,9 +1,12 @@
-# -*- coding: utf-8 -*-
+#-*-coding:utf-8-*-
 """
-Contains the most important mel-layouts wrapped into easy to use python classes
-These are specialized and thus more powerful than the default wraps
-"""
+@package mrv.maya.ui.layout
+@brief Contains the most important mel-layouts wrapped into easy to use python classes.
 
+These are specialized and thus more powerful than the default wraps
+
+@copyright 2012 Sebastian Thiel
+"""
 import base as uibase
 import maya.cmds as cmds
 import mrv.maya.util as mutil
@@ -39,10 +42,12 @@ class Layout( uibase.SizedControl, uiutil.UIContainerBase ):
         cmds.setParent(self._parentString())
         return self
 
-    #{ Properties
+    # -------------------------
+    ## @name Properties
+    # @{
     p_ca = property(children)
     p_childArray = p_ca
-    #} End Properties
+    ## -- End Properties -- @}
 
 
 class FormLayout( Layout ):

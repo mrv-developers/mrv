@@ -74,7 +74,7 @@ class QAProcessBase( mrv.automation.process.ProcessBase ):
 
     def listChecks( self, **kwargs ):
         """@return list( QACheck, ... ) list of our checks
-        @param kwargs see `QAWorkflow.filterChecks`"""
+        @param kwargs see `QAWorkflow.filterChecks()`"""
         return self.workflow().filterChecks( [ self ], **kwargs )
 
     ## -- End Interface -- @}

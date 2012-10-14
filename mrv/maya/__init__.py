@@ -1,5 +1,11 @@
-# -*- coding: utf-8 -*-
-""" Inialize the mrv.maya sub-system and startup maya as completely as possible or configured """
+#-*-coding:utf-8-*-
+"""
+@package mrv.maya
+@brief Inialize the mrv.maya sub-system and startup maya as completely as possible or configured
+
+@copyright 2012 Sebastian Thiel
+"""
+
 import os, sys
 import mrv
 from mrv import init_modules
@@ -19,11 +25,11 @@ if not hasattr( sys,"_dataTypeIdToTrackingDictMap" ):
 
 __all__ = ("registerPluginDataTrackingDict", )
 
-############################
-#### COMMON             ####
-##########################
 
-#{ Common
+# ==============================================================================
+## @name Common
+# ------------------------------------------------------------------------------
+## @{
 
 def registerPluginDataTrackingDict( dataTypeID, trackingDict ):
     """Using the given dataTypeID and tracking dict, nt.PluginData can return
@@ -32,10 +38,9 @@ def registerPluginDataTrackingDict( dataTypeID, trackingDict ):
     Afterwards you can extract the self pointer using plug.masData().data()"""
     sys._dataTypeIdToTrackingDictMap[ dataTypeID.id() ] = trackingDict
 
-#} End Common
+## -- End Common -- @}
 
 
-#{ Init new maya version
 def initializeNewMayaRelease( ):
     """This method should be called once a new maya release is encountered. It will
     initialize and update the database as well as possible, and give instructions 
@@ -95,10 +100,13 @@ def initializeNewMayaRelease( ):
     print >> sys.stderr, "5. run the UI tests and assure that they don't fail"
     print >> sys.stderr, "6. Commit and push your changes - you are done"
 
-#} END init new maya version
 
 
-#{ Internal Utilities
+# ==============================================================================
+## @name Internal Utilities
+# ------------------------------------------------------------------------------
+## @{
+
 def dag_tree_from_tuple_list( tuplelist ):
     """@return DagTree from list of tuples [ (level,name),...], where level specifies
     the level of items in the dag.
@@ -158,6 +166,8 @@ def tuple_list_from_file( filepath ):
 def initWrappers( mdict, types, metacreatorcls, force_creation = False, substitute_existing = False):
     """ Create standin classes that will create the actual class once creation is
     requested.
+    @param metacreatorcls
+    @param force_creation
     @param mdict module dictionary object from which the latter classes will be imported from, 
     can be obtained using `globals()` in the module
     @param types iterable containing the names of classnames ( they will be capitalized
@@ -207,15 +217,13 @@ def move_vars_to_environ( ):
             os.environ[ var ] = value.strip()
         # END try to split line
     # END for each line from process' stdout 
-#} END internal utilities
+## -- End Internal Utilities -- @}
 
+# ==============================================================================
+## @name Initialization
+# ------------------------------------------------------------------------------
+## @{
 
-
-############################
-#### INITIALIZATION   ####
-#########################
-
-#{ Initialization
 def init_system( ):
     """
     Check if we are suited to import the maya namespace and try to set it
@@ -457,9 +465,7 @@ def init_standard_output( ):
             # END for each handler
         # END for each logger
     # END for each channel
-    
-
-#} Initialization
+## -- End Initialization -- @}
 
 if 'init_done' not in locals():
     init_done = False

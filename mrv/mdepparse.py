@@ -189,8 +189,8 @@ class MayaFileGraph( DiGraph ):
             a valid key, depending on the format of filepaths stored in this graph
         @param invalid_only if True, only invalid dependencies will be returned, all
             including the invalid ones otherwise
-        @param to_os_path see `addFromFiles`
-        @param os_path_to_db_key see `addFromFiles`
+        @param to_os_path see `addFromFiles()`
+        @param os_path_to_db_key see `addFromFiles()`
         @param kwargs passed to `iterNetworkxGraph`"""
         kwargs[ 'direction' ] = direction
         kwargs[ 'ignore_startitem' ] = 1            # default

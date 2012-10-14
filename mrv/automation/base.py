@@ -182,7 +182,7 @@ def addWorkflowsFromDotFiles( module, dotfiles, workflowcls = None ):
     
     @param module python module to put workflow instances into
     @param dotfiles paths to dot files to read
-    @param workflowcls see `loadWorkflowFromDotFile`
+    @param workflowcls see `loadWorkflowFromDotFile()`
     @return list of workflow instances created from the given files"""
     outwfls = list()
     for dotfile in dotfiles:

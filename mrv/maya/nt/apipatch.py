@@ -1,6 +1,7 @@
-# -*- coding: utf-8 -*-
+#-*-coding:utf-8-*-
 """
-Contains patch classes that are altering their respective api classes
+@package mrv.maya.nt.apipatch
+@brief Contains patch classes that are altering their respective api classes
 
 The classes here are rather verbose and used as patch-template which can be
 handled correctly by epydoc, and whose method will be used to patch the respective
@@ -9,10 +10,10 @@ api classes.
 As they are usually derived from the class they patch , they could also be used directly
 
 @note **never import classes directly in here**, import the module instead, thus
-    **not**: thisImportedClass **but**: module.thisImportedClass !
+**not**: thisImportedClass **but**: module.thisImportedClass !
+
+@copyright 2012 Sebastian Thiel
 """
-
-
 import base
 import mrv.maya.undo as undo
 import mrv.util as util
@@ -90,7 +91,11 @@ class Abstract:
     pass
 
 
-#{ Primitive Types
+# ==============================================================================
+## @name Primitive Types
+# ------------------------------------------------------------------------------
+## @{
+
 class TimeDistanceAngleBase( Abstract ):
     """Base patch class for all indicated classes
     
@@ -244,15 +249,19 @@ class MTransformationMatrix( api.MTransformationMatrix, PatchMatrix ):
         """This patch is fully compatible to the default method"""
         return self._api_setTranslation( vector, space )
 
-#} END primitve types
+## -- End Primitive Types -- @}
 
-#{ Basic Types
+# ==============================================================================
+## @name Basic Types
+# ------------------------------------------------------------------------------
+## @{
 
 def _mplug_createUndoSetFunc( dataTypeId, getattroverride = None ):
     """Create a function setting a value with undo support
     
     @param dataTypeId string naming the datatype, like "Bool" - capitalization is
         important
+    @param getattroverride
     @note if undo is globally disabled, we will resolve to implementing a faster
         function instead as we do not store the previous value.
     @note to use the orinal method without undo, use api.MPlug.setX(your_plug, value)"""
@@ -320,8 +329,6 @@ class MPlug( api.MPlug ):
     pa = api.MPlugArray( )      # the only way to get a null plug for use
     pa.setLength( 1 )
 
-    #{ Overridden Methods
-
     def length( self ):
         """
         @return number of physical elements in the array, but only if they are 
@@ -355,9 +362,11 @@ class MPlug( api.MPlug ):
     def __ne__( self, other ):
         return not( self.__eq__( other ) )
 
-    #} Overridden Methods
 
-    #{ Plug Hierarchy Query
+    # -------------------------
+    ## @name Plug Hierarchy Query
+    # @{
+    
     def mparent( self ):
         """@return parent of this plug or None
         @note for array plugs, this is the array, for child plugs the actual parent """
@@ -426,9 +435,7 @@ class MPlug( api.MPlug ):
         # we have no sub plugs
         return []
 
-    #} END hierarcy query
-
-    #{ Attributes ( Edit )
+    ## -- End Plug Hierarchy Query -- @}
 
     def _mhandleAttrSet( self, state, getfunc, setfunc ):
         """Generic attribute handling"""
@@ -437,6 +444,10 @@ class MPlug( api.MPlug ):
         op.setUndoitCmd( setfunc, getfunc( ) )
         op.doIt()
 
+    # -------------------------
+    ## @name Attribute Editing
+    # @{
+    
     @undoable
     def msetLocked( self, state ):
         """If True, the plug's value may not be changed anymore"""
@@ -458,11 +469,13 @@ class MPlug( api.MPlug ):
         be keyable or viceversa """
         self._mhandleAttrSet( state, self.isChannelBoxFlagSet, self.setChannelBox )
 
-    #} END attributes edit
+    ## -- End Attribute Editing -- @}
 
 
-    #{ Connections ( Edit )
-
+    # -------------------------
+    ## @name Connections (Edit)
+    # @{
+    
     @classmethod
     @undoable
     def mconnectMultiToMulti(self, iter_source_destination, force=False):
@@ -493,7 +506,6 @@ class MPlug( api.MPlug ):
         mod.doIt()
         return mod
         
-
     @undoable
     def mconnectTo( self, destplug, force=True ):
         """Connect this plug to the right hand side plug
@@ -619,10 +631,13 @@ class MPlug( api.MPlug ):
                 self.mdisconnectFrom(p)
         # END for each plug in output
 
-    #} END connections edit
+    ## -- End Connections (Edit) -- @}
 
 
-    #{ Connections ( Query )
+    # -------------------------
+    ## @name Connections (Query)
+    # @{
+    
     @staticmethod
     def mhaveConnection( lhsplug, rhsplug ):
         """@return True if lhsplug and rhs plug are connected - the direction does not matter
@@ -704,7 +719,7 @@ class MPlug( api.MPlug ):
         """
         @return iterator over the graph starting at this plug in input(upstream) direction.
             Plugs will be returned by default
-        @note see `it.iterGraph` for valid args and kwargs"""
+        @note see `it.iterGraph()` for valid args and kwargs"""
         kwargs['input'] = True
         return self.miterGraph(*args, **kwargs)
         
@@ -712,7 +727,7 @@ class MPlug( api.MPlug ):
         """
         @return iterator over the graph starting at this plug in output(downstream) direction.
             Plugs will be returned by default
-        @note see `it.iterGraph` for valid args and kwargs"""
+        @note see `it.iterGraph()` for valid args and kwargs"""
         kwargs['input'] = False
         return self.miterGraph(*args, **kwargs)
 
@@ -720,9 +735,12 @@ class MPlug( api.MPlug ):
         """@return tuple with input and outputs ( inputPlug, outputPlugs )"""
         return ( self.minput( ), self.moutputs( ) )
 
-    #} END connections query
+    ## -- End Connections (Query) -- @}
 
-    #{ Affects Query
+    # -------------------------
+    ## @name Affects (Query)
+    # @{
+    
     def mdependencyInfo( self, by=False ):
         """@return list of plugs on this node that this plug affects or is being affected by
         @param by if false, affected attributplugs will be returned, otherwise the attributeplugs affecting this one
@@ -746,9 +764,12 @@ class MPlug( api.MPlug ):
         """@return list of plugs affecting this one"""
         return self.mdependencyInfo( by = True )
 
-    #} END affects query
+    ## -- End Affects (Query) -- @}
 
-    #{ General Query
+    # -------------------------
+    ## @name General Query
+    # @{
+    
     def mnextLogicalIndex( self ):
         """@return index of logical indexed plug that does not yet exist
         @note as this method does a thorough search, it is relatively slow
@@ -805,11 +826,13 @@ class MPlug( api.MPlug ):
             convert the resulting string back to the actual plug"""
         return self.partialName(1, 1, 1, 0, 1, 1)
         
-    #} END query
+    ## -- End General Query -- @}
 
 
-    #{ Set Data with Undo
-
+    # -------------------------
+    ## @name Set Data with Undo
+    # @{
+    
     # wrap the methods
     msetBool = _mplug_createUndoSetFunc( "Bool" )
     msetChar = _mplug_createUndoSetFunc( "Char" )
@@ -823,9 +846,13 @@ class MPlug( api.MPlug ):
     msetMTime = _mplug_createUndoSetFunc( "MTime" )
     msetMObject = _mplug_createUndoSetFunc( "MObject" )
 
-    #} END set data
+    ## -- End Set Data with Undo -- @}
 
-    #{ Name Remapping
+    # -------------------------
+    ## @name Name Remapping
+    # provide an additional short name for common methods  
+    # @{
+    
     mctf = lambda self,other: self.mconnectTo( other, force=True )
     mct = lambda self,other: self.mconnectTo( other, force=False )
     mict = misConnectedTo
@@ -833,7 +860,8 @@ class MPlug( api.MPlug ):
     mdc = mdisconnectFrom
     mwn = mwrappedNode
     mwa = mwrappedAttribute
-    #} END name remapping
+    
+    ## -- End Name Remapping -- @}
 
 
 # SETUP DEBUG MODE ?
@@ -850,11 +878,13 @@ if int(os.environ.get('MRV_DEBUG_MPLUG_SETX', 0)):
     MPlug.__getattribute__ = __getattribute__
 # END setup debug mode
 
+## -- End Basic Types -- @}
 
-#} END basic types
 
-
-#{ Arrays
+# ==============================================================================
+## @name Arrays
+# ------------------------------------------------------------------------------
+## @{
 
 class ArrayBase( Abstract ):
     """ Base class for all maya arrays to easily fix them
@@ -895,7 +925,9 @@ class ArrayBase( Abstract ):
     
     @classmethod
     def mfromList(cls, list):
-        """@return Array created from the given list of elements"""
+        """@return Array created from the given list of elements
+        @param cls
+        @param list"""
         ia = cls()
         ia.setLength(len(list))
         
@@ -1041,6 +1073,7 @@ class MIntArray( api.MIntArray, ArrayBase ):
     @classmethod
     def mfromRange(cls, i, j):
         """@return An MIntArray initialized with integers ranging from i to j
+        @param cls
         @param i first integer of the returned array
         @param j last integer of returned array will have the value j-1"""
         if j < i:
@@ -1085,6 +1118,7 @@ class MSelectionList( api.MSelectionList, ArrayBase ):
     @staticmethod
     def mfromStrings( iter_strings, **kwargs ):
         """@return MSelectionList initialized from the given iterable of strings
+        @param iter_strings
         @param kwargs passed to `base.toSelectionListFromNames`"""
         return base.toSelectionListFromNames(iter_strings, **kwargs)
         
@@ -1093,6 +1127,7 @@ class MSelectionList( api.MSelectionList, ArrayBase ):
         """
         @return MSelectionList as initialized from the given iterable of Nodes, 
             MObjects, MDagPaths, MPlugs or strings
+        @param iter_items
         @param kwargs passed to `base.toSelectionList`"""
         return base.toSelectionList(iter_items, **kwargs)
         
@@ -1109,6 +1144,7 @@ class MSelectionList( api.MSelectionList, ArrayBase ):
         """
         @return MSelectionList as initialized from the given list of tuple( DagNode, Component ), 
             Component can be a filled Component object or null MObject
+        @param iter_components
         @param kwargs passed to `base.toComponentSelectionList`"""
         return base.toComponentSelectionList(iter_components, **kwargs)
         
@@ -1174,5 +1210,6 @@ class MItMeshPolygon( api.MItMeshPolygon, MeshIteratorBase ):
 
 class MItMeshFaceVertex( api.MItMeshFaceVertex, MeshIteratorBase ):
     pass
-#}
+
+## -- End Arrays -- @}
 

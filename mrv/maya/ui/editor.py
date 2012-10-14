@@ -1,8 +1,10 @@
-# -*- coding: utf-8 -*-
+#-*-coding:utf-8-*-
 """
-Contains implementations of maya editors
-"""
+@package mrv.maya.ui.editor
+@brief Contains implementations of maya editors
 
+@copyright 2012 Sebastian Thiel
+"""
 import base as uibase
 import util as uiutil
 

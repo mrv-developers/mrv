@@ -1,9 +1,10 @@
-# -*- coding: utf-8 -*-
+#-*-coding:utf-8-*-
 """
-Module containing helpers to create the UI types at runtime.
+@package mrv.maya.ui.typ
+@brief Module containing helpers to create the UI types at runtime.
+
+@copyright 2012 Sebastian Thiel
 """
-
-
 import mrv.maya as mrvmaya
 from mrv.util import uncapitalize
 import mrv.maya.util as mutil
@@ -13,12 +14,22 @@ import maya.cmds as mcmds
 from util import propertyQE, EventSenderUI
 
 
-# CACHES
+# ==============================================================================
+## @name Caches
+# ------------------------------------------------------------------------------
+## @{
+
 _typetree = None
 _typemap = { "floatingWindow" : "window", "field" : "textField" }
 
+## -- End Caches -- @}
 
-#{ Initialization
+
+# ==============================================================================
+## @name Initialization
+# ------------------------------------------------------------------------------
+## @{
+
 def init_classhierarchy( ):
     """ Read a simple hiearchy file and create an Indexed tree from it"""
     mfile = make_path( __file__ ).parent().parent() / "cache/UICommandsHierachy.hf"
@@ -33,7 +44,7 @@ def initWrappers( ):
     the first instance is requested"""
     mrvmaya.initWrappers( _uipackage.__dict__, _typetree.nodes_iter(), MetaClassCreatorUI )
 
-#} END initialization
+## -- End Initialization -- @}
 
 
 class MetaClassCreatorUI( mutil.MetaClassCreator ):
@@ -41,30 +52,28 @@ class MetaClassCreatorUI( mutil.MetaClassCreator ):
     typetree.
     Additional support for :
     
-    **AUTOMATIC PROPERTY GENERATION**:
+    AUTOMATIC PROPERTY GENERATION
+    -----------------------------
      - if flags are simple get and set properties, these can be listed in the
        _properties_ attribute ( list ). These must be queriable and editable
-        
      - Properties will be available as:
        inst.p_myProperty to access myProperty ( equivalent to cmd -q|e -myProperty
-        
      - This only works if our class knows it's mel command in the __melcmd__ member
        variable - inheritance for it does not work
 
-    **AUTOMATIC UI-EVENT GENERATION**:
+    AUTOMATIC UI-EVENT GENERATION
+    -----------------------------
      - define names of mel events in _events_ as list of names
-     
      - these will be converted into Events sitting at attribute names like
        e_eventName ( for even called 'eventName'
-        
      - assign an event:
        windowinstance.e_restoreCommand = func
        whereas func takes: `func( windowinstance, *args, **kwargs )`
 
-    **ADDITIONAL CONFIGURAITON**:
+    ADDITIONAL CONFIGURAITON
+    ------------------------
      - strong_event_handlers:
         if True, events will use strong references to their handlers
-     
     """
 
     melcmd_attrname = '__melcmd__'

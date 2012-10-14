@@ -1,14 +1,19 @@
-# -*- coding: utf-8 -*-
+#-*-coding:utf-8-*-
 """
-Contains different multi-purpose iterators allowing to conveniently walk the dg and
-dag.
+@package mrv.maya.nt.it
+@brief Contains different multi-purpose iterators allowing to conveniently walk the dg and dag.
+
+@copyright 2012 Sebastian Thiel
 """
-
-
 import maya.OpenMaya as api
 import maya.cmds as cmds
 from maya.OpenMaya import MDagPath, MObject
-from base import Node, DagNode, NodeFromObj, Component
+from base import (  
+                    Node, 
+                    DagNode, 
+                    NodeFromObj, 
+                    Component
+                )
 
 __all__ = ("dgIterator", "dagIterator", "graphIterator", "selectionListIterator", 
            "iterDgNodes", "iterDagNodes", "iterGraph", "iterSelectionList")
@@ -31,7 +36,10 @@ def _argsToFilter( args ):
     return typeFilter
 
 
-#{ Iterator Creators
+# ==============================================================================
+## @name Iterator Creators
+# ------------------------------------------------------------------------------
+## @{
 
 def dgIterator( *args, **kwargs ):
     """
@@ -107,10 +115,10 @@ def graphIterator( nodeOrPlug, *args, **kwargs ):
         startObj = MObject()
     elif isinstance( nodeOrPlug, Node ):
         startObj = nodeOrPlug.object()
-        startPlug = nullplugarray[0]
+        startPlug = _nullplugarray[0]
     else:
         startObj = nodeOrPlug
-        startPlug = nullplugarray[0]
+        startPlug = _nullplugarray[0]
     # END traversal root
 
     inputPlugs = kwargs.get('input', False)
@@ -154,8 +162,15 @@ def selectionListIterator( sellist, **kwargs ):
     iterator = api.MItSelectionList( sellist, filtertype )
     return iterator
     
-#} END iterator creators 
+## -- End Iterator Creators -- @}
 
+_nullplugarray = api.MPlugArray()
+_nullplugarray.setLength( 1 )
+
+# ==============================================================================
+## @name Iterators
+# ------------------------------------------------------------------------------
+## @{
 
 def iterDgNodes( *args, **kwargs ):
     """ Iterator on MObjects or Nodes of the specified api.MFn types
@@ -164,11 +179,11 @@ def iterDgNodes( *args, **kwargs ):
         All nodes of a type included in the args will be iterated on.
         args is empty, all nodes of the scene will be iterated on which may include DAG nodes as well.
     @param kwargs
-         * asNode: 
-            if True, default True, the returned value will be wrapped as node
-         * predicate: 
-            returns True for every iteration element that may be returned by the iteration,
-            default : lambda x: True"""
+     - asNode: 
+      + if True, default True, the returned value will be wrapped as node
+     - **predicate** 
+      + returns True for every iteration element that may be returned by the iteration,
+        default : lambda x: True"""
     iterator = dgIterator( *args, **kwargs )
     predicate = kwargs.get( "predicate", lambda x: True )
     asNode = kwargs.get( "asNode", True )
@@ -193,27 +208,29 @@ def iterDagNodes( *args, **kwargs ):
     if no type is provided all dag nodes under the root will be iterated on.
     Types are specified as Maya API types being a member of api.MFn
     The following keywords will affect order and behavior of traversal:
-
+    
+    @param args
     @param kwargs
-         * dagpath:
-            if True, default True, MDagPaths will be returned
-            If False, MObjects will be returned - it will return each object only once in case they
-            occour in multiple paths.
-         * depth: 
-            if True, default True, Nodes will be returned as a depth first traversal of the hierarchy tree
-            if False as a post-order (breadth first)
-         * underworld: 
-            if True, default False, traversal will include a shape's underworld 
-            (dag object parented to the shape), if False the underworld will not be traversed,
-         * asNode: 
-            if True, default True, the returned item will be wrapped into a Node
-         * root: 
-            MObject or MDagPath or Node of the object you would like to start iteration on, or None to
-            start on the scene root. The root node will also be returned by the iteration !
-            Please note that if an MObject is given, it needs to be an instanced DAG node to have an effect.
-         * predicate: 
-            method returning True if passed in iteration element can be yielded
-            default: lambda x: True"""
+     - **dagpath**
+      + if True, default True, MDagPaths will be returned
+        If False, MObjects will be returned - it will return each object only once in case they
+        occour in multiple paths.
+     - **depth** 
+      + if True, default True, Nodes will be returned as a depth first traversal of the hierarchy tree
+        if False as a post-order (breadth first)
+     - **underworld** 
+      + if True, default False, traversal will include a shape's underworld 
+        (dag object parented to the shape), if False the underworld will not be traversed,
+     - **asNode** 
+      + if True, default True, the returned item will be wrapped into a Node
+     - **root** 
+      + MObject or MDagPath or Node of the object you would like to start iteration on, or None to
+        start on the scene root. The root node will also be returned by the iteration !
+        Please note that if an MObject is given, it needs to be an instanced DAG node to have an effect.
+     - **predicate** 
+      + method returning True if passed in iteration element can be yielded
+        default: lambda x: True
+    """
 
     # Must define dPath in loop or the iterator will yield
     # them as several references to the same object (thus with the same value each time)
@@ -276,29 +293,29 @@ def iterGraph( nodeOrPlug, *args, **kwargs ):
         If a list of types is provided, only nodes of these types will be returned,
         if no type is provided all connected nodes will be iterated on.
     @param kwargs
-         * input: 
-            if True connections will be followed from destination to source,
-            if False from source to destination
-            default is False (downstream)
-         * breadth: 
-            if True nodes will be returned as a breadth first traversal of the connection graph,
-            if False as a preorder (depth first)
-            default is False (depth first)
-         * plug: 
-            if True traversal will be at plug level (no plug will be traversed more than once),
-            if False at node level (no node will be traversed more than once),
-            default is False (node level)
-         * prune: 
-            if True, the iteration will stop on nodes that do not fit the types list,
-            if False these nodes will be traversed but not returned
-            default is False (do not prune)
-         * asNode: 
-            if True, default True, and if the iteration is on node level, 
-            Nodes ( wrapped MObjects ) will be returned
-            If False, MObjects will be returned
-         * predicate: 
-            method returning True if passed in iteration element can be yielded
-            default: lambda x: True
+     - **input** 
+      + if True connections will be followed from destination to source,
+        if False from source to destination
+        default is False (downstream)
+     - **breadth** 
+      + if True nodes will be returned as a breadth first traversal of the connection graph,
+        if False as a preorder (depth first)
+        default is False (depth first)
+     - **plug** 
+      + if True traversal will be at plug level (no plug will be traversed more than once),
+        if False at node level (no node will be traversed more than once),
+        default is False (node level)
+     - **prune** 
+      + if True, the iteration will stop on nodes that do not fit the types list,
+        if False these nodes will be traversed but not returned
+        default is False (do not prune)
+     - **asNode** 
+      + if True, default True, and if the iteration is on node level, 
+        Nodes ( wrapped MObjects ) will be returned
+        If False, MObjects will be returned
+     - **predicate** 
+      + method returning True if passed in iteration element can be yielded
+        default: lambda x: True
     @return Iterator yielding MObject, Node or Plug depending on the configuration flags, first yielded item is 
         always the root node or plug."""
     try:
@@ -341,10 +358,7 @@ def iterGraph( nodeOrPlug, *args, **kwargs ):
     # END handle possible iteration error
 
 
-nullplugarray = api.MPlugArray()
-nullplugarray.setLength( 1 )
-def iterSelectionList( sellist, filterType = api.MFn.kInvalid, predicate = lambda x: True,
-                        asNode = True, handlePlugs = True, handleComponents = False ):
+def iterSelectionList( sellist, filterType = api.MFn.kInvalid, predicate = lambda x: True, asNode = True, handlePlugs = True, handleComponents = False ):
     """Iterate the given selection list
     
     @param sellist MSelectionList to iterate
@@ -397,7 +411,7 @@ def iterSelectionList( sellist, filterType = api.MFn.kInvalid, predicate = lambd
                 # TRY PLUG - first as the object could be returned as well if called
                 # for DependNode
                 try:
-                    rval = nullplugarray[0]
+                    rval = _nullplugarray[0]
                     getPlug( i, rval )
                     # try to access the attribute - if it is not really a plug, it will
                     # fail and throw - for some reason maya can put just the depend node into
@@ -480,3 +494,4 @@ def iterSelectionList( sellist, filterType = api.MFn.kInvalid, predicate = lambd
             next()
         # END while not done
 
+## -- End Iterators -- @}

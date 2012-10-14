@@ -1,12 +1,14 @@
-# -*- coding: utf-8 -*-
+#-*-coding:utf-8-*-
 """
-Houses the MetaClass able to setup new types to work within the system. This can 
-be considered the heart of the node wrapping engine, but it plays together with 
+@package mrv.maya.nt.typ
+@brief Houses the MetaClass able to setup new types to work within the system
+
+This can  be considered the heart of the node wrapping engine, but it plays together with 
 the implementation in the `base` module.
+
+@copyright 2012 Sebastian Thiel
 """
-
-
-from mrv.maya.util import MetaClassCreator
+import mrv.maya.util
 from mrv.maya.util import MEnumeration
 import mrv.maya as mrvmaya
 import mrv.maya.mdb as mdb
@@ -21,24 +23,38 @@ log = logging.getLogger("mrv.maya.nt.typ")
 
 __all__ = ("MetaClassCreatorNodes", )
 
-#{ Caches
+# ==============================================================================
+## @name Caches
+# ------------------------------------------------------------------------------
+## @{
+
 _nodesdict = None                   # to be set during initialization
 nodeTypeTree = None
 nodeTypeToMfnClsMap = dict()        # allows to see the most specialized compatible mfn cls for a given node type
-#} END caches
 
-#{Globals
+## -- End Caches -- @}
+
+# ==============================================================================
+## @name Globals
+# ------------------------------------------------------------------------------
+## @{
+
 targetModule = None             # must be set in intialization to tell this class where to put newly created classes
 mfnclsattr = '_mfncls'
 mfndbattr = '_mfndb'
 apiobjattr = '_apiobj'
 getattrorigname = '__getattr_orig'
 codegen = None      # python code generator, to be set during initialization
-#} END globals
+
+## -- End Globals -- @}
 
 
-#{ Metaclasses
-class MetaClassCreatorNodes( MetaClassCreator ):
+# ==============================================================================
+## @name Metaclasses
+# ------------------------------------------------------------------------------
+## @{
+
+class MetaClassCreatorNodes( mrv.maya.util.MetaClassCreator ):
     """Builds the base hierarchy for the given classname based on our typetree
     @todo build classes with slots only as members are pretermined"""
     
@@ -47,6 +63,9 @@ class MetaClassCreatorNodes( MetaClassCreator ):
         """Return the mfndb for the given mfncls as existing on newcls. 
         If it does not yet exist, it will be created and attached first
         
+        @param cls
+        @param newcls
+        @param mfncls
         @param kwargs passed to MMemberMap initializer"""
         try:
             return newcls.__dict__[ mfndbattr ]
@@ -111,7 +130,8 @@ class MetaClassCreatorNodes( MetaClassCreator ):
         a function set of type mfncls and execute the function in question.
 
         The method mutation database allows to adjust the way a method is being wrapped
-        
+        @param cls
+        @param newcls
         @param mfncls Maya function set class from which to take the functions
         @param funcname name of the function set function to be wrapped.
         @param mfndb `mdb.MMemberMap` 
@@ -335,10 +355,12 @@ class MetaClassCreatorNodes( MetaClassCreator ):
 
     # END __new__
 
-#} END metaclasses
+## -- End Metaclasses -- @}
 
 
-#{ Utilities
+# -------------------------
+## @name Utilities
+# @{
 
 def prefetchMFnMethods():
     """Fetch and install all mfn methods on all types supporting a function set.
@@ -398,12 +420,9 @@ def prefetchMFnMethods():
     # END for each type/mfncls pair
     
     return num_fetched
-    
-    
 
-#} END utilities
+## -- End Utilities -- @}
 
-#{ Initialization
 
 def _addCustomType( targetmoduledict, parentclsname, newclsname,
                     metaclass=MetaClassCreatorNodes, **kwargs ):
@@ -418,6 +437,7 @@ def _addCustomType( targetmoduledict, parentclsname, newclsname,
     @param metaclass meta class object to be called to modify your type upon creation
         It will not be called if the class already exist in targetModule. Its recommended to derive it
         from the metaclass given as default value.
+    @param kwargs
     @throws KeyError if the parentclsname does not exist"""
     # add new type into the type hierarchy #
     parentclsname = uncapitalize( parentclsname )
@@ -447,12 +467,10 @@ def _removeCustomType( targetmoduledict, customTypeName ):
         nodeTypeTree.remove_node(customTypeName)
     # END remove from type tree
 
-def _addCustomTypeFromDagtree( targetmoduledict, dagtree, metaclass=MetaClassCreatorNodes,
-                                force_creation=False, **kwargs ):
+def _addCustomTypeFromDagtree( targetmoduledict, dagtree, metaclass=MetaClassCreatorNodes, force_creation=False, **kwargs ):
     """As `_addCustomType`, but allows to enter the type relations using a
     `mrv.util.DAGTree` instead of individual names. Thus multiple edges can be added at once
-    
-    @note special care is being taken to make force_creation work - first all the standind classes
+    @note special care is being taken to make force_creation work - first all the standin classes
         are needed, then we can create them - just iterating the nodes in undefined order will not work
         as a parent node might not be created yet
     @note node names in dagtree must be uncapitalized"""
@@ -466,6 +484,10 @@ def _addCustomTypeFromDagtree( targetmoduledict, dagtree, metaclass=MetaClassCre
 
     nodeTypeTree.add_edges_from( recurseOutEdges( rootnode ) )
     mrvmaya.initWrappers( targetmoduledict, dagtree.nodes_iter(), metaclass, force_creation = force_creation, **kwargs )
+
+# -------------------------
+## @name Initialization
+# @{
 
 def initTypeNameToMfnClsMap( ):
     """Fill the cache map supplying additional information about the MFNClass to use
@@ -487,4 +509,4 @@ def initWrappers( targetmoduledict ):
     global nodeTypeTree
     mrvmaya.initWrappers( targetmoduledict, nodeTypeTree.nodes_iter(), MetaClassCreatorNodes )
 
-#} END initialization
+## -- End Initialization -- @}

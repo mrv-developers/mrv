@@ -1,9 +1,10 @@
-# -*- coding: utf-8 -*-
+#-*-coding:utf-8-*-
 """
-Contains the most controls like buttons and sliders for more convenient use
+@package mrv.maya.ui.control
+@brief Contains the most controls like buttons and sliders for more convenient use
+
+@copyright 2012 Sebastian Thiel
 """
-
-
 import base as uibase
 import util as uiutil
 
@@ -12,7 +13,10 @@ from mrv.maya.util import noneToList
 import logging
 log = logging.getLogger("mrv.maya.ui.control")
 
-#{ Bases
+# ==============================================================================
+## @name Bases
+# ------------------------------------------------------------------------------
+## @{
 
 class LabelBase( uibase.SizedControl ):
     """Base class for elements having labels"""
@@ -172,7 +176,7 @@ class IconTextBase( object ):
     _events_ = (        "handleNodeDropCallback", "hnd",
                         "labelEditingCallback", "lec"   )
 
-#} END bases
+## -- End Bases -- @}
 
 
 class RadioButtonGrp( BooleanGroupBase, RadioButtonBase ):
@@ -419,9 +423,11 @@ class OptionMenu( OptionMenuBase, uibase.SizedControl ):
     file
     
     @note Order of inheritance matters due to method resolution order !"""
-    #( Configuration
+    # -------------------------
+    ## @name Configuration
+    # @{
     _is_menu = True
-    #) END configuration
+    ## -- End Configuration -- @}
 
 
 class OptionMenuGrp( OptionMenuBase, GroupBase ):
@@ -429,12 +435,16 @@ class OptionMenuGrp( OptionMenuBase, GroupBase ):
     file
     
     @note Order of inheritance matters due to method resolution order !"""
-    #( Configuration
+    # -------------------------
+    ## @name Configuration
+    # @{
     _is_menu = True
-    #) END configuration
-
-    #{ Special Handling Overrides
-
+    ## -- End Configuration -- @}
+    
+    # -------------------------
+    ## @name Special-Handling Overrides
+    # @{
+    
     def setActive( self ):
         """The optionMenuGrp cannot be set as a parent as it is classified as control layout.
         A problem arises if you actually try to add new menuItems to it after it's creation which
@@ -443,9 +453,8 @@ class OptionMenuGrp( OptionMenuBase, GroupBase ):
         return super( OptionMenuGrp, self ).setActive()
 
     def setParentActive( self ):
-        """See `setActive`"""
+        """See `setActive()`"""
         log.warn("setParentActive: OptionMenuGrp instances will change the parent of their control layout only, not the menu parent of the optionMenu")
         super( OptionMenuGrp, self ).setParentActive()
-    #} special handling overrides
 
-
+    ## -- End Special-Handling Overrides -- @}

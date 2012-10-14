@@ -1,15 +1,17 @@
-# -*- coding: utf-8 -*-
-""" Contains implementations ( or improvements ) to mayas geometric shapes """
+#-*-coding:utf-8-*-
+"""
+@package mrv.maya.nt.geometry
+@brief Contains implementations ( or improvements ) to mayas geometric shapes
 
-
+@copyright 2012 Sebastian Thiel
+"""
 import base
 from mrv.enum import (create as enum, Element as elm)
 import maya.OpenMaya as api
 import logging
 log = logging.getLogger("mrv.maya.nt.geometry")
 
-__all__ = ("GeometryShape", "DeformableShape", "ControlPoint", "SurfaceShape", 
-           "Mesh")
+__all__ = ("GeometryShape", "DeformableShape", "ControlPoint", "SurfaceShape", "Mesh")
 
 class GeometryShape( base.Shape ):  # base for epydoc !
     """Contains common methods for all geometry types"""
@@ -18,14 +20,16 @@ class GeometryShape( base.Shape ):  # base for epydoc !
         """Copy lightlinks from one meshShape to another
         
         @param kwargs
-             * substitute: 
-                if True, default False, the other shape will be put
-                in place of self, effectively receiving it's light-links whereas self losses
-                them. This is practical in case you create a new shape below a transform that
-                had a previously visible and manipulated shape whose external connections you
-                wouuld like to keep"""
+         - **substitute** 
+          + if True, default False, the other shape will be put
+            in place of self, effectively receiving it's light-links whereas self losses
+            them. This is practical in case you create a new shape below a transform that
+            had a previously visible and manipulated shape whose external connections you
+            wouuld like to keep
+        @param other
+        """
         def freeLogicalIndex( parent_plug ):
-            """@return a free parent compound index"""
+            # return a free parent compound index
             ilogical = parent_plug.logicalIndex()
             array_plug = parent_plug.array()
             num_elments = array_plug.numElements()
@@ -91,7 +95,10 @@ class SurfaceShape( ControlPoint ): # base for epydoc !
     pass
 
 
-#{ Helpers 
+# ==============================================================================
+## @name Helpers
+# ------------------------------------------------------------------------------
+## @{
 
 class _SingleIndexedComponentGenerator(object):
     """Utility producing components, initialized with the given indices. See `Mesh`
@@ -188,31 +195,35 @@ class _SingleIndexedComponentIterator(_SingleIndexedComponentGenerator):
     # shortcut alias
     iter = property(iterator)
         
-#} END helpers 
+## -- End Helpers -- @}
 
 
 class Mesh( SurfaceShape ):     # base for epydoc !
     """Implemnetation of mesh related methods to make its handling more
     convenient
     
-    **Component Access**:
-    
-        >>> m.cvtx[:]                   # a complete set of components
-        >>> m.cvtx[1:4]                 # initialized with 3 indices
-        >>> m.cvtx[1]                   # initialized with a single index
-        >>> m.cvtx[1,2,3]               # initialized with multiple indices
-        >>> m.cf[(1,2,3)]               # initialized with list or tuple
-        >>> m.ce[iter(1,2,3)]           # initialized from iterator
-        >>> m.ce[api.MIntArray()]       # initialized from MIntArray
-        
+    Component Access
+    ----------------
+    @code
+        m.cvtx[:]                   # a complete set of components
+        m.cvtx[1:4]                 # initialized with 3 indices
+        m.cvtx[1]                   # initialized with a single index
+        m.cvtx[1,2,3]               # initialized with multiple indices
+        m.cf[(1,2,3)]               # initialized with list or tuple
+        m.ce[iter(1,2,3)]           # initialized from iterator
+        m.ce[api.MIntArray()]       # initialized from MIntArray
+    @endcode
     """
-    # component types that make up a mesh
+    ## component types that make up a mesh
     eComponentType = enum( elm("vertex", api.MFn.kMeshVertComponent), 
                             elm("edge", api.MFn.kMeshEdgeComponent ), 
                             elm("face", api.MFn.kMeshPolygonComponent ), 
                             elm("uv", api.MFn.kMeshMapComponent ) )
 
-    #{ Iterator Shortcuts
+    # -------------------------
+    ## @name Iterator ShortCuts
+    # @{
+    
     def _make_component_getter(cls, component):
         def internal(self):
             return cls(self, component)
@@ -228,10 +239,12 @@ class Mesh( SurfaceShape ):     # base for epydoc !
     for shortname, component in zip(('cvtx', 'ce', 'cf', 'cmap'), eComponentType):
         locals()[shortname] = property(_make_component_getter(_SingleIndexedComponentGenerator, component))
     
-    #} END iterator shortcuts
+    ## -- End Iterator ShortCuts -- @}
 
-    #{ Utilities
-
+    # -------------------------
+    ## @name Utilities
+    # @{
+    
     def copyTweaksTo( self, other ):
         """Copy our tweaks onto another mesh
         
@@ -257,7 +270,8 @@ class Mesh( SurfaceShape ):     # base for epydoc !
         """Copy set assignments including component assignments to other
         
         @param kwargs passed to set.addMember, additional kwargs are:
-             * setFilter: default is fSetsRenderable"""
+             - **setFilter** default is fSetsRenderable
+        @param other other geometry to copy assignments to"""
         setFilter = kwargs.pop( "setFilter", base.Shape.fSetsRenderable )
         for sg, comp in self.componentAssignments( setFilter = setFilter ):
             sg.addMember( other, comp, **kwargs )
@@ -271,16 +285,16 @@ class Mesh( SurfaceShape ):     # base for epydoc !
             valid values are 'vertex' and 'uv' members of the eComponentType enumeration. 
             Pass in a scalar value or a list of tweak types
         @param keep_tweak_result if True, the effect of the tweak will be kept. If False,
-            it will be removed. What actually happens depends on the context
+        it will be removed. What actually happens depends on the context
+        
+        - [referenced] mesh *without* history:
+          + copy outMesh to inMesh, resetTweaks
             
-            * [referenced] mesh *without* history:
-                copy outMesh to inMesh, resetTweaks
-                
-                if referenced, plenty of reference edits are generated, ideally one operates
-                on non-referenced geomtry
-               
-            * [referenced] mesh *with* history:
-                put tweakNode into mesh history, copy tweaks onto tweak node
+            if referenced, plenty of reference edits are generated, ideally one operates
+            on non-referenced geomtry
+           
+        - [referenced] mesh *with* history:
+          + put tweakNode into mesh history, copy tweaks onto tweak node
         @note currently vertex and uv tweaks will be removed if keep is enabled, thus they must
             both be specified"""
         check_types = ( isinstance( tweak_type, ( list, tuple ) ) and tweak_type ) or [ tweak_type ]
@@ -387,18 +401,21 @@ class Mesh( SurfaceShape ):     # base for epydoc !
         return base.SingleIndexedComponent.create(component_type.value())
         # END handle face-vertex components
         
-    #} END utilities
+    ## -- End Utilities -- @}
         
-    #{ Iterators 
+    # -------------------------
+    ## @name Iterators
+    # @{
+    
     def iterComponents(self, component_type, component=api.MObject()):
         """
         @return MItIterator matching your component_type to iteartor over items
             on this mesh
         @param component_type 
-         * vertex -> MItMeshVertex
-         * edge -> MItMeshEdge
-         * face -> MItMeshPolygon
-         * uv -> MItMeshFaceVertex
+         - vertex -> MItMeshVertex
+         - edge -> MItMeshEdge
+         - face -> MItMeshPolygon
+         - uv -> MItMeshFaceVertex
         @param component if not kNullObject, the iterator returned will be constrained
             to the given indices as described by the Component. Use `component` to retrieve 
             a matching component type's instance"""
@@ -413,19 +430,18 @@ class Mesh( SurfaceShape ):     # base for epydoc !
         
         return it_type(self.dagPath(), component)
         
-    #} END iterators 
+    ## -- End Iterators -- @}
 
-    #( iDuplicatable
     def copyFrom( self, other, *args, **kwargs ):
         """Copy tweaks and sets from other onto self
-        
+        @param other
+        @param args
         @param kwargs
-             * setFilter: if given, default is fSets, you may specify the types of sets to copy
-                        if None, no set conenctions will be copied """
+         - **setFilter** if given, default is fSets, you may specify the types of sets to copy
+            if None, no set conenctions will be copied """
         other.copyTweaksTo( self )
 
         setfilter = kwargs.pop( "setFilter", Mesh.fSets )       # copy all sets by default
         if setfilter is not None:
             other.copyAssignmentsTo( self, setFilter = setfilter )
 
-    #) END iDuplicatable

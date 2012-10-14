@@ -16,7 +16,7 @@ import os
 ## Version Info 
 ## See http://docs.python.org/library/sys.html#sys.version_info for more information
 ##               major, minor, micro, releaselevel, serial
-version = (1,     0,     3,     'develop',        0)
+version = (1,     0,     4,     'develop',        0)
 
 ## The short name for your project, important for your documentation headline as 
 ## well as for the name of your distribution archives and git heads.

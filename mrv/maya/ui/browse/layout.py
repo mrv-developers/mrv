@@ -1,6 +1,10 @@
-# -*- coding: utf-8 -*-
-"""module containing layouts which combine finder ui modules"""
+#-*-coding:utf-8-*-
+"""
+@package mrv.maya.ui.browse.layout
+@brief module containing layouts which combine finder ui modules
 
+@copyright 2012 Sebastian Thiel
+"""
 import sys
 import string
 
@@ -25,14 +29,14 @@ __all__ = ('FinderLayout', 'FileOpenFinder', 'FileReferenceFinder', 'FileSaveFin
 class FinderLayout(ui.FormLayout):
     """Implements a layout with a finder as well a surrounding elements. It can 
     be configured using class configuration variables, and allows easy modification
-    through derivation
+    through derivation"""
     
-    **Instance Variables**
-    * finder 
-    * options"""
     
-    #{ Configuration
-    # used as names for buttons
+    # -------------------------
+    ## @name Configuration
+    # @{
+    
+    ## used as names for buttons
     k_confirm_name = "OK"
     k_cancel_name = "Cancel"
     k_stack_item_remove_name = "Remove Item"
@@ -45,16 +49,16 @@ class FinderLayout(ui.FormLayout):
     t_root_selector=FileRootSelectorControl
     t_stack=None
     t_filter=FileFilterControl
-    #} END configuration
+    ## -- End Configuration -- @}
     
     def __new__(cls, *args, **kwargs):
         return super(FinderLayout, cls).__new__(cls)
     
     def __init__(self, *args, **kwargs):
         """Initialize all ui elements
+        @param args
         @param kwargs The following keywords are defined
-         * **defaultRoots**: default False, if True, show all roots available
-          on the system."""
+         - **defaultRoots* default False, if True, show all roots available on the system."""
         num_splits = 1 + (self.t_options is not None)
         config = (num_splits == 1 and "single") or "vertical%i" % num_splits
         pane = ui.PaneLayout(configuration=config)
@@ -230,7 +234,9 @@ class FinderLayout(ui.FormLayout):
                     )
         # END setup
     
-    #{ Subclass Interface
+    # -------------------------
+    ## @name Subclass Interface
+    # @{
     
     def _create_finder_menu(self, menu):
         """Create a static menu for the finder. The active parent is a popupMenu
@@ -285,9 +291,11 @@ class FinderLayout(ui.FormLayout):
         
         return bform
     
-    #}END subclass interface
+    ## -- End Subclass Interface -- @}
     
-    #{ Callbacks
+    # -------------------------
+    ## @name Callbacks
+    # @{
     
     def _on_stack_remove_item(self, *args):
         self.stack.removeItem(self.stack.selectedItem())
@@ -377,18 +385,22 @@ class FinderLayout(ui.FormLayout):
         # END handle existance of rootselector
         self.finder.setUrl(url, allow_memory=False)
         
-    #} END callbacks
+    ## -- End Callbacks -- @}
 
 
 class FileSaveFinder(FinderLayout):
     """Finder optimized to choose a location to save a file"""
-    #{ Configuration 
+    # -------------------------
+    ## @name Configuration
+    # @{
+    
     k_confirm_name = "Save File"
     t_stack = None
     
     t_filepath = FilePathControlEditable
     t_options=None
-    #} END configuration
+    
+    ## -- End Configuration -- @}
     
     def __init__(self, *args, **kwargs):
         super(FileSaveFinder, self).__init__(*args, **kwargs)
@@ -408,12 +420,15 @@ class FileSaveFinder(FinderLayout):
 class FileOpenFinder(FinderLayout):
     """Finder customized for opening files"""
     
-    #{ Configuration 
+    # -------------------------
+    ## @name Configuration
+    # @{
+    
     k_confirm_name = "Open File"
     t_stack = None
     
     t_options=FileOpenOptions
-    #} END configuration
+    ## -- End Configuration -- @}
     
     def __init__(self, *args, **kwargs):
         super(FileOpenFinder, self).__init__(*args, **kwargs)
@@ -436,8 +451,9 @@ class FileOpenFinder(FinderLayout):
 class FileReferenceFinder(FinderLayout):
     """Finder Layout for creating references"""
 
-    #{ Configuration
-    
+    # -------------------------
+    ## @name Configuration
+    # @{
     k_add_single = "Add to Stack"
     k_add_and_confirm = "Add to Stack and Confirm"
     k_confirm_name = "Create Reference(s)"
@@ -445,7 +461,7 @@ class FileReferenceFinder(FinderLayout):
     
     t_stack=FileStack
     t_options=None
-    #} END configuration
+    ## -- End Configuration -- @}
     
     def __init__(self, *args, **kwargs):
         super(FileReferenceFinder, self).__init__(*args, **kwargs)
@@ -460,7 +476,9 @@ class FileReferenceFinder(FinderLayout):
         mi.e_command = self._on_add_to_stack
     
     
-    #{ Subclass Interface
+    # -------------------------
+    ## @name Subclass Interface
+    # @{
     
     def _create_references(self, refpaths):
         """Create reference to the given reference paths, being strings to the file 
@@ -469,9 +487,11 @@ class FileReferenceFinder(FinderLayout):
             FileReference.create(ref)
         # END for each ref to create
     
-    #} END subclass interface
+    ## -- End Subclass Interface -- @}
 
-    #{ Callbacks
+    # -------------------------
+    ## @name Callbacks
+    # @{
     
     @notifyException
     def _on_add_to_stack(self, menu_item, *args):
@@ -504,5 +524,4 @@ class FileReferenceFinder(FinderLayout):
         # NOTE: Needs to be deferred, crashes otherwis
         mutil.executeDeferred(super(FileReferenceFinder, self)._confirm_button_pressed)
         
-    
-    #} END callbacks
+    ## -- End Callbacks -- @}

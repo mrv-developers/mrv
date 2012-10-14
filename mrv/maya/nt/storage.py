@@ -1,15 +1,17 @@
-# -*- coding: utf-8 -*-
-"""Contains an implementation for the Persistence plugin for easy access within 
-mrv and derived nodes.
+#-*-coding:utf-8-*-
 """
+@package mrv.maya.nt.storage
+@brief Contains an implementation for the Persistence plugin for easy access within  mrv and derived nodes.
 
-
+@copyright 2012 Sebastian Thiel
+"""
 import os
 from persistence import PyPickleData
 import maya.OpenMaya as api
 
 import mrv.maya.undo as undo
 from mrv.interface import iDuplicatable
+import mrv.interface
 
 from base import Node, DependNode, Data, createNode, delete
 from set import ObjectSet
@@ -20,19 +22,6 @@ MFnDependencyNode = api.MFnDependencyNode
 
 __all__ = ("StorageBase", "StorageNode")
 
-#{ Procedural Access
-# Functions to access most functionality of the storagebase without actually deriving from it
-# They are as low-level as possible regarding their input parameters
-
-def findStoragePlug(masterPlug, dataID):
-    """@return compound plug containing all data and connections for the given dataID
-    @param masterPlug compound plug containing all data"""
-    for compoundplug in masterPlug:
-        if compoundplug.child(0).asString() == dataID:
-            return compoundplug
-    # END for each elemnt (in search for mathching dataID)
-    return None
-
 @undoable
 def _makeElementPlug(masterPlug, dataID):
     """Find an empty logical plug index and return the newly created
@@ -40,6 +29,24 @@ def _makeElementPlug(masterPlug, dataID):
     elementPlug = masterPlug.mnextLogicalPlug()
     elementPlug.child(0).msetString(dataID)
     return elementPlug
+
+# ==============================================================================
+## @name Procedural Access
+# ------------------------------------------------------------------------------
+## @{
+
+# Functions to access most functionality of the storagebase without actually deriving from it
+# They are as low-level as possible regarding their input parameters
+
+def findStoragePlug(masterPlug, dataID):
+    """@return compound plug containing all data and connections for the given dataID
+    @param masterPlug compound plug containing all data
+    @param dataID"""
+    for compoundplug in masterPlug:
+        if compoundplug.child(0).asString() == dataID:
+            return compoundplug
+    # END for each elemnt (in search for mathching dataID)
+    return None
 
 @undoable
 def storagePlug(masterPlug, dataID, plugType = None, autoCreate=False):
@@ -49,11 +56,11 @@ def storagePlug(masterPlug, dataID, plugType = None, autoCreate=False):
     @param masterPlug masterPlug to search for data
     @param dataID the name of the plug to be returned
     @param plugType
-        StorageBase.kMessage: return message array plug only
-        StorageBase.kValue: return python pickle array plug only
-        StorageBase.kStorage: return the storage plug itself containing message and the value plug
-        StorageBase.kFlags return plug to integer which can be used as storage for bitflags to accompany the id
-        None: return (picklePlug , messagePlug)
+    - StorageBase.kMessage: return message array plug only
+    - StorageBase.kValue: return python pickle array plug only
+    - StorageBase.kStorage: return the storage plug itself containing message and the value plug
+    - StorageBase.kFlags return plug to integer which can be used as storage for bitflags to accompany the id
+    - None: return (picklePlug , messagePlug)
     @param autoCreate if True, a plug with the given dataID will be created if it does not
         yet exist
     @throws AttributeError if a plug with dataID does not exist and default value is None
@@ -85,6 +92,7 @@ def storagePlug(masterPlug, dataID, plugType = None, autoCreate=False):
 def makePlug(masterPlug, dataID):
     """retrieve or create a plug that corresponds to the given dataID
     @param dataID string identifier
+    @param masterPlug
     @return the created data plug, containing subplugs dval and dmsg
         for generic data and  message connections respectively """
     existingPlug = findStoragePlug(masterPlug, dataID)
@@ -154,6 +162,7 @@ def objectSet(mdplug, setIndex, autoCreate=True, setPrefix=''):
 def dataIDs(masterPlug, data_prefix=''):
     """
     @return list of all data ids available in the given master plug
+    @param masterPlug
     @param data_prefix the string prefix of data names which must match with the prefix
         of the data id to be returned, with the matching prefix pruned. 
         By default, all data ids will match"""
@@ -170,6 +179,7 @@ def dataIDs(masterPlug, data_prefix=''):
 def setPartition(mdplug, state):
     """Make all sets of the given data message plug use a partition or not
     @param state if True, a partition will be used, if False, it will be disabled
+    @param mdplug
     @note this method makes sure that all sets are hooked up to the partition
     @throws ValueError If we did not have a single set to which to add to the partition
     @throws AttributeError If the dataID has never had sets
@@ -234,18 +244,22 @@ def deleteObjectSet(mdplug, setIndex):
         delete(objset)
     # END obj set handling
             
-#} END procedural access
+## -- End Procedural Access -- @}
 
-#{ Storage Access
+# ==============================================================================
+## @name Storage Access
+# ------------------------------------------------------------------------------
+## @{
 
-class StorageBase(iDuplicatable):
+class StorageBase(mrv.interface.iDuplicatable):
     """A storage node contains a set of attributes allowing it to store
     python data and objects being stored in a pickled format upon file save.
     Additionally you can store connections.
     Nodes used with this interface must be compatible to the following attribute scheme.
     To create that scheme, use `createStorageAttribute`
 
-    **Attribute Setup**::
+    Attribute Setup
+    ---------------
     
         (shortname (description) [data type])
         dta (data)[multi compound]
@@ -254,13 +268,13 @@ class StorageBase(iDuplicatable):
             dval (data value) [python pickle]
             dmsg (data message)[multi message]
 
-    **Configuration**::
-    
-        data_prefix: will prefix every value name when setting and getting values - this allows
-            several clients to use the same storage attribute (on the same node for example)
-            It acts like a namespace
-        attr_prefix: prefixes the actual maya attribute to access
-        maya_node: the maya node holding the actual attributes
+    Configuration
+    -------------
+    - **data_prefix**: will prefix every value name when setting and getting values - this allows
+      + several clients to use the same storage attribute (on the same node for example)
+        It acts like a namespace
+    - **attr_prefix**: prefixes the actual maya attribute to access
+    - **maya_node**: the maya node holding the actual attributes
 
     @note A mrv node should derive from this class to allow easy attribute access of its
         own compatible attributes - its designed for flexiblity
@@ -323,18 +337,14 @@ class StorageBase(iDuplicatable):
             self._plug.msetMObject(self._plug.asMObject())
             self._updateCalled = True
 
-        #{ Interface
-        
         def isReferenced(self):
             """@return True if the data is from a referenced plug"""
             return self._isReferenced
 
-        #} END interface
     # END class pypickle value
 
     __slots__ = ('_dprefix', '_aprefix', '_node')
 
-    #{ Overridden Methods
     def __init__(self, data_prefix='', maya_node = None, attr_prefix=''):
         """Allows customization of this base to modify its behaviour
         @note see more information on the input attributes in the class description"""
@@ -349,20 +359,19 @@ class StorageBase(iDuplicatable):
             self._node = self
         # END no maya node given handling
 
-    #} END overridden methods
 
-    #(iDuplicatable
     def createInstance(self, *args, **kwargs):
         """Create a new instance with our type"""
         return self.__class__(self._dprefix, self._node, self._aprefix)
 
     def copyFrom(self, other, *args, **kwargs):
         """Copy all values from other to ourselves
-        
+        @param other
+        @param args
         @param kwargs
-             * shallow:
-                if True, default False, only a shallow copy will
-                be made. If False, a deep copy will be made
+         - **shallow**
+          + if True, default False, only a shallow copy will
+            be made. If False, a deep copy will be made
         @note only does so if the attribute and data prefixes actually match (which should be
             the case if we get here, checking for it anyway
         @note as pickle data always copies by reference to be efficient, we have to explicitly
@@ -400,17 +409,17 @@ class StorageBase(iDuplicatable):
             # END shallow/deep copy
         # END for each dataid
 
-    #) END iDuplicatable
-
-    #{ Edit
+    # -------------------------
+    ## @name Edit Interface
+    # @{
     
     def makePlug(self, dataID):
-        """see `makePlug` module level function"""
+        """see `makePlug()` module level function"""
         return makePlug(self.masterPlug(), self._dprefix + dataID)
 
     @undoable
     def clearAllData(self):
-        """see `clearAllData` module level method
+        """see `clearAllData()` module level method
         @note use this method if you want to make sure your node
             is empty after it has been duplicated (would usually be done in the postContructor"""
         return clearAllData(self.masterPlug())
@@ -426,14 +435,16 @@ class StorageBase(iDuplicatable):
             clearDataPlug(valueplug)
         # ELSE attr exists and clearage is required
 
-    #} END edit
+    ## -- End Edit Interface -- @}
 
 
-    #{ Query Plugs
-    
     def _elementPlug(self, dataID, dataType, autoCreate=False):
         """@return element plug of the given type"""
         return storagePlug(self.masterPlug(), self._dprefix + dataID, dataType, autoCreate)
+        
+    # -------------------------
+    ## @name Plug Query
+    # @{
     
     def findStoragePlug(self, dataID):
         """@return compound plug with given dataID or None"""
@@ -448,27 +459,30 @@ class StorageBase(iDuplicatable):
         return dataIDs(self.masterPlug(), self._dprefix)
 
     def storagePlug(self, dataID, plugType = None, autoCreate=False):
-        """see `storagePlug` module level function"""
+        """see `storagePlug()` module level function"""
         return storagePlug(self.masterPlug(), self._dprefix+dataID, plugType, autoCreate)
 
-    #} END query plugs
+    ## -- End Plug Query -- @}
 
 
-    #{ Query Data
+    # -------------------------
+    ## @name Query Data
+    # @{
+    
     def pythonData(self, dataID, **kwargs):
         """@return PyPickleVal object at the given index (it can be modified natively)
         @param dataID id of of the data to retrieve
         @param kwargs
-             * index: 
-                element number of the plug to retrieve, or -1 to get a new plug.
-                Plugs will always be created, the given index specifies a logical plug index
-             * Additionally all arguments supported by `storagePlug`""" 
+         - **index** 
+          + element number of the plug to retrieve, or -1 to get a new plug.
+            Plugs will always be created, the given index specifies a logical plug index
+         - Additionally all arguments supported by `storagePlug`""" 
         return self.pythonDataFromPlug(self._elementPlug(dataID, StorageBase.kValue, **kwargs))
 
     @classmethod
     def pythonDataFromPlug(cls, valplug):
-        """Exract the python data using the given plug directly
-        
+        """Extract the python data using the given plug directly
+        @param cls
         @param valplug data value plug containing the plugin data
         @return PyPickleData object allowing data access"""
 
@@ -488,9 +502,12 @@ class StorageBase(iDuplicatable):
         #return plugindata.data()
         return StorageBase.PyPickleValue(valplug, plugindata.data())
 
-    #} END query Data
+    ## -- End Query Data -- @}
 
-    #{ Set Handling
+    # -------------------------
+    ## @name Set Handling
+    # @{
+    
     @undoable
     def objectSet(self, dataID, setIndex, autoCreate = True):
         """see module level `objectSet` function"""
@@ -514,7 +531,7 @@ class StorageBase(iDuplicatable):
 
     @undoable
     def setPartition(self, dataID, state):
-        """see `setPartition` function on module level"""
+        """see `setPartition()` function on module level"""
         return setPartition(self._elementPlug(dataID, self.kMessage, autoCreate=False), state)
 
 
@@ -522,10 +539,12 @@ class StorageBase(iDuplicatable):
         """@return partition Node attached to the sets at dataID or None if state is disabled"""
         return partition(self._elementPlug(dataID, self.kMessage, autoCreate=False))
 
-    #} END set handling
+    ## -- End Set Handling -- @}
 
-    # Query General
-
+    # -------------------------
+    ## @name General Query
+    # @{
+    
     def storageNode(self):
         """@return Node actually being used as storage"""
         return self._node
@@ -554,7 +573,7 @@ class StorageBase(iDuplicatable):
         to the given string"""
         self._aprefix = prefix
 
-    # END query general
+    ## -- End General Query -- @}
 
 
 class StorageNode(DependNode, StorageBase):
@@ -568,13 +587,9 @@ class StorageNode(DependNode, StorageBase):
         Thus it is recommened to use the storage node attribute base on your own custom type that setsup the
         generic attributes as it requires during plugin load"""
 
-    #{ Overrriden Methods
     def __init__(self, *args):
         """initialize bases properly"""
         DependNode.__init__(self)
         StorageBase.__init__(self)
 
-
-    #} END overridden methods
-
-#} END storage access
+## -- End Storage Access -- @}

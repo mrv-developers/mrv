@@ -1,9 +1,12 @@
-# -*- coding: utf-8 -*-
+#-*-coding:utf-8-*-
 """
-Contains a modular UI able to display quality assurance checks, run them and
-present their results. It should be easy to override and adjust it to suit additional needs
-"""
+@package mrv.maya.ui.qa
+@brief Contains a modular UI able to display quality assurance checks, run them and present their results. 
 
+It should be easy to override and adjust it to suit additional needs
+
+@copyright 2012 Sebastian Thiel
+"""
 import control
 import util as uiutil
 import layout
@@ -23,28 +26,33 @@ class QACheckLayout( layout.RowLayout ):
         RowLayout, thus you may only append new ones"""
     reNiceNamePattern = re.compile( "[A-Z][a-z]" )
 
-    #{ Configuration
-    # paths to icons to display
-    # [0] = check not run
-    # [1] = check success
-    # [2] = check failed
-    # [3] = check threw exception
+    # -------------------------
+    ## @name Configuration
+    # @{
+    
+    ## paths to icons to display
+    ## [0] = check not run
+    ## [1] = check success
+    ## [2] = check failed
+    ## [3] = check threw exception
     icons = [ "offRadioBtnIcon.xpm", "onRadioBtnIcon.xpm", "fstop.xpm", "fstop.xpm" ]   # explicitly a list to allow assignments
 
-    # height of the UI control
+    ## height of the UI control
     height = 25
 
-    # number of columns to use - assure to fill the respective slots
+    ## number of columns to use - assure to fill the respective slots
     numcols = 3
-    #} END configuration
+    ## -- End Configuration -- @}
 
     def __new__( cls, *args, **kwargs ):
         """Initialize this RowColumnLayout instance with a check instance
         
+        @param cls
+        @param args
         @param kwargs
-             * check:
-                the check this instance should attach itself to - it needs to be set
-                or the instance creation will fail"""
+         - **check**
+          + the check this instance should attach itself to - it needs to be set
+            or the instance creation will fail"""
         check = kwargs.pop( "check" )
 
         numcols = cls.numcols # without fix
@@ -144,13 +152,11 @@ class QACheckLayout( layout.RowLayout ):
         """@return check we are operating upon"""
         return self._check
 
-    #{ Check Callbacks
-
     def _runCheck( self, *args, **kwargs ):
         """Run our check
-        
         @note we may also be used as a ui callback and figure out ourselves
             whether we have been pressed by the fix button or by the run button
+        @param args
         @param kwargs will be passed to the workflow's runChecks method. The following 
             additional kwargs may be specified:
             
@@ -170,6 +176,10 @@ class QACheckLayout( layout.RowLayout ):
 
         return wfl.runChecks( [ check ], mode = mode, clear_result = force_check, **kwargs )[0][1]
 
+    # -------------------------
+    ## @name Check-Callbacks
+    # @{
+    
     def selectPressed( self, *args ):
         """Called if the selected button has been pressed
         Triggers a workflow run if not yet done"""
@@ -233,34 +243,39 @@ class QACheckLayout( layout.RowLayout ):
         bicon.p_image = target_icon
 
         return bicon
-    #} END interface
+    
+    ## -- End Check-Callbacks -- @}
 
 class QALayout( layout.FormLayout, uiutil.iItemSet ):
     """Layout able to dynamically display QAChecks, run them and display their result"""
 
-    #{ Configuration
-    # class used to create a layout displaying details about the check
-    # it must be compatible to QACheckLayout as a certain API is expected
+    # -------------------------
+    ## @name Configuration
+    # @{
+    
+    ## class used to create a layout displaying details about the check
+    ## it must be compatible to QACheckLayout as a certain API is expected
     checkuicls = QACheckLayout
 
-    # if True, a button to run all checks at once will be appended
-    # Can be passed in as per-instance value during creation
+    ## if True, a button to run all checks at once will be appended
+    ## Can be passed in as per-instance value during creation
     run_all_button = True
 
-    # class used to access default workflow events
+    ## class used to access default workflow events
     qaworkflowcls = QAWorkflow
 
-    # if True, there will be an informational text if no checks have been found
-    # otherwiise the layout will simply be empty
+    ## if True, there will be an informational text if no checks have been found
+    ## otherwiise the layout will simply be empty
     show_text_if_empty = True
 
 
-    # if True, a scroll layout will be created around the layout containing a
-    # possibly long list of checks. Set False if you would like to handle the
-    # scrolling with an own interface
-    # Can be passed in as per-instance value during creation
+    ## if True, a scroll layout will be created around the layout containing a
+    ## possibly long list of checks. Set False if you would like to handle the
+    ## scrolling with an own interface
+    ## Can be passed in as per-instance value during creation
     scrollable = True
-    #} END configuration
+    
+    ## -- End Configuration -- @}
 
     def __new__( cls, *args, **kwargs ):
         """Set some default arguments"""
@@ -293,8 +308,11 @@ class QALayout( layout.FormLayout, uiutil.iItemSet ):
 
         # name of text indicating there are no checks set
         self.no_checks_text = None
-    #{ Interface
-
+        
+    # -------------------------
+    ## @name Interface
+    # @{
+    
     def setChecks( self, checks ):
         """Set the checks this layout should display
         
@@ -403,7 +421,7 @@ class QALayout( layout.FormLayout, uiutil.iItemSet ):
         """@return list of checks we are currently holding in our layout"""
         return [ l.check() for l in self.checkLayouts() ]
 
-    #} END interface
+    ## -- End Interface -- @}
 
     def currentItemIds( self, name_to_child_map = None, **kwargs ):
         """@return current check ids as defined by exsiting children.
@@ -428,6 +446,9 @@ class QALayout( layout.FormLayout, uiutil.iItemSet ):
     def createItem( self, checkid, name_to_child_map = None, name_to_check_map = None, **kwargs ):
         """Create and return a layout displaying the given check instance
         
+        @param checkid
+        @param name_to_child_map
+        @param name_to_check_map
         @param kwargs will be passed to checkui class's initializer, allowing subclasses to easily
             adjust the paramter list
         @note its using self.checkuicls to create the instance"""
@@ -447,11 +468,13 @@ class QALayout( layout.FormLayout, uiutil.iItemSet ):
         """Delete the user interface portion representing the checkid"""
         self.col_layout.deleteChild( name_to_child_map[ checkid ] )
 
-    #{ Eventhandlers
-
     def _checkLayoutHasCheck( self, checkLayout, check ):
         """@return True if the given `QACheckLayout` manages the given check"""
         return checkLayout.check() == check
+        
+    # -------------------------
+    ## @name EventHandlers
+    # @{
 
     def checkHandler( self, event, check, *args ):
         """Called for the given event - it will find the UI element handling the
@@ -492,7 +515,7 @@ class QALayout( layout.FormLayout, uiutil.iItemSet ):
 
     def runAllPressed( self, *args, **kwargs ):
         """Called once the Run-All button is pressed
-        
+        @param args
         @param kwargs will be passed to runChecks method of workflow
         @note we assume all checks are from one workflow only as we
             do not sort them by workflow
@@ -507,5 +530,5 @@ class QALayout( layout.FormLayout, uiutil.iItemSet ):
         wfl = checks[0].node.workflow()
         wfl.runChecks( checks, clear_result = 1, **kwargs )
 
-    #} END Eventhandlers
+    ## -- End EventHandlers -- @}
 

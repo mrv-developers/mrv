@@ -237,7 +237,7 @@ class Enumeration(tuple):
         # END exception handling  
 
     def _nextOrPrevious( self, element, direction, wrap_around ):
-        """do-it method, see `next` and `previous`
+        """do-it method, see `next()` and `previous()`
         @param element
         @param wrap_around
         @param direction -1 = previous, 1 = next """

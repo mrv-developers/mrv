@@ -1,11 +1,11 @@
-# -*- coding: utf-8 -*-
+#-*-coding:utf-8-*-
 """
-Provides classes and functions operating on the MayaAPI class database
+@package mrv.maya.mdb
+@brief Provides classes and functions operating on the MayaAPI class database
 
-@note This module must not be auto-initialized as it assumes its parent package to 
-    be present already
-@note The implementation is considered internal and may change any time unless stated
-    otherwise.
+@note This module must not be auto-initialized as it assumes its parent package to be present already
+@note The implementation is considered internal and may change any time unless stated otherwise.
+@copyright 2012 Sebastian Thiel
 """
 
 
@@ -33,7 +33,10 @@ __all__ = ("createDagNodeHierarchy", "createTypeNameToMfnClsMap", "apiModules",
            "extractMFnFunctions", "PythonMFnCodeGenerator", "MMemberMap", 
            "MMethodDescriptor" )
 
-#{ Initialization 
+# ==============================================================================
+## @name Initialization
+# ------------------------------------------------------------------------------
+## @{
 
 def nodeHierarchyFile():
     """@return Path to the node hierarchy file of the currently active maya version"""
@@ -75,10 +78,13 @@ def createTypeNameToMfnClsMap( ):
     
     return typenameToClsMap
     
-#} END initialization
+## -- End Initialization -- @}
 
 
-#{ Utilities 
+# ==============================================================================
+## @name Utilities
+# ------------------------------------------------------------------------------
+## @{
 
 def apiModules():
     """@return tuple of api modules containing MayaAPI classes
@@ -111,6 +117,8 @@ def headerPath( apiname ):
 def cacheFilePath( filename, ext, use_version = False ):
     """Return path to cache file from which you would initialize data structures
     
+    @param filename
+    @param ext
     @param use_version if true, the maya version will be appended to the filename  """
     mfile = make_path( __file__ ).parent()
     version = ""
@@ -211,7 +219,7 @@ def _createTmpNode(nodetype):
         obj = mod.createNode(nodetype, tmpparent)
         return (obj, mod)
     # END exception handling
-# END utility
+## -- End Utilities -- @}
 
 def _iterAllNodeTypes( ):
     """Returns iterator which yield tuple(nodeTypeName, MObject, modifier) triplets
@@ -233,17 +241,15 @@ def _iterAllNodeTypes( ):
             continue
         # END create dg/dag node exception handling
 
-def generateNodeHierarchy( ):
+def rHierarchy( ):
     """Generate the node-hierarchy for the current version based on all node types 
     which can be created in maya.
-    
-    @return tuple(DAGTree, typeToMFnClsNameList)
-    
-        * DAGTree representing the type hierarchy
-        * list represents typeName to MFnClassName associations
-         
     @note should only be run as part of the upgrade process to prepare MRV for  a
-        new maya release. Otherwise the nodetype tree will be read from a cache"""
+    new maya release. Otherwise the nodetype tree will be read from a cache
+    @return tuple(DAGTree, typeToMFnClsNameList)
+     - DAGTree representing the type hierarchy
+     - list represents typeName to MFnClassName associations
+    """
     from mrv.util import DAGTree
     from mrv.util import uncapitalize, capitalize
     from mrv.maya.util import MEnumeration
@@ -264,9 +270,8 @@ def generateNodeHierarchy( ):
     
     mfndep = api.MFnDependencyNode()
     def getInheritanceAndUndo(obj, modifier):
-        """Takes a prepared modifier ( doIt not yet called ) and the previously created object, 
-        returning the inheritance of the obj which was retrieved before undoing
-        its creation"""
+        # Takes a prepared modifier ( doIt not yet called ) and the previously created object, 
+        # returning the inheritance of the obj which was retrieved before undoing its creation
         modifier.doIt()
         mfndep.setObject(obj)
         inheritance = cmds.nodeType(mfndep.name(), i=1)
@@ -573,10 +578,11 @@ def generateNodeHierarchy( ):
     # END special treatment
     return (dagTree, sorted(typeToMFn, key=lambda t: t[0]))
 
-#} END functions 
 
-
-#{ Code Generators 
+# ==============================================================================
+## @name Code Generators
+# ------------------------------------------------------------------------------
+## @{
 
 class MFnCodeGeneratorBase(object):
     """Define the interface and common utility methods to generate a string defining 
@@ -588,7 +594,10 @@ class MFnCodeGeneratorBase(object):
         """Intialize this instance"""
         self.module_dict = module_dict
     
-    #{ Utilities
+    # -------------------------
+    ## @name Utilities
+    # @{
+    
     def _toRvalFunc( self, funcname ):
         """@return None or a function which receives the return value of our actual mfn function"""
         if not isinstance( funcname, basestring ):
@@ -599,10 +608,14 @@ class MFnCodeGeneratorBase(object):
             return self.module_dict[funcname]
         except KeyError:
             raise ValueError("'%s' does not exist in code generator's dictionary" % funcname )
-    #} END utilities
+            
+    ## -- End Utilities -- @}
     
     
-    #{ Interface 
+    # -------------------------
+    ## @name Interface
+    # @{
+    
     def generateMFnClsMethodWrapper(self, source_method_name, target_method_name, mfn_fun_name, method_descriptor, flags=0):
         """
         @return string containing the code for the wrapper method as configured by the 
@@ -615,38 +628,34 @@ class MFnCodeGeneratorBase(object):
         @param flags bit flags providing additional information, depending on the actual 
             implementation. Unsupported flags are ignored."""
         raise NotImplementedError("To be implemented in SubClass")
-    #} END interfacec
+        
+    ## -- End Interface -- @}
     
 
 class PythonMFnCodeGenerator(MFnCodeGeneratorBase):
     """Specialization to generate python code
     
-    **Flags**:
-    
-     * kDirectCall:
-        If set, the call return the actual mfn method in the best case, which is 
+    Flags
+    -----
+     - **kDirectCall**
+      + If set, the call return the actual mfn method in the best case, which is 
         a call as direct as it gets. A possibly negative side-effect would be that
         it the MFnMethod caches the function set and actual MObject/MDagPath, which 
         can be dangerous if held too long
-        
-     * kIsMObject:
-        If set, the type we create the method for is not derived from Node, but 
+     - **kIsMObject**
+      + If set, the type we create the method for is not derived from Node, but 
         from MObject. This hint is required in order to generate correct calling code.
-        
-     * kIsDagNode:
-        If set, the type we create the method for is derived from DagNode
-        
-     * kIsStatic:
-        If set, the method to be wrapped is considered static, no self is needed, nor
+     - **kIsDagNode**
+      + If set, the type we create the method for is derived from DagNode
+     - **kIsStatic**
+      + If set, the method to be wrapped is considered static, no self is needed, nor
         any object.
         NOTE: This flag is likely to be removed as it should be part of the method_descriptor, 
         for now though it does not provide that information so we pass it in.
-        
-     * kWithDocs:
-        If set, a doc string will be generated the method. In future, this information
+     - **kWithDocs**
+      + If set, a doc string will be generated the method. In future, this information
         will come from the method descriptor. Please note that docs should only be attaced
         in interactive modes, otherwise its a waste of memory.
-     
     """
     # IMPORTANT: If these change, update docs above, and test.maya.test_mdb and test.maya.performance.test_mdb !
     kDirectCall, \
@@ -660,9 +669,14 @@ class PythonMFnCodeGenerator(MFnCodeGeneratorBase):
         globals to be existing once evaluated: mfncls, mfn_fun, [rvalfunc]
         Currently supports the following data within method_descriptor:
         
-         * method_descriptor.rvalfunc
+         - method_descriptor.rvalfunc
          
         as well as all flags except kIsStatic.
+        @param source_method_name
+        @param target_method_name
+        @param mfn_fun_name
+        @param method_descriptor
+        @param flags
         @throws ValueError if flags are incompatible with each other
         """
         if flags & self.kIsMObject and flags & self.kIsDagNode:
@@ -705,12 +719,18 @@ class PythonMFnCodeGenerator(MFnCodeGeneratorBase):
         
         return sio.getvalue()
     
-    #{ Interface
+    # -------------------------
+    ## @name Interface
+    # @{
     
     def generateMFnClsMethodWrapperMethod(self, source_method_name, target_method_name, mfncls, mfn_fun, method_descriptor, flags=0):
         """@return python function suitable to be installed on a class
+        @param source_method_name
+        @param target_method_name
         @param mfncls MFnFunction set class from which the method was retrieved.
         @param mfn_fun function as retrieved from the function set's dict. Its a bare function.
+        @param method_descriptor
+        @param flags
         @note For all other args, see `MFnCodeGeneratorBase.generateMFnClsMethodWrapper`"""
         rvalfunc = self._toRvalFunc(method_descriptor.rvalfunc)
         mfnfuncname = mfn_fun.__name__
@@ -748,11 +768,14 @@ class PythonMFnCodeGenerator(MFnCodeGeneratorBase):
         
         return new_method
     
-    #} END interface
+    ## -- End Interface -- @}
     
-#} END code generators
+## -- End Code Generators -- @}
 
-#{ Parsers
+# ==============================================================================
+## @name Parseres
+# ------------------------------------------------------------------------------
+## @{
 
 class CppHeaderParser(object):
     """Simplistic regex based parser which will extract information from the file
@@ -774,6 +797,7 @@ class CppHeaderParser(object):
     def parseAndExtract(cls, header_filepath, parse_enums=True):
         """Parse the given header file and return the parsed information
         
+        @param cls
         @param header_filepath Path pointing to the given header file. Its currently
             assumed to be 7 bit ascii
         @param parse_enums If True, enumerations will be parsed from the file. If 
@@ -815,11 +839,14 @@ class CppHeaderParser(object):
         
         return (tuple(enum_list), )
     
-#} END parsers 
+## -- End Parseres -- @}
     
     
-#{ Database
-    
+# ==============================================================================
+## @name Database
+# ------------------------------------------------------------------------------
+## @{
+
 class MMethodDescriptor(object):
     """Contains meta-information about a given method according to data read from 
     the MFnDatabase"""
@@ -853,7 +880,8 @@ class MMemberMap( UserDict.UserDict ):
         """intiialize self from a file if not None
         
         @param parse_enums if True, enumerations will be parsed. Save time by specifying
-            False in case you know that there are no enumerations"""
+            False in case you know that there are no enumerations
+        @param filepath"""
         UserDict.UserDict.__init__( self )
 
         self._filepath = filepath
@@ -876,7 +904,6 @@ class MMemberMap( UserDict.UserDict ):
 
     def __str__( self ):
         return "MMemberMap(%s)" % self._filepath
-
 
     def _initFromFile( self, filepath ):
         """Initialize the database with values from the given file
@@ -936,5 +963,5 @@ class MMemberMap( UserDict.UserDict ):
         """@return mfn functionname corresponding to the ( possibly renamed ) funcname """
         return self.methodByName( funcname )[0]
         
-#} END database
+## -- End Database -- @}
 

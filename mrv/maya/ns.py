@@ -1,12 +1,13 @@
-# -*- coding: utf-8 -*-
+#-*-coding:utf-8-*-
 """
-Allows convenient access and handling of namespaces in an object oriented manner
+@package mrv.maya.ns
+@brief Allows convenient access and handling of namespaces in an object oriented manner
+
+@copyright 2012 Sebastian Thiel
 """
-
-
 import undo
 from mrv.maya.util import noneToList
-from mrv.interface import iDagItem
+import mrv.interface
 from mrv.util import CallOnDeletion
 import maya.cmds as cmds
 import maya.OpenMaya as api
@@ -27,7 +28,7 @@ def _isRootOf( root, other ):
     return (other+':').startswith(root)
 #} END internal utilities
 
-class Namespace( unicode, iDagItem ):
+class Namespace( unicode, mrv.interface.iDagItem ):
     """ Represents a Maya namespace
     Namespaces follow the given nameing conventions:
     
@@ -46,11 +47,11 @@ class Namespace( unicode, iDagItem ):
     # to keep instance small
     __slots__ = tuple()
 
-    #{ Overridden Methods
 
     def __new__( cls, namespacepath=rootpath, absolute = True ):
         """Initialize the namespace with the given namespace path
         
+        @param cls
         @param namespacepath the namespace to wrap - it should be absolut to assure
             relative namespaces will not be interpreted in an unforseen manner ( as they
             are relative to the currently set namespace
@@ -83,14 +84,17 @@ class Namespace( unicode, iDagItem ):
 
     def __repr__( self ):
         return "Namespace('%s')" % str( self )
-    #}END Overridden Methods
 
-    #{Edit Methods
+    # -------------------------
+    ## @name Edit Interface
+    # @{
+    
     @classmethod
     @undo.undoable
     def create( cls, namespaceName ):
         """Create a new namespace
         
+        @param cls
         @param namespaceName the name of the namespace, absolute or relative -
             it may contain subspaces too, i.e. :foo:bar.
             fred:subfred is a relative namespace, created in the currently active namespace
@@ -149,6 +153,7 @@ class Namespace( unicode, iDagItem ):
     def moveNodes( self, targetNamespace, force = True, autocreate=True ):
         """Move objects from this to the targetNamespace
         
+        @param targetNamespace the namespace to which to move contents of this namespace
         @param force if True, namespace clashes will be resolved by renaming, if false
             possible clashes would result in an error
         @param autocreate if True, targetNamespace will be created if it does not exist yet
@@ -214,14 +219,14 @@ class Namespace( unicode, iDagItem ):
         
         return self
 
-    #} END edit methods
+    ## -- End Edit Interface -- @}
 
     def parent( self ):
         """@return parent namespace of this instance"""
         if self == self.rootpath:
             return None
 
-        parent = iDagItem.parent( self )    # considers children like ":bar" being a root
+        parent = mrv.interface.iDagItem.parent( self )    # considers children like ":bar" being a root
         if parent == None:  # we are just child of the root namespcae
             parent = self.rootpath
         return self.__class__( parent )
@@ -241,8 +246,10 @@ class Namespace( unicode, iDagItem ):
 
         return out
 
-    #{Query Methods
-
+    # -------------------------
+    ## @name Query Methods
+    # @{
+    
     @classmethod
     def current( cls ):
         """@return the currently set absolute namespace """
@@ -257,6 +264,7 @@ class Namespace( unicode, iDagItem ):
         """Find a unique namespace based on basename which does not yet exist
         in the scene and can be created.
         
+        @param cls
         @param basename basename of the namespace, like ":mynamespace" or "mynamespace:subspace"
         @param incrementFunc func( basename, index ), returns a unique name generated
             from the basename and the index representing the current iteration
@@ -354,35 +362,32 @@ class Namespace( unicode, iDagItem ):
         """Same as `substitute`, but signature might feel more natural"""
         return thisns.substitute( find_in, replacement )
 
-    #} END query methods
+    ## -- End Query Methods -- @}
 
 
-    #{ Object Retrieval
-
+    # -------------------------
+    ## @name Object Retrieval
+    # @{
+    
     def iterNodes( self, *args, **kwargs ):
         """Return an iterator on all objects in the namespace
         
         @param args MFn.kType filter types to be used to pre-filter the nodes 
             in the namespace. This can greatly improve performance !
         @param kwargs given to `iterDagNodes` or `iterDgNodes`, which includes the 
-            option to provide a predicate function. Additionally, the following ones 
-            may be defined:
-            
-             * asNode: 
-                if true, default True, Nodes will be yielded. If False, 
-                you will receive MDagPaths or MObjects depending on the 'dag' kwarg
-                
-             * dag: 
-                if True, default False, only dag nodes will be returned, otherwise you will 
-                receive dag nodes and dg nodes. Instance information will be lost on the way
-                though.
-                
-             * depth: 
-                if 0, default 0, only objects in this namespace will be returned
-        
-                if -1, all subnamespaces will be included as well, the depth is unlimited
-                
-                if 0<depth<x include all objects up to the 'depth' subnamespace
+        option to provide a predicate function. Additionally, the following ones 
+        may be defined:
+         - **asNode** 
+          + if true, default True, Nodes will be yielded. If False, 
+            you will receive MDagPaths or MObjects depending on the 'dag' kwarg
+         - **dag** 
+          + if True, default False, only dag nodes will be returned, otherwise you will 
+            receive dag nodes and dg nodes. Instance information will be lost on the way
+            though.
+         - **depth** 
+           + if 0, default 0, only objects in this namespace will be returned
+            if -1, all subnamespaces will be included as well, the depth is unlimited
+            if 0<depth<x include all objects up to the 'depth' subnamespace
         @note this method is quite similar to `FileReference.iterNodes`, but 
             has a different feature set and needs this code here for maximum performance"""
         import nt
@@ -461,20 +466,24 @@ class Namespace( unicode, iDagItem ):
             if predicate(n):
                 yield n
         # END for each object to yield
-    #} END object retrieval
+    ## -- End Object Retrieval -- @}
     
 
-#{ Static Access
+# ==============================================================================
+## @name Static Access
+# ------------------------------------------------------------------------------
+## @{
+
 def createNamespace( *args ):
-    """see `Namespace.create`"""
+    """see `Namespace.create()`"""
     return Namespace.create( *args )
 
 def currentNamespace( ):
-    """see `Namespace.current`"""
+    """see `Namespace.current()`"""
     return Namespace.current()
 
 def findUniqueNamespace( *args, **kwargs ):
-    """see `Namespace.findUnique`"""
+    """see `Namespace.findUnique()`"""
     return Namespace.findUnique( *args, **kwargs )
 
 def existsNamespace( namespace ):
@@ -484,5 +493,5 @@ def existsNamespace( namespace ):
 
 RootNamespace = Namespace(Namespace.rootpath)
 
-#} END Static Access
+## -- End Static Access -- @}
 

@@ -553,13 +553,13 @@ class Path( _base, mrv.interface.iDagItem ):
 
     def walkdirs(self, pattern=None, errors='strict', predicate=lambda p: True):
         """ D.walkdirs() -> iterator over subdirs, recursively.
-        see `walk` for a parameter description """
+        see `walk()` for a parameter description """
         pred = lambda p: p.isdir() and predicate(p)
         return self.walk(pattern, errors, pred)
 
     def walkfiles(self, pattern=None, errors='strict', predicate=lambda p: True):
         """ D.walkfiles() -> iterator over files in D, recursively.
-        see `walk` for a parameter description"""
+        see `walk()` for a parameter description"""
         pred = lambda p: p.isfile() and predicate(p)
         return self.walk(pattern, errors, pred)
         

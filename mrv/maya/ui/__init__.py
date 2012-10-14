@@ -1,19 +1,21 @@
-# -*- coding: utf-8 -*-
-"""Initialize the UI framework allowing convenient access to most common user interfaces
-
-All classes of the ui submodules can be accessed by importing this package.
+#-*-coding:utf-8-*-
 """
+@package mrv.maya.ui
+@brief Initialize the UI framework allowing convenient access to most common user interfaces
 
+@note All classes of the ui submodules can be accessed by importing this package.
 
-############################
-#### Exceptions         ####
-#########################
-
+@copyright 2012 Sebastian Thiel
+"""
 if 'init_done' not in locals():
     init_done = False
 
 
-#{ Initialization Utilities
+# ==============================================================================
+## @name Initialization
+# ------------------------------------------------------------------------------
+## @{
+
 def force_type_creation():
     """Enforce the creation of all ui types - must be called once all custom types 
     were imported"""
@@ -24,9 +26,9 @@ def force_type_creation():
         # END create type 
     # END for each stored type
 
-#} END initialization utilities
+## -- End Initialization -- @}
 
-#{ Initialization
+
 if not init_done:
     import typ
     typ.init_classhierarchy()               # populate hierarchy DAG from cache
@@ -50,6 +52,5 @@ if not init_done:
     
     # automatic types need to be created in the end !
     force_type_creation()
-#} END initialization
 
 init_done = True

@@ -418,7 +418,7 @@ class iProgressIndicator( Interface ):
         @param may_abort
         @param is_relative if True, the values given will be scaled to a range of 0-100,
             if False no adjustments will be done
-        @param round_robin see `setRoundRobin` 
+        @param round_robin see `setRoundRobin()` 
         @param kwargs additional arguments being ignored"""
         self.setRange( min, max )
         self.setRelative( is_relative )

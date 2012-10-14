@@ -1,7 +1,10 @@
-# -*- coding: utf-8 -*-
-"""Contains misc utiltiies"""
+#-*-coding:utf-8-*-
+"""
+@package mrv.maya.ui.browse.util
+@brief Contains misc utiltiies
 
-
+@copyright 2012 Sebastian Thiel
+"""
 import mrv.maya
 import mrv.maya.ui as ui
 

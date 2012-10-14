@@ -1,5 +1,10 @@
-# -*- coding: utf-8 -*-
+#-*-coding:utf-8-*-
+"""
+@package mrv.maya.ui.browse.finder
+@brief A finder control as browser element
 
+@copyright 2012 Sebastian Thiel
+"""
 import mrv.maya.ui as ui
 from mrv.maya.util import (logException,)
 
@@ -23,19 +28,22 @@ class Finder(ui.EventSenderUI):
     A limitation of the current implementation is, that you can only keep one
     item selected at once in each url item area."""
 
-    #{ Configuration
+    # -------------------------
+    ## @name Configuration
+    # @{
     t_element = FinderElement
-    #} END configuration
+    ## -- End Configuration -- @}
     
-    #{ Signals
-    
+    # -------------------------
+    ## @name Signals
+    # @{
     # s()
     selection_changed = ui.Signal()
     
     # s(url)
     url_changed = ui.Signal() 
     
-    #} END signals
+    ## -- End Signals -- @}
     
     def __init__(self, provider=None, filter=None):
         self._provider = None
@@ -48,7 +56,9 @@ class Finder(ui.EventSenderUI):
         self.setProvider(provider)
         self.setFilter(filter)
         
-    # { Query
+    # -------------------------
+    ## @name Query Interface
+    # @{
     
     def layout(self):
         """@return the finder's main layout which contains all controls"""
@@ -98,10 +108,11 @@ class Finder(ui.EventSenderUI):
         @throws IndexError"""
         return list(self._form.listChildren()[index].base_items) 
         
+    ## -- End Query Interface -- @}
     
-    #} END Query
-    
-    #{ Edit
+    # -------------------------
+    ## @name Edit Interface
+    # @{
     
     def setFilter(self, filter=None):
         """Set or unset a filter. All items will be sent through the filter, and will
@@ -151,7 +162,7 @@ class Finder(ui.EventSenderUI):
         """Set the given url to be selected
         @param url / separated relative url. The individual items must be available
             in the provider.
-        :parm require_all_items: if False, the control will display as many items as possible.
+        @param require_all_items: if False, the control will display as many items as possible.
             Otherwise it must display all given items, or raise ValueError
         @param allow_memory if true, provider memory may be used to show the longest chosen url, 
             being possibly more than you specify. Currently not implemented"""
@@ -180,11 +191,11 @@ class Finder(ui.EventSenderUI):
         self.selection_changed.send()
         self.url_changed.send(self.selectedUrl())
         
-        
-        
-    #} END edit
+    ## -- End Edit Interface -- @}
     
-    #{ Callbacks
+    # -------------------------
+    ## @name Callbacks
+    # @{
     
     @logException
     def _element_selection_changed(self, element, *args):
@@ -198,9 +209,7 @@ class Finder(ui.EventSenderUI):
         self.selection_changed.send()
         self.url_changed.send(self.selectedUrl())
         
-    #} END callbacks
-    
-    #{ Utilities
+    ## -- End Callbacks -- @}
     
     def _index_by_item_element(self, element):
         """@return index matching the given item element, which must be one of our children"""
@@ -213,7 +222,8 @@ class Finder(ui.EventSenderUI):
         
     def _set_element_items(self, start_elm_id, elements ):
         """Fill the items from the start_elm_id throughout to all elements, until
-        one url does not yield any items, or the item cannot be selected 
+        one url does not yield any items, or the item cannot be selected
+        @param start_elm_id
         @param elements a full list of all available child elements."""
         
         # obtain the root url
@@ -269,7 +279,6 @@ class Finder(ui.EventSenderUI):
             # END assure / is not the first character
             root_url += sel_item
         # END for each url to handle
-        
     
     def _set_element_visible(self, index):
         """Possibly create and fill the given element index, all following elements
@@ -308,5 +317,3 @@ class Finder(ui.EventSenderUI):
         
         self._set_element_items(index, children)
         
-    #} END utilities
-

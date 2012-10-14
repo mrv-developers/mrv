@@ -1,10 +1,10 @@
-# -*- coding: utf-8 -*-
+#-*-coding:utf-8-*-
 """
-Allows to query the maya environment, like variables, version numbers and system
-paths.
+@package mrv.maya.env
+@brief Allows to query the maya environment, like variables, version numbers and system paths.
+
+@copyright 2012 Sebastian Thiel
 """
-
-
 from maya import cmds
 
 __all__ = ("appVersion", )

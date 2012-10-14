@@ -1,10 +1,13 @@
-# -*- coding: utf-8 -*-
-"""generic python style persitance plugin
+#-*-coding:utf-8-*-
+"""
+@package mrv.maya.nt.persistence
+@brief generic python style persitance plugin
+
 This module contains a storage interface able to easily handle python-style
 data within maya scenes. 
+
+@copyright 2012 Sebastian Thiel
 """
-
-
 import os
 import sys
 import cPickle
@@ -22,7 +25,10 @@ _should_initialize_plugin = int(os.environ.get(persistence_enabled_envvar, False
 
 __all__ = ('persistence_enabled_envvar', 'PyPickleData', 'createStorageAttribute')
 
-#{ Initialization
+# ==============================================================================
+## @name Initialization
+# ------------------------------------------------------------------------------
+## @{
 
 def __initialize(nodes_module):
     """Assure our plugin is loaded - called during module intialization.
@@ -35,11 +41,14 @@ def __initialize(nodes_module):
         cmds.loadPlugin(pluginpath)
     return _should_initialize_plugin
 
-#} END initialization
+## -- End Initialization -- @}
 
-#{ Storage Plugin
+# ==============================================================================
+## @name Storage Plugin
+# ------------------------------------------------------------------------------
+## @{
 
-# GLOBAL PERSITENCE TRACKING DICT
+# GLOBAL PERSISTENCE TRACKING DICT
 # assure we only have it once
 if not hasattr(sys, "_maya_pyPickleData_trackingDict"):
     sys._maya_pyPickleData_trackingDict = dict()
@@ -257,5 +266,5 @@ def uninitializePlugin(mobject):
     mplugin.deregisterData(PyPickleData.kPluginDataId)
     mplugin.deregisterNode(StoragePluginNode.kPluginNodeId)
     
-#} END plugin
+## -- End Storage Plugin -- @}
 

@@ -1,13 +1,16 @@
-# -*- coding: utf-8 -*-
+#-*-coding:utf-8-*-
 """
-Provides methodes to query and alter the currently loaded scene. It covers
-most of the functionality of the 'file' command, but has been renamed to scene
-as disambiguation to a filesystem file.
+@package mrv.maya.scene
+@brief Provides methodes to query and alter the currently loaded scene. 
+
+It covers most of the functionality of the 'file' command, but has been renamed to scene
+as disambiguation to a filesystem file. 
+
+@copyright 2012 Sebastian Thiel
 """
-
-
+# cannot use full path here as we are initialized on import of mrv.maya 
 import util as mutil
-import mrv.util as util
+import mrv.util
 import maya.OpenMaya as api
 import maya.cmds as cmds
 from mrv.path import make_path
@@ -50,14 +53,14 @@ class _SceneEvent( mutil.CallbackEventBase ):
 
 
 
-class Scene( util.Singleton, util.EventSender ):
+class Scene( mrv.util.Singleton, mrv.util.EventSender ):
     """Singleton Class allowing access to the maya scene
     
     You can register all events available in MSceneMessage easily usnig the following 
     syntax:
-    
-        >>> scene.beforeSoftwareRender = myFunctionObject
-    
+    @code
+        scene.beforeSoftwareRender = myFunctionObject
+    @endcode
     """
 
 
@@ -65,24 +68,30 @@ class Scene( util.Singleton, util.EventSender ):
                         ".ma" : "mayaAscii",
                         ".mb" : "mayaBinary" }
 
-    #{ Events 
+    # -------------------------
+    ## @name Events
+    # @{
+    
     sender_as_argument = False
     
     # create events from 'kEventName', creating a corresponding event named 
     # 'eventName'
     for eidName, eid in ((n,v) for n,v in inspect.getmembers(api.MSceneMessage) if n.startswith('k')):
-        locals()[util.uncapitalize(eidName[1:])] = _SceneEvent(eid)
+        locals()[mrv.util.uncapitalize(eidName[1:])] = _SceneEvent(eid)
     # END for each message id to create
     
-    #} END events
+    ## -- End Events -- @}
 
     
 
-    #{ Edit Methods
+    # -------------------------
+    ## @name Edit Interface
+    # @{
+    
     @classmethod
     def open( cls, scenepath=None, force=False, **kwargs ):
         """ Open the scene at the given scenepath
-        
+        @param cls
         @param scenepath The path to the file to be opened
             If None, the currently loaded file will reopened
         @param force if True, the new scene will be loaded although currently
@@ -102,7 +111,7 @@ class Scene( util.Singleton, util.EventSender ):
     @classmethod
     def new( cls, force = False, **kwargs ):
         """ Create a new scene
-        
+        @param cls
         @param force if True, the new scene will be created even though there
             are unsaved modifications
         @param kwargs passed to *cmds.file*
@@ -114,7 +123,7 @@ class Scene( util.Singleton, util.EventSender ):
     @classmethod
     def rename( cls, scenepath ):
         """Rename the currently loaded file to be the file at scenepath
-        
+        @param cls
         @param scenepath string or Path pointing describing the new location of the scene.
         @return Path to scenepath
         @note as opposed to the normal file -rename it will also adjust the extension
@@ -132,7 +141,7 @@ class Scene( util.Singleton, util.EventSender ):
     @classmethod
     def save( cls, scenepath=None, autodeleteUnknown = False, **kwargs ):
         """Save the currently opened scene under scenepath in the respective format
-        
+        @param cls
         @param scenepath if None, the currently opened scene will be saved, otherwise 
             the name will be changed. Paths leading to the file will automatically be created.
         @param autodeleteUnknown if true, unknown nodes will automatically be deleted
@@ -180,7 +189,7 @@ class Scene( util.Singleton, util.EventSender ):
     @classmethod
     def export(cls, outputFile, nodeListOrIterable=None, **kwargs):
         """Export the given nodes or everything into the file at path
-        
+        @param cls
         @param outputFile Path object or path string to which the data should 
             be written to. Parent directories will be created as needed
         @param nodeListOrIterable if None, everything will be exported. 
@@ -220,9 +229,12 @@ class Scene( util.Singleton, util.EventSender ):
             # END if we have a selection to restore
         # END handle selection
         
-    #} END edit methods
+    ## -- End Edit Interface -- @}
 
-    #{ Utilities
+    # -------------------------
+    ## @name Utilities
+    # @{
+    
     @classmethod
     def deleteUnknownNodes( cls ):
         """Deletes all unknown nodes in the scene
@@ -234,9 +246,12 @@ class Scene( util.Singleton, util.EventSender ):
         if unknownNodes:
             cmds.delete( unknownNodes )
 
-    #} END utilities
+    ## -- End Utilities -- @}
 
-    #{ Query Methods
+    # -------------------------
+    ## @name Query Interface
+    # @{
+    
     @classmethod
     def name( cls ):
         return make_path( cmds.file( q=1, exn=1 ) )
@@ -244,8 +259,6 @@ class Scene( util.Singleton, util.EventSender ):
     @classmethod
     def isModified( cls ):
         return cmds.file( q=1, amf=True )
-    #} END query methods
-
-
-# END SCENE
+        
+    ## -- End Query Interface -- @}
 

@@ -1,9 +1,10 @@
-# -*- coding: utf-8 -*-
+#-*-coding:utf-8-*-
 """
-Contains some default dialogs as well as layouts suitable for layout dialogs
+@package mrv.maya.ui.dialog
+@brief Contains some default dialogs as well as layouts suitable for layout dialogs
+
+@copyright 2012 Sebastian Thiel
 """
-
-
 import base as uibase
 import maya.cmds as cmds
 import maya.utils as mutils

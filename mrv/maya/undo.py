@@ -1,7 +1,7 @@
-# -*- coding: utf-8 -*-
+#-*-coding:utf-8-*-
 """
-Contains the undo engine allowing to adjust the scene with api commands while
-providing full undo and redo support.
+@package mrv.maya.undo
+@brief Contains the undo engine allowing to adjust the scene with api commands while providing full undo and redo support.
 
 Features
 --------
@@ -11,14 +11,11 @@ Features
 
 Limitations
 -----------
-
  - You cannot mix mel and API proprely unless you use an MDGModifier.commandToExecute
- 
  - Calling operations that flush the undo queue from within an undoable method
    causes the internal python undo stack not to be flushed, leaving dangling objects
    that might crash maya once they are undon.
-  
-  - WORKAROUND: Mark these methods with @notundoable and assure they are not
+  + WORKAROUND: Mark these methods with `notundoable` and assure they are not
     called by an undoable method
     
  - calling MFn methods on a node usually means that undo is not supported for it.
@@ -37,13 +34,13 @@ and do not incur any overhead.
 
 Implementing an undoable method
 -------------------------------
-   - decorate with @undoable
-   - minimize probability that your operation will fail before creating an operation (for efficiency)
-   - only use operation's doIt() method to apply your changes
-   - if you raise, you should not have created an undo operation
+ - decorate with `undoable`
+ - minimize probability that your operation will fail before creating an operation (for efficiency)
+ - only use operation's doIt() method to apply your changes
+ - if you raise, you should not have created an undo operation
+
+@copyright 2012 Sebastian Thiel
 """
-
-
 import sys
 import os
 
@@ -54,11 +51,13 @@ __all__ = ("undoable", "forceundoable", "notundoable", "MuteUndo", "StartUndo", 
 _undo_enabled_envvar = "MRV_UNDO_ENABLED"
 _should_initialize_plugin = int(os.environ.get(_undo_enabled_envvar, True))
 
-#{ Initialization
+
+## @name Initialization
+# ------------------------------------------------------------------------------
+## @{
 
 def __initialize():
-    """ Assure our plugin is loaded - called during module intialization
-    
+    """ Assure our plugin is loaded - called during module initialization
     @note will only load the plugin if the undo system is not disabled"""
     pluginpath = os.path.splitext(__file__)[0] + ".py"
     if _should_initialize_plugin and not cmds.pluginInfo(pluginpath, q=1, loaded=1):
@@ -72,12 +71,14 @@ def __initialize():
     
     return _should_initialize_plugin
 
+## -- End Initialization -- @}
 
 
-#} END initialization
+# ==============================================================================
+## @name Undo Plug-In
+# ------------------------------------------------------------------------------
+## @{
 
-
-#{ Undo Plugin
 # when we are here, these have been imported already
 import maya.OpenMaya as api
 import maya.cmds as cmds
@@ -184,10 +185,13 @@ if _should_initialize_plugin:
         mplugin.deregisterCommand(UndoCmd.kCmdName)
 # END if plugin should be initialized
 
-#} END plugin
+## -- End Undo Plug-In -- @}
 
 
-#{ Utilities
+# ==============================================================================
+## @name Utilities
+# ------------------------------------------------------------------------------
+## @{
 
 def _incrStack():
     """Indicate that a new method level was reached"""
@@ -239,13 +243,13 @@ class StartUndo(object):
 def startUndo():
     """Call before you start undoable operations
     
-    @note prefer the @undoable decorator"""
+    @note prefer the `undoable` decorator"""
     _incrStack()
 
 def endUndo():
     """Call before your function with undoable operations ends
     
-    @note prefer the @undoable decorator"""
+    @note prefer the `undoable` decorator"""
     _decrStack()
 
 def undoAndClear():
@@ -306,7 +310,9 @@ class UndoRecorder(object):
             pass
         # END exception handling
         
-    #{ Interface 
+    # -------------------------
+    ## @name Interface
+    # @{
     
     def startRecording(self):
         """Start recording all future undoable commands onto this stack.
@@ -367,7 +373,6 @@ class UndoRecorder(object):
             self._undoable_helper = None
         # END assure we finish our undo
         
-        
     def undo(self):
         """Undo all stored operations
         
@@ -397,9 +402,12 @@ class UndoRecorder(object):
         # this reverts the effect of the undo
         self._undo_called = False
         
-    #} END interface 
+    ## -- End Interface -- @}
     
-    #{ Internal
+    # -------------------------
+    ## @name Internal
+    # @{
+    
     def doIt(self):
         """Called only if the user didn't call undo"""
         if self._undo_called or not self._recorded_commands:
@@ -420,12 +428,16 @@ class UndoRecorder(object):
         for op in reversed(self._recorded_commands):
             op.undoIt()
         # END for each operation
-    #} END internal
+        
+    ## -- End Internal -- @}
     
-#} END utilities
+## -- End Utilities -- @}
 
 
-#{ Decorators
+# ==============================================================================
+## @name Decorators
+# ------------------------------------------------------------------------------
+## @{
 
 def undoable(func):
     """Decorator wrapping func so that it will start undo when it begins and end undo
@@ -433,10 +445,11 @@ def undoable(func):
     an undo event
     To mark a function undoable, decorate it:
     
-    >>> @undoable
-    >>> def func():
-    >>>     pass
-    
+    @code
+    @undoable
+    def func():
+        pass
+    @endcode
     @note Using decorated functions appears to be only FASTER  than implementing it
         manually, thus using these is will greatly improve code readability
     @note if you use undoable functions, you should mark yourself undoable too - otherwise the
@@ -504,8 +517,7 @@ def notundoable(func):
         return func
     
     def notundoableDecoratorWrapFunc(*args, **kwargs):
-        """This is the long version of the method as it is slightly faster than
-        simply using the StartUndo helper"""
+        # This is the long version of the method as it is slightly faster than simply using the StartUndo helper
         prevstate = undoInfo(q=1, st=1)
         undoInfo(swf = 0)
         try:
@@ -521,10 +533,13 @@ def notundoable(func):
     notundoableDecoratorWrapFunc.__doc__ = func.__doc__
     return notundoableDecoratorWrapFunc
 
-#} END decorators
+## -- End Decorators -- @}
 
 
-#{ Operations
+# ==============================================================================
+## @name Operations
+# ------------------------------------------------------------------------------
+## @{
 
 class Operation(object):
     """Simple command class as base for all operations
@@ -604,8 +619,6 @@ class GenericOperation(Operation):
             return
 
         self._undofunc(*self._undoargs, **self._undokwargs)
-
-
 
 class GenericOperationStack(Operation):
     """Operation able to undo generic callable commands (one or multiple). It would be used
@@ -738,6 +751,4 @@ class DagModifier(DGModifier):
     _modifier_class_ = api.MDagModifier
     
 
-#} END operations
-
-
+## -- End Operations -- @}

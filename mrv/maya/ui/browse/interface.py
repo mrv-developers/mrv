@@ -1,33 +1,41 @@
-# -*- coding: utf-8 -*-
-"""module with interfaces to define contracts"""
+#-*-coding:utf-8-*-
+"""
+@package mrv.maya.ui.browse
+@brief module with interfaces to define contracts
 
-from mrv.interface import Interface
+@copyright 2012 Sebastian Thiel
+"""
+import mrv.interface
 
 __all__ = ('iFinderProvider', 'iOptions', 'iFinderFilter')
 
-class iFinderProvider(Interface):
+class iFinderProvider(mrv.interface.Interface):
     """Interface defining the capabilities of a provider to be usable by a Finder
     control. Every finder as a root, which is used as basis for listing urls.
-    
     Besides its function to provide sub-items for given urls, it is also used 
     to store recently selected items on a given level of a url. This memory
     allows the finder to restore common portions of URLs accordingly.
-    
-    The base implementation of the memorization feature already. """
+    The base implementation of the memorization feature already."""
     
     __slots__ = '_mem_items'
     
-    #{ Configuration
-    # if True, items of urls will be memorized, if False, this information
-    # will be discarded
+    # -------------------------
+    ## @name Configuration
+    # @{
+    
+    ## if True, items of urls will be memorized, if False, this information
+    ## will be discarded
     memorize_urlItems = True
-    #} END configuration
+    
+    ## -- End Configuration -- @}
     
     def __init__(self, root):
         self._root = root
         self._mem_items = dict()
     
-    #{ Interface 
+    # -------------------------
+    ## @name Interface
+    # @{
     
     def urlItems(self, url):
         """
@@ -70,12 +78,14 @@ class iFinderProvider(Interface):
         """@return string representing the file root"""
         return self._root
         
-    #} END interface
+    ## -- End Interface -- @}
     
-class iFinderFilter(Interface):
+class iFinderFilter(mrv.interface.Interface):
     """Filter interface suitable to perform item filter operations for Finder controls"""
     
-    #{ Interface
+    # -------------------------
+    ## @name Interface
+    # @{
     
     def filtered(self, finder, element_index, base_url, items):
         """@return list of items which may be shown in the element at element_index
@@ -85,17 +95,13 @@ class iFinderFilter(Interface):
         @param items list of relative item ids which are to be shown in the finder element"""
         return items
         
-    #} END interface
+    ## -- End Interface -- @}
 
 
-class iOptions(Interface):
+class iOptions(mrv.interface.Interface):
     """Interface for all custom options layouts to be used with the FinderLayout. 
     They take a weak-reference to their parent FinderLayout allowing them to 
     set themselves up if necessary.
     The options they represent must be read by a custom implementation of the
     FinderLayout"""
     
-    #{ Interface
-    
-    #} END interface
-

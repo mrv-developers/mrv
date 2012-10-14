@@ -1,17 +1,22 @@
-# -*- coding: utf-8 -*-
-"""General utility methods"""
+#-*-coding:utf-8-*-
+"""
+@package mrv.maya.nt.util
+@brief General utility methods
 
-
+@copyright 2012 Sebastian Thiel
+"""
 import maya.OpenMaya as api
 import mrv.maya.undo as undo
 
 MScriptUtil = api.MScriptUtil
-#{ Decorators
-
-#} END decorators
 
 
-#{ Conversion Methods
+
+# ==============================================================================
+## @name Conversion
+# ------------------------------------------------------------------------------
+## @{
+
 def in_double3_out_vector(function):
     """
     @return MVector containing result of function with signature 
@@ -51,6 +56,7 @@ def undoable_in_double3_as_vector(function, vec_old_value, vec_new_value):
     from the passed in vector.
     The calling method must be enclosed in an undoable decorator.
     
+    @param function actual function to call for undo/redo
     @param vec_old_value vector with the old value of the corresponding getX method
     @param vec_new_value vector with new value that is to be set"""
     op = undo.GenericOperation()
@@ -58,5 +64,4 @@ def undoable_in_double3_as_vector(function, vec_old_value, vec_new_value):
     op.setUndoitCmd( in_double3_as_vector, function, vec_old_value )
     return op.doIt()
     
-
-#}END conversion methods
+## -- End Conversion -- @}
