@@ -1,5 +1,11 @@
-# -*- coding: utf-8 -*-
-""" Test general nodes features """
+#-*-coding:utf-8-*-
+"""
+@package mrv.test.maya.nt.test_base
+@brief tests for mrv.maya.nt.base
+
+@copyright 2012 Sebastian Thiel
+"""
+
 from mrv.test.maya import *
 import mrv.maya as mrvmaya
 import mrv.maya.env as env

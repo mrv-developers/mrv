@@ -1,5 +1,11 @@
-# -*- coding: utf-8 -*-
-""" Test maya node database """
+#-*-coding:utf-8-*-
+"""
+@package mrv.test.maya.test_mdb
+@brief tests for mrv.maya.mdb
+
+@copyright 2012 Sebastian Thiel
+"""
+
 from mrv.test.maya import *
 from mrv.maya.util import MEnumeration
 import mrv.maya as mrvmaya
@@ -127,7 +133,6 @@ class TestMDB( unittest.TestCase ):
             self.failUnlessRaises(ValueError, enum.nameByValue, -1)
             
         # END for each enum descriptor
-        
         
     def test_init_new_maya_release_errchecking( self ):
         # for now, only test the failures

@@ -1,5 +1,11 @@
-# -*- coding: utf-8 -*-
-""" Test undo queue performance """
+#-*-coding:utf-8-*-
+"""
+@package mrv.test.maya.performance.test_undo
+@brief performance tests for mrv.maya.undo
+
+@copyright 2012 Sebastian Thiel
+"""
+
 from mrv.test.maya import *
 import mrv.maya as mrvmaya
 import maya.cmds as cmds

@@ -1,5 +1,11 @@
-# -*- coding: utf-8 -*-
-""" Test general nodes features """
+#-*-coding:utf-8-*-
+"""
+@package mrv.test.maya.nt.test_apipatch
+@brief tests for mrv.maya.nt.apipatch
+
+@copyright 2012 Sebastian Thiel
+"""
+
 from mrv.test.maya import *
 import mrv.maya.nt as nt
 

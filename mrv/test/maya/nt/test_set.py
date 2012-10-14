@@ -1,5 +1,11 @@
-# -*- coding: utf-8 -*-
-""" Test sets and partitions """
+#-*-coding:utf-8-*-
+"""
+@package mrv.test.maya.nt.test_set
+@brief tests for mrv.maya.nt.set
+
+@copyright 2012 Sebastian Thiel
+"""
+
 from mrv.test.maya import *
 import mrv.maya.nt as nt
 

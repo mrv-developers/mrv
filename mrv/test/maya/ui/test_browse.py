@@ -1,4 +1,11 @@
-# -*- coding: utf-8 -*-
+#-*-coding:utf-8-*-
+"""
+@package mrv.test.maya.ui.test_browse
+@brief tests for mrv.maya.ui.browse 
+
+@copyright 2012 Sebastian Thiel
+"""
+
 from mrv.test.maya import *
 from util import *
 

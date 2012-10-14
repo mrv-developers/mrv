@@ -1,5 +1,11 @@
-# -*- coding: utf-8 -*-
-"""Test basic node features """
+#-*-coding:utf-8-*-
+"""
+@package mrv.test.maya.nt.test_general
+@brief tests for mrv.maya.nt in general
+
+@copyright 2012 Sebastian Thiel
+"""
+
 from mrv.test.maya import *
 import mrv.maya as mrvmaya
 import mrv.maya.nt.persistence as persistence

@@ -1,5 +1,11 @@
-# -*- coding: utf-8 -*-
-""" Test some default ui capababilities """
+#-*-coding:utf-8-*-
+"""
+@package mrv.test.maya.ui.test_general
+@brief general tests for mrv.maya.ui
+
+@copyright 2012 Sebastian Thiel
+"""
+
 from mrv.test.maya import *
 import mrv.maya.ui as ui
 from mrv.util import capitalize

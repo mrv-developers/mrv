@@ -1,4 +1,11 @@
-# -*- coding: utf-8 -*-
+#-*-coding:utf-8-*-
+"""
+@package mrv.test.lib.util
+@brief Some general utilities 
+
+@copyright 2012 Sebastian Thiel
+"""
+
 import os
 from mrv.path import make_path
 

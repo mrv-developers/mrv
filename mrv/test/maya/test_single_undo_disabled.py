@@ -1,4 +1,11 @@
-# -*- coding: utf-8 -*-
+#-*-coding:utf-8-*-
+"""
+@package mrv.test.maya.test_single_undo_disabled
+@brief tests if undo can truly be disabled right from the start
+
+@copyright 2012 Sebastian Thiel
+"""
+
 import os
 import mrv.test.maya.util as tutil
 

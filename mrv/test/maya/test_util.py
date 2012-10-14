@@ -1,5 +1,11 @@
-# -*- coding: utf-8 -*-
-""" Test utility classes """
+#-*-coding:utf-8-*-
+"""
+@package mrv.test.maya.test_util
+@brief tests for mrv.maya.util
+
+@copyright 2012 Sebastian Thiel
+"""
+
 from mrv.test.maya import *
 from mrv.maya.util import *
 

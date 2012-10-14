@@ -1,5 +1,11 @@
-# -*- coding: utf-8 -*-
-"""Tests for the mdp dependency parser commandline tool"""
+#-*-coding:utf-8-*-
+"""
+@package mrv.test.test_mdp
+@brief test for mrv.mdp
+
+@copyright 2012 Sebastian Thiel
+"""
+
 from mrv.test.lib import *
 
 try:

@@ -1,5 +1,12 @@
-# -*- coding: utf-8 -*-
-"""Tests for the batch processing tool"""
+#-*-coding:utf-8-*-
+"""
+@package mrv.test.test_batch
+@brief Tests for mrv.batch
+
+@copyright 2012 Sebastian Thiel
+"""
+
+
 from mrv.test.lib import *
 
 # shouldn't import anything

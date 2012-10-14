@@ -1,4 +1,11 @@
-# -*- coding: utf-8 -*-
+#-*-coding:utf-8-*-
+"""
+@package mrv.test.maya.ui
+@brief tests for mrv.maya.ui
+
+@copyright 2012 Sebastian Thiel
+"""
+
 
 from util import NotificatorWindow 
 

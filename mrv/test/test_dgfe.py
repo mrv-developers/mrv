@@ -1,5 +1,11 @@
-# -*- coding: utf-8 -*-
-"""Test dependency graph engine """
+#-*-coding:utf-8-*-
+"""
+@package mrv.test.test_dgfe
+@brief tests for mrv.dgfe
+
+@copyright 2012 Sebastian Thiel
+"""
+
 import unittest
 from mrv.dge import *
 from mrv.dgfe import *
@@ -8,21 +14,23 @@ A = Attribute
 
 class SimpleIONode( NodeBase ):
     """Create some simple attributes"""
-    #{ Plugs
+    # -------------------------
+    ## @name Plugs
+    # @{
+    
     outAdd = plug( A( float, A.uncached ) )
 
     inFloat = plug( A( float, 0, default = 0.0 ) )
 
-    #} END plugs
+    ## -- End Plugs -- @}
+    
     inFloat.affects( outAdd )
 
 
-    #{ iDuplicatable Interface
     def createInstance( self, *args, **kwargs ):
         """Create a copy of self and return it
         @note override by subclass  - the __init__ methods shuld do the rest"""
         return self.__class__( self.id() )
-    #} END iDuplicatable
 
 
     def __init__( self , name ):
@@ -34,14 +42,19 @@ class SimpleIONode( NodeBase ):
             return self.inFloat.get() + 1
         raise PlugUnhandled( )
 
+
 class LessSimpleIONode( SimpleIONode ):
     """more attributes added"""
-    #{ Plugs
+    # -------------------------
+    ## @name Plugs
+    # @{
+    
     outBool = plug( A( bool, A.uncached ) )
 
     inBool = plug( A( bool, 0, default = False ) )
 
-    #} END plugs
+    ## -- End Plugs -- @}
+    
     inBool.affects( outBool )
 
 

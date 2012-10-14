@@ -454,6 +454,7 @@ class TestGeneralPerformance( unittest.TestCase ):
 #{ Name Generators
 def genRandomNames( numNames, wordLength ):
     """Generate random names from characters allowed by maya
+    @param numNames amount of names to generate
     @param wordLength length of the generated word
     @return list of names
     @note currently we do not use numbers"""
@@ -470,7 +471,7 @@ def genNestedNamesList( numNames, nestingRange, wordList, sep ):
     """Create a random list of nested names where each subname is separated by sep, like
     [ 'asdf:efwsf','asdfic:oeafsdf:asdfas' ]
     @param numNames number of names to generate
-    @param maxNestingLevel tuple( min,max ) 0 for single names, other for names combined using sep
+    @param nestingRange tuple( min,max ) 0 for single names, other for names combined using sep
     @param wordList words we may choose from to create nested names
     @param sep separator between name tokens
     @return list of nested words"""
@@ -487,6 +488,7 @@ def genNodeNames( numNames, dagLevelRange, wordRange, nslist ):
     @param numNames number of names to generate
     @param dagLevelRange tuple( min, max ), defining how deept the nesting may be
     @param wordRange tuple ( min,max ), defining the minimum and maximum word length
+    @param nslist namespace list
     @note subnamespaces can repeat in name
     @return the generated name """
     # gen names

@@ -1,5 +1,11 @@
-# -*- coding: utf-8 -*-
-"""Provide UI testing utilities"""
+#-*-coding:utf-8-*-
+"""
+@package mrv.test.maya.ui.util
+@brief Utilities for mrv.maya.ui tests
+
+@copyright 2012 Sebastian Thiel
+"""
+
 import mrv.maya.ui as ui
 import traceback
 

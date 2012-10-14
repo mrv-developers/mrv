@@ -1,4 +1,11 @@
-# -*- coding: utf-8 -*-
+#-*-coding:utf-8-*-
+"""
+@package mrv.test.maya.performance.test_startup
+@brief performance test for overall maya/mrv startup performance
+
+@copyright 2012 Sebastian Thiel
+"""
+
 import unittest
 import time
 import sys

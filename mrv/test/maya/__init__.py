@@ -1,5 +1,11 @@
-# -*- coding: utf-8 -*-
-""" Intialize the mrv maya testing suite """
+#-*-coding:utf-8-*-
+"""
+@package mrv.test.maya
+@brief tests for mrv.maya
+
+@copyright 2012 Sebastian Thiel
+"""
+
 from mrv.test.lib import *
 from util import *
 

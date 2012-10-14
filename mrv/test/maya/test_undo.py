@@ -1,5 +1,11 @@
-# -*- coding: utf-8 -*-
-""" Test ALL features of the undo queue """
+#-*-coding:utf-8-*-
+"""
+@package mrv.test.maya.test_undo
+@brief tests for mrv.maya.undo
+
+@copyright 2012 Sebastian Thiel
+"""
+
 from mrv.test.maya import *
 import mrv.maya as mrvmaya
 import mrv.maya.undo as undo

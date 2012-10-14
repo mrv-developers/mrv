@@ -1,5 +1,11 @@
-# -*- coding: utf-8 -*-
-"""Performance Testing"""
+#-*-coding:utf-8-*-
+"""
+@package mrv.test.maya.performance.test_sets
+@brief performance tests for mrv.maya.nt.set
+
+@copyright 2012 Sebastian Thiel
+"""
+
 from mrv.test.maya import *
 
 import mrv.maya.nt as nt

@@ -1,5 +1,11 @@
-# -*- coding: utf-8 -*-
-""" Some more math related tests """
+#-*-coding:utf-8-*-
+"""
+@package mrv.test.maya.performance.test_calculations
+@brief general performance tests for function calls
+
+@copyright 2012 Sebastian Thiel
+"""
+
 import sys
 import string
 import random

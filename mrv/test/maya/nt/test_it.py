@@ -1,5 +1,11 @@
-# -*- coding: utf-8 -*-
-""" Test node iterators """
+#-*-coding:utf-8-*-
+"""
+@package mrv.test.maya.nt.test_it
+@brief tests for mrv.maya.nt.it
+
+@copyright 2012 Sebastian Thiel
+"""
+
 from mrv.test.maya import *
 from mrv.maya.nt.it import *
 import mrv.maya.nt as nt

@@ -1,5 +1,11 @@
-# -*- coding: utf-8 -*-
-""" Test thead classes and functions"""
+#-*-coding:utf-8-*-
+"""
+@package mrv.test.test_thread
+@brief tests for mrv.thread
+
+@copyright 2012 Sebastian Thiel
+"""
+
 from mrv.test.lib import *
 from mrv.thread import *
 from Queue import Queue

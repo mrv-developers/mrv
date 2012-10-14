@@ -1,5 +1,11 @@
-# -*- coding: utf-8 -*-
-""" Test the quality assurance framework and it's mel bindings """
+#-*-coding:utf-8-*-
+"""
+@package mrv.test.maya.automation.test_qa
+@brief tests for mrv.maya.automation.qa
+
+@copyright 2012 Sebastian Thiel
+"""
+
 from mrv.test.maya import *
 import mrv.automation.qa as bqa
 import mrv.maya.automation.qa as qa

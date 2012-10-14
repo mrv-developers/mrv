@@ -1,4 +1,11 @@
-# -*- coding: utf-8 -*-
+#-*-coding:utf-8-*-
+"""
+@package mrv.test.maya.nt.test_single_mplug_setx
+@brief tests for mrv.maya.nt.apipatch
+
+@copyright 2012 Sebastian Thiel
+"""
+
 import os
 import mrv.test.maya.util as tutil
 

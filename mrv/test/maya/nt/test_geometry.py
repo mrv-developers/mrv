@@ -1,5 +1,11 @@
-# -*- coding: utf-8 -*-
-""" Tests the geometric nodes, focussing on the set handling """
+#-*-coding:utf-8-*-
+"""
+@package mrv.test.maya.nt.test_geometry
+@brief tests for mrv.maya.nt.geometry
+
+@copyright 2012 Sebastian Thiel
+"""
+
 from mrv.test.maya import *
 import mrv.maya.nt as nt
 import mrv.maya.nt.geometry as modgeo

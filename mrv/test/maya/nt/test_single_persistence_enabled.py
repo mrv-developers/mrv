@@ -1,4 +1,11 @@
-# -*- coding: utf-8 -*-
+#-*-coding:utf-8-*-
+"""
+@package mrv.test.maya.nt.test_single_persistence_enabled
+@brief startuptest for mrv.maya.nt.persistence
+
+@copyright 2012 Sebastian Thiel
+"""
+
 import os
 import mrv.test.maya.util as tutil
 

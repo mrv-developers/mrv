@@ -1,5 +1,11 @@
-# -*- coding: utf-8 -*-
-""" Test maya node database """
+#-*-coding:utf-8-*-
+"""
+@package mrv.test.maya.performance.test_mdb
+@brief performance tests for mrv.maya.mdb
+
+@copyright 2012 Sebastian Thiel
+"""
+
 from mrv.test.maya import *
 # test import all
 from mrv.maya.mdb import *

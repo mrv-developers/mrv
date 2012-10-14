@@ -1,5 +1,11 @@
-# -*- coding: utf-8 -*-
-"""Test all aspects of the configuration management system """
+#-*-coding:utf-8-*-
+"""
+@package mrv.test.test_conf
+@brief tests for mrv.conf
+
+@copyright 2012 Sebastian Thiel
+"""
+
 from mrv.test.lib import *
 import os
 import sys
@@ -59,15 +65,19 @@ class TestDictConverter( unittest.TestCase ):
 
 class TestConfigAccessor( unittest.TestCase ):
     """ Test the ConfigAccessor Class and all its featuers"""
-    #{ Helper Methods
-
-
+    
+    # -------------------------
+    ## @name Helpers
+    # @{
+    
     def _verifiedRead( self, ca, fileobjectlist, close_fp = True ):
         """ConfigAccessor: Assure that the given list of file objects can be read properly
         without loosing information.
+        @param ca
+        @param close_fp
         @param fileobjectlist list of fileobjects
-            - A simple differ is used to accomplish this
-            - assure file object is closed after read
+        - A simple differ is used to accomplish this
+        - assure file object is closed after read
         Fail otherwise
         """
         ca.readfp( fileobjectlist, close_fp = close_fp )
@@ -98,7 +108,7 @@ class TestConfigAccessor( unittest.TestCase ):
         diff = ConfigDiffer( cca, fca )
         self.failIf( diff.hasDifferences( ) )
 
-    #}
+    ## -- End Helpers -- @}#}
 
     def test_readValidINI( self ):
         """ConfigAccessor: Tests whether non-malformed INI files can be read ( single and multi )"""
@@ -293,8 +303,6 @@ class TestConfigManager( unittest.TestCase ):
             # END for each key id 
         # END for each section id
         
-
-
     def test_taggedFileDescriptors( self ):
         """ConfigManager: check if filedescriptor parsing is generally working"""
 
@@ -330,17 +338,13 @@ class TestConfigManager( unittest.TestCase ):
 
         # if the reading succeeded
 
-
     def tearDown( self ):
         """ Remove the temporary working files """
         #shutil.rmtree( self.testpath, ignore_errors=False )
 
 
-
-
 class TestConfigDiffer( unittest.TestCase ):
-    """ Test the ConfigDiffer Class and all its featuers"""
-
+    """ Test the ConfigDiffer Class and all its features"""
 
     def _getDiff( self, testid ):
         """@param testid the name of the test, it looks for 'valid_${id}_a|b" respectively
@@ -364,7 +368,6 @@ class TestConfigDiffer( unittest.TestCase ):
         # print str(diff)
         self.failUnless( len( diff.added ) == assertadded and len( diff.removed ) == assertremoved and
                          len( diff.changed ) == assertchanged and len( diff.unchanged )== assertunchanged )
-
 
     def test_sectionAdded( self ):
         """ConfigDiffer: Assure diffing will detect removed sections """
@@ -429,11 +432,6 @@ class TestConfigDiffer( unittest.TestCase ):
         self.failUnless( len( diff.changed[0].properties.changed[0].added ) )    # section property value changed ( added )
 
 
-
-
-
-
-
 def _getPrefixedINIFileNames( prefix, dirname = _getIniFileDir() ):
     """ Return full paths to INI files of files with the given prefix
 
@@ -447,7 +445,6 @@ def _tofp( filenamelist, mode='r' ):
 def _getprefixedinifps( prefix, mode='r', dirname = _getIniFileDir() ):
     return _tofp( _getPrefixedINIFileNames( prefix, dirname=dirname ), mode=mode )
 
-
 def _getca( prefix ):
     """@return config accessor initialized with all files matching the given prefix"""
     ca = ConfigAccessor( )
@@ -455,4 +452,3 @@ def _getca( prefix ):
     return ca
 
 
-#} END GROUP

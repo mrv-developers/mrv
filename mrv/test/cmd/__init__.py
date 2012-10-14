@@ -1,6 +1,15 @@
-# -*- coding: utf-8 -*-
+#-*-coding:utf-8-*-
+"""
+@package mrv.test.cmd
+@brief tests for mrv.cmd
 
-#{ TMRV Globals
+@copyright 2012 Sebastian Thiel
+"""
+
+# ==============================================================================
+## @name TMRV Globals
+# ------------------------------------------------------------------------------
+## @{
 
 # used to centralize this string, its used in multiple spots by the test system
 # It would be better too 
@@ -9,4 +18,5 @@ nose_args_splitter = '^'
 
 tmrv_coverage_flag = '--tmrv-coverage'
 tmrv_coverage_dir = "coverage"
-#} END TMRV Globals
+
+## -- End TMRV Globals -- @}

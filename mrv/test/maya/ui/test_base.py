@@ -1,4 +1,11 @@
-# -*- coding: utf-8 -*-
+#-*-coding:utf-8-*-
+"""
+@package mrv.test.maya.ui.test_base
+@brief tests for mrv.maya.ui.base
+
+@copyright 2012 Sebastian Thiel
+"""
+
 from mrv.test.maya import *
 from mrv.maya.ui import *
 import maya.cmds as cmds

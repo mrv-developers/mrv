@@ -1,5 +1,11 @@
-# -*- coding: utf-8 -*-
-""" Test default report classes """
+#-*-coding:utf-8-*-
+"""
+@package mrv.test.automation.test_report
+@brief tests for mrv.automation.report
+
+@copyright 2012 Sebastian Thiel
+"""
+
 import unittest
 import workflows
 from mrv.automation.report import *

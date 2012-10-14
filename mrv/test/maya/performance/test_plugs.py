@@ -1,7 +1,11 @@
-# -*- coding: utf-8 -*-
+#-*-coding:utf-8-*-
 """
-Test general MPlug performance
+@package mrv.test.maya.performance.test_plugs
+@brief performance tests for mrv.maya.nt.apipatch
+
+@copyright 2012 Sebastian Thiel
 """
+
 from mrv.test.maya import *
 import mrv.maya as mrvmaya
 import mrv.maya.undo as undo

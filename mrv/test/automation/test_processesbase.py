@@ -1,9 +1,14 @@
-# -*- coding: utf-8 -*-
+#-*-coding:utf-8-*-
 """
-Test provided base processes
+@package mrv.test.automation.test_processesbase
+@brief tests for mrv.automation.process
+
 @note this file is here containing all default prcess tests one gets nasty
 dependency probles with the python import system as we always need workflows for testing
+
+@copyright 2012 Sebastian Thiel
 """
+
 import unittest
 import workflows
 from mrv.automation.report import Plan

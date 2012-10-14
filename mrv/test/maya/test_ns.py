@@ -1,5 +1,11 @@
-# -*- coding: utf-8 -*-
-""" Test the namespace methods """
+#-*-coding:utf-8-*-
+"""
+@package mrv.test.maya.test_ns
+@brief tests for mrv.maya.ns
+
+@copyright 2012 Sebastian Thiel
+"""
+
 from mrv.test.maya import *
 from mrv.maya.ns import *
 import mrv.maya as mrvmaya

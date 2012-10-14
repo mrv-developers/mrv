@@ -1,5 +1,11 @@
-# -*- coding: utf-8 -*-
-""" Test the scene methods """
+#-*-coding:utf-8-*-
+"""
+@package mrv.test.maya.test_scene
+@brief tests for mrv.maya.scene
+
+@copyright 2012 Sebastian Thiel
+"""
+
 from mrv.test.maya import *
 from mrv.maya.scene import *
 import mrv.maya.env as env
@@ -15,7 +21,10 @@ import shutil
 class TestScene( unittest.TestCase ):
     """ Test the database """
 
-    #{ Callback methods
+    # -------------------------
+    ## @name Callbacks
+    # @{
+    
     def cbgroup_zero( self, boolStatusRef, clientData ):
         self.called = True
 
@@ -24,7 +33,7 @@ class TestScene( unittest.TestCase ):
 
     def cbgroup_two( self, clientData ):
         self.called = True
-    #}
+    ## -- End Callbacks -- @}
 
     def _runMessageTest( self, eventName, eventfunc, callbackTriggerFunc ):
         sc = Scene()    # singleton

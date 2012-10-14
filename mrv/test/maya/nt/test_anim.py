@@ -1,5 +1,11 @@
-# -*- coding: utf-8 -*-
-""" Test animCurves and related types """
+#-*-coding:utf-8-*-
+"""
+@package mrv.test.maya.nt.test_anim
+@brief tests for mrv.maya.nt.anim
+
+@copyright 2012 Sebastian Thiel
+"""
+
 from mrv.test.maya import *
 
 import mrv.maya as mmaya

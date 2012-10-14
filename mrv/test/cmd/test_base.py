@@ -1,6 +1,11 @@
-# -*- coding: utf-8 -*-
-"""Test for commands - the funny thing here is that it needs itself to be working in order
-to run the tests"""
+#-*-coding:utf-8-*-
+"""
+@package mrv.test.cmd.test_base
+@brief tests for mrv.cmd.base
+
+@copyright 2012 Sebastian Thiel
+"""
+
 from mrv.test.lib import *
 from mrv.cmd.base import *
 from mrv.path import BasePath

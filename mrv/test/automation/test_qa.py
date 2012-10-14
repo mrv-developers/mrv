@@ -1,5 +1,11 @@
-# -*- coding: utf-8 -*-
-""" Test the quality assurance framework """
+#-*-coding:utf-8-*-
+"""
+@package mrv.test.automation.test_qa
+@brief tests for mrv.automation.qa
+
+@copyright 2012 Sebastian Thiel
+"""
+
 import unittest
 import workflows
 import mrv.automation.qa as qa

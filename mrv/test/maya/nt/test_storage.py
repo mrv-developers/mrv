@@ -1,5 +1,11 @@
-# -*- coding: utf-8 -*-
-""" Test storage system and storage node """
+#-*-coding:utf-8-*-
+"""
+@package mrv.test.maya.nt.test_storage
+@brief tests for mrv.maya.nt.storage
+
+@copyright 2012 Sebastian Thiel
+"""
+
 from mrv.test.maya import *
 import mrv.maya.nt as nt
 import mrv.maya as mrvmaya
@@ -290,7 +296,4 @@ class TestStorage(unittest.TestCase):
         assert len(oset.partitions()) == 2 
         cmds.redo()
         assert len(oset.partitions()) == 1 
-
-
-
 

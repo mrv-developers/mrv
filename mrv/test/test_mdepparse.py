@@ -1,5 +1,11 @@
-# -*- coding: utf-8 -*-
-"""Tests for the maya dependency parser"""
+#-*-coding:utf-8-*-
+"""
+@package mrv.test.test_mdepparse
+@brief tests for mrv.mdepparse
+
+@copyright 2012 Sebastian Thiel
+"""
+
 from mrv.test.lib import *
 from mrv.mdepparse import *
 

@@ -1,5 +1,11 @@
-# -*- coding: utf-8 -*-
-""" @note adjusted by Sebastian Thiel """
+#-*-coding:utf-8-*-
+"""
+@package mrv.test.test_enum
+@brief tests for mrv.enum
+
+@copyright 2012 Sebastian Thiel
+"""
+
 __contact__='garret at bgb dot cc'
 __license__='freeware'
 

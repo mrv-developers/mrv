@@ -1,5 +1,11 @@
-# -*- coding: utf-8 -*-
-"""Test misc utility classes """
+#-*-coding:utf-8-*-
+"""
+@package mrv.test.test_util
+@brief tests for mrv.util
+
+@copyright 2012 Sebastian Thiel
+"""
+
 import unittest
 import sys
 import mrv

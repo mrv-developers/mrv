@@ -1,3 +1,11 @@
+#-*-coding:utf-8-*-
+"""
+@package mrv.test.maya.util
+@brief contains maya-specific testing utilities
+
+@copyright 2012 Sebastian Thiel
+"""
+
 from mrv.test.lib import *
 from mrv.path import Path 
 import tempfile

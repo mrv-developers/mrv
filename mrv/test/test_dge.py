@@ -1,5 +1,11 @@
-# -*- coding: utf-8 -*-
-"""Test dependency graph engine """
+#-*-coding:utf-8-*-
+"""
+@package mrv.test.test_dge
+@brief tests for mrv.dge
+
+@copyright 2012 Sebastian Thiel
+"""
+
 import unittest
 from mrv.dge import *
 from random import randint

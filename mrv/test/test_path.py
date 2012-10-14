@@ -1,8 +1,11 @@
-# -*- coding: utf-8 -*-
-"""Test path methods
-@todo actual implementation of path tests - currently it is just a placeholder assuring
-that the module can at least be imported
+#-*-coding:utf-8-*-
 """
+@package mrv.test.test_path
+@brief tests for mrv.path
+
+@copyright 2012 Sebastian Thiel
+"""
+
 import os
 import unittest
 import mrv.path

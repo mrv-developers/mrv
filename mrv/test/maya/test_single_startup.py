@@ -1,4 +1,11 @@
-# -*- coding: utf-8 -*-
+#-*-coding:utf-8-*-
+"""
+@package mrv.test.maya.test_single_startup.py
+@brief test startup flags and environment variables
+
+@copyright 2012 Sebastian Thiel
+"""
+
 import os
 import sys
 import mrv.test.maya.util as tutil

@@ -1,12 +1,21 @@
-# -*- coding: utf-8 -*-
-""" Intialize suite checking all processes """
+#-*-coding:utf-8-*-
+"""
+@package mrv.test.automation.processes
+@brief tests for mrv.automation.processes
+
+@copyright 2012 Sebastian Thiel
+"""
+
 import mrv.automation.process as process
 import mrv.automation.processes as processes
 from mrv.dge import plug, Attribute as A
 from mrv.path import make_path
 from mrv.automation.qa import QAProcessBase, QACheck, QACheckResult
 
-#{ Processes
+# ==============================================================================
+## @name Processes
+# ------------------------------------------------------------------------------
+## @{
 
 class TestProcess( process.ProcessBase ):
     """TestProcess helping to debugging the calles done """
@@ -35,7 +44,6 @@ class TestProcess( process.ProcessBase ):
     verb = "computes"
 
 
-    #{ Implementation
 
     def evaluateState( self, plug, mode ):
         if plug == TestProcess.outInt:
@@ -48,8 +56,6 @@ class TestProcess( process.ProcessBase ):
             return [ self.inChain.get()[0] + 10 ]
         else:
             raise AssertionError( "Incompatible target %r passed to %s - canOutputTarget method buggy ?" % ( target, self ) )
-
-    #}
 
 
 class OtherTestProcess( process.ProcessBase ):
@@ -99,17 +105,19 @@ class WorkflowWrapTestProcess( process.WorkflowProcessBase ):
         return super( WorkflowWrapTestProcess, self ).__init__( id, **kwargs )
 
 
-    #{ iDuplicatable Interface
     def createInstance( self, *args, **kwargs ):
         """Create a copy of self and return it"""
         return self.__class__( self.id(), self.workflowName, wflInstance = self.wgraph )
 
-    #} END iDuplicatable
 
-#} END processes
+## -- End Processes -- @}
 
 
-#{ QA Processes
+# ==============================================================================
+## @name QAProcesses
+# ------------------------------------------------------------------------------
+## @{
+
 class QACheckProcess( QAProcessBase ):
     """ Simple test process """
 
@@ -125,10 +133,7 @@ class QACheckProcess( QAProcessBase ):
             return QACheckResult( fixed_items = [ check ], header = "fixed" )
 
 
-#} END QA Processes
+## -- End QAProcesses -- @}
 
 
-#{ Process Initialization
 processes.addProcesses( TestProcess, OtherTestProcess, WorkflowWrapTestProcess, QACheckProcess )
-
-#}

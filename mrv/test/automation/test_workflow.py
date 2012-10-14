@@ -1,5 +1,11 @@
-# -*- coding: utf-8 -*-
-""" Test the workflow class """
+#-*-coding:utf-8-*-
+"""
+@package mrv.test.automation.test_workflow
+@brief tests for mrv.automation.workflow
+
+@copyright 2012 Sebastian Thiel
+"""
+
 import unittest
 import workflows
 import mrv.automation.workflow as workflow

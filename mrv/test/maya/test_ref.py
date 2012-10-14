@@ -1,5 +1,11 @@
-# -*- coding: utf-8 -*-
-""" Test the reference methods """
+#-*-coding:utf-8-*-
+"""
+@package mrv.test.maya.test_ref
+@brief tests for mrv.maya.ref
+
+@copyright 2012 Sebastian Thiel
+"""
+
 from mrv.test.maya import *
 from mrv.maya.ref import *
 from mrv.maya.ns import *

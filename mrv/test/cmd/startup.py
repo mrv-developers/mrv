@@ -1,5 +1,11 @@
-# -*- coding: utf-8 -*-
-"""Contains all test related startup routines"""
+#-*-coding:utf-8-*-
+"""
+@package mrv.test.cmd.startup
+@brief tests for mrv.cmd.startup
+
+@copyright 2012 Sebastian Thiel
+"""
+
 
 import os
 import sys
@@ -27,7 +33,10 @@ def sameModule(self, mod, filename):
             return True
     return False
 
-#{ Startup
+# ==============================================================================
+## @name Startup
+# ------------------------------------------------------------------------------
+## @{
 
 def nose():
     """Initialize nose"""
@@ -48,4 +57,4 @@ def nose():
     
     nose.main()
 
-#} END startup
+## -- End Startup -- @}
