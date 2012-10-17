@@ -239,7 +239,8 @@ class PluginDB(dict):
         
         try:
             try:
-                #assert not api.MFileIO.isOpeningFile() and not api.MFileIO.isReadingFile(), "Was still in read/open mode which would cause trouble"
+                # NOTE: the context that triggered us may still be active here, so we have to pass that 
+                # information in our call
                 self.plugin_loaded(plugin_name, _may_spawn_callbacks=False)
                 data[1] = None
             except Exception:
@@ -287,27 +288,26 @@ class PluginDB(dict):
         dagmod = api.MDagModifier()
         transobj = None
         
-        if _may_spawn_callbacks and api.MFileIO.isOpeningFile():
-            # recheck after open
-            info = list()
-            self.log.info("Open File Callback")
-            info.append(api.MSceneMessage.addCallback(api.MSceneMessage.kAfterOpen, self._post_read_or_open_cb, info))
-            info.append(pluginName)
-            return
-        #end opening file
-        
-        # when reading files (import + ref), the nodes seem to stay (tested in maya 2012)
-        # therefore we delay the update until after the fact
-        if _may_spawn_callbacks and api.MFileIO.isReadingFile():
-            # recheck after import or reference
-            self.log.info("READING File Callback")
-            for message in (api.MSceneMessage.kAfterImport, api.MSceneMessage.kAfterReference):
+        # HANDLE FILE LOAD SPECIAL CASE
+        ###############################
+        if _may_spawn_callbacks and (api.MFileIO.isOpeningFile() or api.MFileIO.isReadingFile()):
+            messages = list()
+            if api.MFileIO.isOpeningFile():
+                messages.append(api.MSceneMessage.kAfterOpen)
+            if api.MFileIO.isReadingFile():
+                # when reading files (import + ref), the nodes seem to stay (tested in maya 2012)
+                # therefore we delay the update until after the fact
+                # recheck after import or reference
+                messages.extend((api.MSceneMessage.kAfterImport, api.MSceneMessage.kAfterReference))
+            #end handle messages
+            
+            for message in messages:
                 info = list()
                 info.append(api.MSceneMessage.addCallback(message, self._post_read_or_open_cb, info))
                 info.append(pluginName)
-            #end for each message
+            #end for each message to create
             return
-        #end import or reference
+        #end if we are allowed to spawn callbacks (because we are not called by one)
         
         nt = globals()
         for tn in type_names:
