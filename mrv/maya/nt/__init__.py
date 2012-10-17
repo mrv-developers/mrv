@@ -220,7 +220,35 @@ class PluginDB(dict):
             mrvmaya.Mel.eval('pluginInfo -changedCommand "%s"' % melstr.replace('"', '\\"'))
         # END install callback
         self.plugin_registry_changed()
-
+        
+    def _post_read_or_open_cb(self, data):
+        """Called after a scene was imported or referenced or opened.
+        We might get too many callbacks, which is why we will record the state
+        in data to be sure we are only executing the update once.
+        @note This is only relevant when loading plugins
+        """
+        if not data or len(data) != 2:
+            self.log.error("Expected data list to contain: [callback_id, plugin_name]")
+            return
+        #end handle input
+        cid, plugin_name = data
+        
+        if not plugin_name:
+            return
+        #end ignore plugin already handled
+        
+        try:
+            try:
+                #assert not api.MFileIO.isOpeningFile() and not api.MFileIO.isReadingFile(), "Was still in read/open mode which would cause trouble"
+                self.plugin_loaded(plugin_name, _may_spawn_callbacks=False)
+                data[1] = None
+            except Exception:
+                self.log.error("Unhandled exception occurred", exc_info=True)
+            #end handle exception
+        finally:
+            api.MSceneMessage.removeCallback(cid)
+        #end assure callback gets removed 
+        
     def plugin_registry_changed(self, *args):
         """Called by maya to indicate something has changed. 
         We will diff the returned plugin information with our own database 
@@ -239,7 +267,7 @@ class PluginDB(dict):
         for pn in our_plugins - loaded_plugins:
             self.plugin_unloaded(pn)
         
-    def plugin_loaded(self, pluginName):
+    def plugin_loaded(self, pluginName, _may_spawn_callbacks=True):
         """Retrieve plugin information from a plugin named ``pluginName``, which is 
         assumed to be loaded.
         Currently the nodetypes found are added to the node-type tree to make them available.
@@ -249,7 +277,6 @@ class PluginDB(dict):
         We loosely determine the inheritance by differentiating them into types suggested
         by MFn::kPlugin<Name>Node"""
         import base     # needs late import, TODO: reorganize modules
-        
         self.log.debug("plugin '%s' loaded" % pluginName)
         
         type_names = cmds.pluginInfo(pluginName, q=1, dependNode=1) or list()
@@ -259,6 +286,28 @@ class PluginDB(dict):
         dgmod = api.MDGModifier()
         dagmod = api.MDagModifier()
         transobj = None
+        
+        if _may_spawn_callbacks and api.MFileIO.isOpeningFile():
+            # recheck after open
+            info = list()
+            self.log.info("Open File Callback")
+            info.append(api.MSceneMessage.addCallback(api.MSceneMessage.kAfterOpen, self._post_read_or_open_cb, info))
+            info.append(pluginName)
+            return
+        #end opening file
+        
+        # when reading files (import + ref), the nodes seem to stay (tested in maya 2012)
+        # therefore we delay the update until after the fact
+        if _may_spawn_callbacks and api.MFileIO.isReadingFile():
+            # recheck after import or reference
+            self.log.info("READING File Callback")
+            for message in (api.MSceneMessage.kAfterImport, api.MSceneMessage.kAfterReference):
+                info = list()
+                info.append(api.MSceneMessage.addCallback(message, self._post_read_or_open_cb, info))
+                info.append(pluginName)
+            #end for each message
+            return
+        #end import or reference
         
         nt = globals()
         for tn in type_names:
@@ -271,6 +320,9 @@ class PluginDB(dict):
             # get the type id- first try depend node, then dag node. Never actually
             # create the nodes in the scene, created MObjects will be discarded
             # once the modifiers go out of scope
+            # NOTE: Actually, this is not true ! During file loading, its clearly visible
+            # that the nodes stay, may it be dg nodes or dag nodes. This of course dumps 
+            # quite a lot of data in case the MR plugin gets loaded.
             apitype = None
             try:
                 apitype = dgmod.createNode(tn).apiType()

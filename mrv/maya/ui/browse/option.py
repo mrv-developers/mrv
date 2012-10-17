@@ -40,7 +40,11 @@ class FileOpenOptions(ui.ColumnLayout, iOptions):
         self.cbScriptNodes.p_value = opts.get(self.kOVExecuteScriptNodes, True)
         self.cbIgnoreVersion.p_value = opts.get(self.kOVIgnoreVersion, False)
         self.cbSelectivePreload.p_value = opts.get(self.kOVSelectivePreload, False)
-        self.omReference.p_select = opts.get(self.kOVRefLoadSetting, 1)
+        try:
+            self.omReference.p_select = opts.get(self.kOVRefLoadSetting, 1)
+        except TypeError:
+            pass
+        #end ignore unknown ref setting
         
     def fileOptions(self):
         """:return: dict with keyword options reflecting the settings of the
