@@ -8,6 +8,7 @@ import mrv.maya.nt as nt
 import mrv.maya.nt.storage as mstorage
 from mrv.maya.util import MEnumeration
 from mrv.maya.nt.persistence import PyPickleData
+from mrv.maya.ref import FileReference
 from mrv.test.maya import get_maya_file
 from mrv.util import capitalize, uncapitalize
 
@@ -118,8 +119,25 @@ class TestGeneral(unittest.TestCase):
     
             # plugins required by a scene trigger the database to update as well
             assert not cmds.pluginInfo(mrp, q=1, loaded=1)
-            mrvmaya.Scene.open(get_maya_file('needsMayatomr.ma'), force=True)
+            needs_mr_scene = get_maya_file('needsMayatomr.ma')
+            mrvmaya.Scene.open(needs_mr_scene, force=True)
             assert hasattr(nt, 'Transmat')
+            
+            # try it during reference and import scenarios
+            mrvmaya.Scene.new(force=True)
+            cmds.unloadPlugin(mrp, force=0)
+            assert not hasattr(nt, 'Transmat')
+            
+            FileReference.create(needs_mr_scene)
+            assert hasattr(nt, 'Transmat'), "Should have triggered the callback"
+            
+            # try import
+            mrvmaya.Scene.new(force=True)
+            cmds.unloadPlugin(mrp, force=0)
+            assert not hasattr(nt, 'Transmat')
+            
+            cmds.file(needs_mr_scene, i=True)
+            assert hasattr(nt, 'Transmat'), "Should have triggered callback by import"
         # END skip this on osx 
         
         # dynamically added types (which will not trigger a plugin changed event)

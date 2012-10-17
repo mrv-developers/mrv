@@ -231,17 +231,20 @@ class PluginDB(dict):
             self.log.error("Expected data list to contain: [callback_id, plugin_name]")
             return
         #end handle input
-        cid, plugin_name = data
+        cid, plugin_info = data
         
-        if not plugin_name:
+        # some other callback might have handled that plugin already
+        if not plugin_info:
             return
         #end ignore plugin already handled
         
         try:
             try:
-                #assert not api.MFileIO.isOpeningFile() and not api.MFileIO.isReadingFile(), "Was still in read/open mode which would cause trouble"
-                self.plugin_loaded(plugin_name, _may_spawn_callbacks=False)
-                data[1] = None
+                # NOTE: the context that triggered us may still be active here, so we have to pass that 
+                # information in our call
+                self.plugin_loaded(plugin_info[0], _may_spawn_callbacks=False)
+                # make sure no other callback handles it
+                del(plugin_info[:])
             except Exception:
                 self.log.error("Unhandled exception occurred", exc_info=True)
             #end handle exception
@@ -287,27 +290,27 @@ class PluginDB(dict):
         dagmod = api.MDagModifier()
         transobj = None
         
-        if _may_spawn_callbacks and api.MFileIO.isOpeningFile():
-            # recheck after open
-            info = list()
-            self.log.info("Open File Callback")
-            info.append(api.MSceneMessage.addCallback(api.MSceneMessage.kAfterOpen, self._post_read_or_open_cb, info))
-            info.append(pluginName)
-            return
-        #end opening file
-        
-        # when reading files (import + ref), the nodes seem to stay (tested in maya 2012)
-        # therefore we delay the update until after the fact
-        if _may_spawn_callbacks and api.MFileIO.isReadingFile():
-            # recheck after import or reference
-            self.log.info("READING File Callback")
-            for message in (api.MSceneMessage.kAfterImport, api.MSceneMessage.kAfterReference):
+        # HANDLE FILE LOAD SPECIAL CASE
+        ###############################
+        if _may_spawn_callbacks and (api.MFileIO.isOpeningFile() or api.MFileIO.isReadingFile()):
+            messages = list()
+            if api.MFileIO.isOpeningFile():
+                messages.append(api.MSceneMessage.kAfterOpen)
+            elif api.MFileIO.isReadingFile():
+                # when reading files (import + ref), the nodes seem to stay (tested in maya 2012)
+                # therefore we delay the update until after the fact
+                # recheck after import or reference
+                messages.extend((api.MSceneMessage.kAfterImport, api.MSceneMessage.kAfterReference))
+            #end handle messages
+            
+            plugin_info = [pluginName]
+            for message in messages:
                 info = list()
                 info.append(api.MSceneMessage.addCallback(message, self._post_read_or_open_cb, info))
-                info.append(pluginName)
-            #end for each message
+                info.append(plugin_info)
+            #end for each message to create
             return
-        #end import or reference
+        #end if we are allowed to spawn callbacks (because we are not called by one)
         
         nt = globals()
         for tn in type_names:
