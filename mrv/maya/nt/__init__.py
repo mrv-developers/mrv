@@ -296,7 +296,7 @@ class PluginDB(dict):
             messages = list()
             if api.MFileIO.isOpeningFile():
                 messages.append(api.MSceneMessage.kAfterOpen)
-            if api.MFileIO.isReadingFile():
+            elif api.MFileIO.isReadingFile():
                 # when reading files (import + ref), the nodes seem to stay (tested in maya 2012)
                 # therefore we delay the update until after the fact
                 # recheck after import or reference
