@@ -827,3 +827,8 @@ class TestCases( unittest.TestCase ):
         self.failUnlessRaises(TypeError, ps.hasSamePerspective, ps)
         assert ps.hasSamePerspective(ps.dagPath())      # method on MFnCamera
         
+    def test_mdb_api_call(self):
+        """Test a specific issues I ran into"""
+        persp = Node('persp')
+        # this fails in recursion unless its fixed
+        assert isinstance(persp._api_attribute('tx'), api.MObject)

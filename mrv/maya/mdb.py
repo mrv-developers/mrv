@@ -692,7 +692,8 @@ class PythonMFnCodeGenerator(MFnCodeGeneratorBase):
             sio.write(curline)
             
             if rvalfunname:
-                sio.write("\tmfninstfunc = lambda *args, **kwargs: rvalfun(mfninstfunc(*args, **kwargs))\n")
+                sio.write("\tinternalmfninstfunc = mfninstfunc\n")
+                sio.write("\tmfninstfunc = lambda *args, **kwargs: rvalfunc(internalmfninstfunc(*args, **kwargs))\n")
             # END handle rvalfunc name
             sio.write("\tself.%s = mfninstfunc\n" % source_method_name)
             sio.write("\treturn mfninstfunc(*args, **kwargs)")
