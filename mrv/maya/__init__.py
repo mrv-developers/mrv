@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 """ Inialize the mrv.maya sub-system and startup maya as completely as possible or configured """
 import os, sys
+import re
+
 import mrv
 from mrv import init_modules
 from mrv.util import capitalize, DAGTree, PipeSeparatedFile
@@ -252,7 +254,7 @@ def init_system( ):
         bits = 64
 
     mayabasename = mayabasename.replace( "-x64", "" )   # could be mayaxxxx-x64
-    mayaversion = mayabasename[4:]              # could be without version, like "maya"
+    mayaversion = re.search("\d{4}", mayabasename).group(0)              # could be without version, like "maya"
     fmayaversion = float(mayaversion)
 
 

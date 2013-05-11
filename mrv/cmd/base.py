@@ -214,7 +214,7 @@ def update_maya_environment(maya_version):
     if sys.platform.startswith('linux'):
         envld = "LD_LIBRARY_PATH"
         ldpath = os.path.join(mayalocation, 'lib')
-        update_env_path(env, envld, ldpath)
+        #update_env_path(env, envld, ldpath)
     elif sys.platform == 'darwin':
         # adjust maya location to point to the actual directtoy
         dldpath = os.path.join(mayalocation, 'MacOS')
