@@ -11,7 +11,7 @@ from path import make_path
 
 import os
 import logging
-log = logging.getLogger("mrv.maya.ui.util")
+log = logging.getLogger("mrv.util")
 
 __docformat__ = "restructuredtext"
 __all__ = ("decodeString", "decodeStringOrList", "capitalize", "uncapitalize", 
@@ -417,7 +417,7 @@ class Event(object):
                     # thrown if self in instance methods went out of scope
                     if inst.reraise_on_error:
                         raise 
-                    log.error(str(e))
+                    log.error(str(e), exc_info=True)
                     failed_callbacks.append(function)
                 # END sendder as argument
             except Exception, e :
@@ -426,7 +426,7 @@ class Event(object):
                 
                 if inst.reraise_on_error:
                     raise 
-                log.error(str(e))
+                log.error(str(e), exc_info=True)
                 success = False
         # END for each registered event
 
