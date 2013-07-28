@@ -34,7 +34,11 @@ def with_scene(basename):
     
     def wrapper(func):
         def scene_loader(self, *args, **kwargs):
-            scene_path = get_maya_file(basename)
+            if os.path.isabs(basename):
+                scene_path = Path(basename)
+            else:
+                scene_path = get_maya_file(basename)
+            # end handle absolute input
             mrvmaya.Scene.open(scene_path, force=True)
             print "Opened Scene: '%s'" % basename
             
