@@ -246,34 +246,34 @@ def init_system( ):
     if mayalocation.endswith( "Contents" ):
         splitpos = -3
 
-    mayabasename = mayalocation.split( os.sep )[ splitpos ]
-
-    # currently unused
-    bits = 32
-    if mayabasename.endswith( '64' ):
-        bits = 64
-
-    mayabasename = mayabasename.replace( "-x64", "" )   # could be mayaxxxx-x64
-    mayaversion = re.search("\d{4}", mayabasename).group(0)              # could be without version, like "maya"
-    fmayaversion = float(mayaversion)
-
-
-    # PYTHON COMPATABILITY CHECK
-    ##############################
-    pymayaversion = sys.version_info[0:2]
-    if len( mayaversion ):
-        pyminor = pymayaversion[1]
-
-        if float(mayaversion) not in maya_to_py_version_map:
-            raise EnvironmentError( "Requires Maya 8.5 or higher for python support, found " + mayaversion + " (or maya version is not implemented)" )
-        
-        pyversion = pymayaversion[0] + (pymayaversion[1]/10.0)
-        if maya_to_py_version_map[float(mayaversion)] != pyversion:
-            raise EnvironmentError( "Maya " + mayaversion + " python interpreter requirements not met" )
-        # END check python version
-    # END check maya version
-
+    match = re.search("\d{4}", mayalocation)
     
+    if match is not None:
+        mayaversion = match.group(0)              # could be without version, like "maya"
+        fmayaversion = float(mayaversion)
+    
+    
+        # PYTHON COMPATABILITY CHECK
+        ##############################
+        pymayaversion = sys.version_info[0:2]
+        if len( mayaversion ):
+            pyminor = pymayaversion[1]
+    
+            if float(mayaversion) not in maya_to_py_version_map:
+                raise EnvironmentError( "Requires Maya 8.5 or higher for python support, found " + mayaversion + " (or maya version is not implemented)" )
+            
+            pyversion = pymayaversion[0] + (pymayaversion[1]/10.0)
+            if maya_to_py_version_map[float(mayaversion)] != pyversion:
+                raise EnvironmentError( "Maya " + mayaversion + " python interpreter requirements not met" )
+            # END check python version
+        # END check maya version
+    else:
+        # Assume the most common python version
+        pymayaversion = (2, 6)
+        fmayaversion = 2013.0
+        print "Couldn't extract maya version for mprogram '%s', assuming python version %s" % (mayalocation, '.'.join(str(i) for i in pymayaversion))
+    # end couldn't extract maya version, which can happen actually
+
     # CHECK AND FIX SYSPATH
     ########################
     # to be very sure: If for some reason we have our own root package
