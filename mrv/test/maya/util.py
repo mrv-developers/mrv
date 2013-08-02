@@ -24,9 +24,11 @@ def save_for_debugging(scene_name):
     return scene_path
 
 #{ Decorators
-def with_scene(basename):
+def with_scene(basename, debug=False):
     """Loads the specified scene . the basename is supposed to be in our fixtures
-    directory"""
+    directory
+    If debug is True, we will stay in the scene, instead of dropping out in case of an error
+    """
     import mrv.maya as mrvmaya      # late import
     if not isinstance(basename, basestring):
         raise ValueError("Need basename of a scene as string, not %r" % basename)
@@ -42,11 +44,16 @@ def with_scene(basename):
             mrvmaya.Scene.open(scene_path, force=True)
             print "Opened Scene: '%s'" % basename
             
-            try:
-                return func(self, *args, **kwargs)
-            finally:
+            if debug:
+                rval = func(self, *args, **kwargs)
                 mrvmaya.Scene.new(force=1)
-            # END assure new scene is loaded after test
+                return rval
+            else:
+                try:
+                    return func(self, *args, **kwargs)
+                finally:
+                    mrvmaya.Scene.new(force=1)
+            # END assure new scene is loaded after test - but allow debugging in case of exceptions ! 
         # END internal wrapper
 
         scene_loader.__name__ = func.__name__
