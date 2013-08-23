@@ -1,0 +1,12 @@
+    | associatedNamespace                     | None                |                                         
+    | className                               | None                |                                         
+    | containsNode                            | None                |                                         
+    | containsNodeExactly                     | None                |                                         
+    | fileName                                | None                |                                         
+    | isExportEditsFile                       | None                |                                         
+    | isLoaded                                | None                |                                         
+    | isLocked                                | None                |                                         
+    | nodes                                   | None                |                                         
+    | parentAssembly                          | None                |                                         
+    | parentFileName                          | None                |                                         
+    | parentReference                         | None                |                                         

@@ -13,8 +13,7 @@ cameraSet                   | MFnCameraSet
 character                   | MFnCharacter                   
 component                   | MFnComponent                   
 componentListData           | MFnComponentListData           
-compoundAttribute           | MFnCompoundAttribute
-containerBase               | MFnContainerNode
+compoundAttribute           | MFnCompoundAttribute           
 dagContainer                | MFnContainerNode               
 dagNode                     | MFnDagNode                     
 data                        | MFnData                        
@@ -28,6 +27,7 @@ enumAttribute               | MFnEnumAttribute
 expression                  | MFnExpression                  
 ffd                         | MFnLatticeDeformer             
 field                       | MFnField                       
+floatArrayData              | MFnFloatArrayData              
 fluidShape                  | MFnFluid                       
 genericAttribute            | MFnGenericAttribute            
 geometryData                | MFnGeometryData                
@@ -75,6 +75,7 @@ pluginData                  | MFnPluginData
 pointArrayData              | MFnPointArrayData              
 pointLight                  | MFnPointLight                  
 radialField                 | MFnRadialField                 
+reference                   | MFnReference                   
 renderLayer                 | MFnRenderLayer                 
 renderPass                  | MFnRenderPass                  
 singleIndexedComponent      | MFnSingleIndexedComponent      
