@@ -40,6 +40,7 @@ _root_
 		singleIndexedComponent
 	node
 		dependNode
+			symmetryConstraint
 			blend
 				blendWeighted
 				blendTwoAttr
@@ -191,7 +192,6 @@ _root_
 								oldNormalConstraint
 								scaleConstraint
 								tangentConstraint
-								symmetryConstraint
 								oldTangentConstraint
 								pointOnPolyConstraint
 								pointConstraint

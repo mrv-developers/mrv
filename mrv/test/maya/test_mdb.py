@@ -17,7 +17,7 @@ import sys
 from mrv.maya.mdb import *
 
 class TestMDB( unittest.TestCase ):
-    def __test_base(self):
+    def test_base(self):
         assert len(apiModules())
         
         # simple method testing
@@ -97,7 +97,7 @@ class TestMDB( unittest.TestCase ):
             # END for each isMObject state
         # END for each direct call state
         
-    def __test_header_parser(self):
+    def test_header_parser(self):
         
         # test enumeration parsing
         # has multiple enums, and multiple variants:
@@ -129,7 +129,7 @@ class TestMDB( unittest.TestCase ):
         # END for each enum descriptor
         
         
-    def __test_init_new_maya_release_errchecking( self ):
+    def test_init_new_maya_release_errchecking( self ):
         # for now, only test the failures
         
         # fails if at least one user setup variable is set - just one sample for now
@@ -147,7 +147,7 @@ class TestMDB( unittest.TestCase ):
         # fail in current version ( as it exists )
         self.failUnlessRaises(EnvironmentError, mrvmaya.initializeNewMayaRelease)
 
-    def test_init_new_maya_release(self):
+    def _DISABLED_test_init_new_maya_release(self):
         # NOTE: this test should only be run manually if you want to actually upgrade
         # to a new maya release.
         
