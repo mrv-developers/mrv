@@ -1,4 +1,5 @@
     | className                               | None                |                                         
+    | clear                                   | None                |                                         
     | getMembers                              | None                |                                         
     | getParentContainer                      | None                |                                         
     | getPublishedNames                       | None                |                                         

@@ -19,6 +19,8 @@
     | closestIntersection                     | None                |                                         
     | collapseEdges                           | None                |                                         
     | collapseFaces                           | None                |                                         
+    | componentTypeFromName                   | None                |                                         
+    | componentTypeName                       | None                |                                         
     | copy                                    | None                |                                         
     | copyInPlace                             | None                |                                         
     | copyUVSetWithName                       | None                |                                         
@@ -101,6 +103,7 @@
     | getStringBlindData                      | None                |                                         
     | getTangentId                            | None                |                                         
     | getTangents                             | None                |                                         
+    | getTriangleOffsets                      | None                |                                         
     | getTriangles                            | None                |                                         
     | getUV                                   | None                |                                         
     | getUVAtPoint                            | None                |                                         

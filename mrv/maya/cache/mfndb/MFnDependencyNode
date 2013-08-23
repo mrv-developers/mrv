@@ -1,4 +1,5 @@
     | addAttribute                            | None                |                                         
+    | addExternalContentForFileAttr           | None                |                                         
     | allocateFlag                            | None                |                                         
     | attribute                               | Attribute           |                                         
     | attributeClass                          | None                |                                         
@@ -24,6 +25,7 @@ x   | create                                  | None                |
     | getAliasAttr                            | None                |                                         
     | getAliasList                            | None                |                                         
     | getConnections                          | None                |                                         
+    | getExternalContent                      | None                |                                         
     | hasAttribute                            | None                |                                         
     | hasUniqueName                           | None                |                                         
     | icon                                    | None                |                                         
@@ -33,6 +35,7 @@ x   | create                                  | None                |
     | isLocked                                | None                |                                         
     | isNewAttribute                          | None                |                                         
     | isShared                                | None                |                                         
+    | isTrackingEdits                         | None                |                                         
     | name                                    | None                |                                         
     | parentNamespace                         | Namespace           | namespace                               
     | pluginName                              | None                |                                         
@@ -41,6 +44,7 @@ x   | create                                  | None                |
     | reorderedAttribute                      | Attribute           |                                         
     | setAlias                                | None                |                                         
     | setDoNotWrite                           | None                |                                         
+    | setExternalContent                      | None                |                                         
     | setFlag                                 | None                |                                         
     | setIcon                                 | None                |                                         
     | setLocked                               | None                |                                         
