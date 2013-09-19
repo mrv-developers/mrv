@@ -239,7 +239,7 @@ class Scene( util.Singleton, util.EventSender ):
     #{ Query Methods
     @classmethod
     def name( cls ):
-        return make_path( cmds.file( q=1, exn=True ) )
+        return make_path( cmds.file( q=True, exn=True ) )
 
     @classmethod
     def isModified( cls ):
